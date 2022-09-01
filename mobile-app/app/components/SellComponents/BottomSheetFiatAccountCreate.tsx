@@ -17,12 +17,13 @@ import { Fiat } from '@shared-api/dfx/models/Fiat'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
 import { getFiats, postSellRoute } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
+import { BankAccount } from '@shared-api/dfx/models/BankAccount'
 
 interface BottomSheetFiatAccountCreateProps {
   headerLabel: string
   onCloseButtonPress: () => void
-  onElementCreatePress: (fiatAccount: SellRoute) => void
-  fiatAccounts: SellRoute[]
+  onElementCreatePress: (fiatAccount: SellRoute | BankAccount) => void
+  fiatAccounts: SellRoute[] | BankAccount[]
 }
 
 export const BottomSheetFiatAccountCreate = ({

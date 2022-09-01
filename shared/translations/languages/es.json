@@ -111,8 +111,7 @@
     "WALLET ADDRESS": "DIRECCIÓN DE LA BILLETERA",
     "Share": "Compartir"
   },
-  "screens/MarketplaceScreen": {
-  },
+  "screens/MarketplaceScreen": {},
   "components/BottomSheetAddressDetail": {
     "CREATE WALLET ADDRESS": "CREAR UNA DIRECCIÓN PARA TU BILLETERA",
     "{{length}} ADDRESS(ES)": "{{length}} DIRECCION(ES)",
@@ -148,7 +147,7 @@
     "Search results for “{{input}}”": "Buscar resultados para “{{input}}”",
     "FAVOURITE ADDRESS(ES)": "Favoriten",
     "Add your preferred / commonly-used address.": "Añade tu dirección preferida / más usada."
-},
+  },
   "components/CreateOrEditAddressLabelForm": {
     "Edit address label": "Edita el nombre de la dirección",
     "ADDRESS LABEL": "NOMBRE DE LA DIRECCION",
@@ -1686,5 +1685,8 @@
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "Por favor date cuenta de que todas las ventas de dTokens como dUSD, dCOIN, dTSLA, dSPY, etc. están sujetas a la tasa de estabilización del DEX. Los tokens como DFI, dBTC, dETH y las monedas estables como dUSDT/dUSDC no se ven afectadasas . Más información"
+  },
+  "screens/BuyScreen": {
+    "Buy Asset": ""
   }
 }

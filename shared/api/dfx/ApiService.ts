@@ -29,11 +29,13 @@ import { Settings } from './models/Settings'
 import { HistoryType } from './models/HistoryType'
 import { CryptoRoute } from './models/CryptoRoute'
 import * as Updates from 'expo-updates'
+import { BankAccount, BankAccountDto, fromBankAccountDto, toBankAccountDto } from './models/BankAccount'
 
 const BaseUrl = getEnvironment(Updates.releaseChannel).dfxApiUrl
 const AuthUrl = 'auth'
 const UserUrl = 'user'
 const KycUrl = 'kyc'
+const BankAccountUrl = 'bankAccount'
 const BuyUrl = 'buy'
 const RouteUrl = 'route'
 const SellUrl = 'sell'
@@ -118,6 +120,19 @@ export const putCfpVotes = async (votes: CfpVotes): Promise<CfpVotes> => {
   return await fetchFrom<CfpVotes>(`${UserUrl}/cfpVotes`, 'PUT', votes)
 }
 
+// --- ACCOUNTS --- //
+export const getBankAccounts = async (): Promise<BankAccount[]> => {
+  return await fetchFrom<BankAccountDto[]>(BankAccountUrl).then((dtoList) => dtoList.map((dto) => fromBankAccountDto(dto)))
+}
+
+export const postBankAccount = async (route: BankAccount): Promise<BankAccount> => {
+  return await fetchFrom<BankAccountDto>(BankAccountUrl, 'POST', toBankAccountDto(route)).then(fromBankAccountDto)
+}
+
+export const putBankAccount = async (route: BuyRoute): Promise<BuyRoute> => {
+  return await fetchFrom<BuyRouteDto>(`${BuyUrl}/${route.id}`, 'PUT', toBuyRouteDto(route)).then(fromBuyRouteDto)
+}
+
 // --- PAYMENT ROUTES --- //
 export const getRoutes = async (): Promise<Routes> => {
   return await fetchFrom<RoutesDto>(RouteUrl).then(fromRoutesDto)
@@ -137,11 +152,6 @@ export const putBuyRoute = async (route: BuyRoute): Promise<BuyRoute> => {
 
 export const getSellRoutes = async (): Promise<SellRoute[]> => {
   return await fetchFrom<SellRouteDto[]>(SellUrl).then((dtoList) => dtoList.map((dto) => fromSellRouteDto(dto)))
-}
-
-// TODO: check if @deprecated
-export const postSellRouteOLD = async (route: SellRoute): Promise<SellRoute> => {
-  return await fetchFrom<SellRouteDto>(SellUrl, 'POST', toSellRouteDto(route)).then(fromSellRouteDto)
 }
 
 export const postSellRoute = async (route: SellData): Promise<SellRoute> => {

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { memo, useState } from 'react'
 import * as React from 'react'
 import { tailwind } from '@tailwind'
@@ -11,19 +12,22 @@ import { translate } from '@translations'
 import { BottomSheetFiatAccountCreate } from './BottomSheetFiatAccountCreate'
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { random } from 'lodash'
+import { BankAccount } from '@shared-api/dfx/models/BankAccount'
 
 interface BottomSheetFiatAccountListProps {
   headerLabel: string
   onCloseButtonPress: () => void
-  onFiatAccountPress?: (sellRoute: SellRoute) => void
+  onFiatAccountPress?: (sellRoute: SellRoute | BankAccount) => void
   fiatAccounts: SellRoute[]
+  bankAccounts: BankAccount[]
 }
 
 export const BottomSheetFiatAccountList = ({
   headerLabel,
   onCloseButtonPress,
   onFiatAccountPress,
-  fiatAccounts
+  fiatAccounts,
+  bankAccounts
 }: BottomSheetFiatAccountListProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const { isLight } = useThemeContext()
   const flatListComponents = {
@@ -58,11 +62,11 @@ export const BottomSheetFiatAccountList = ({
     })
   }
 
-  const filteredList = filterEnabled(fiatAccounts)
+  const filteredList = bankAccounts !== undefined ? bankAccounts : filterEnabled(fiatAccounts)
   const [accountList, setAccountList] = useState(filteredList)
   const [trigger, setTrigger] = useState('')
 
-  const setFiatAccountCreateBottomSheet = React.useCallback((accounts: SellRoute[]) => { // TODO: remove accounts?
+  const setFiatAccountCreateBottomSheet = React.useCallback((accounts: SellRoute[] | BankAccount[]) => { // TODO: remove accounts?
     setBottomSheetScreen([
       {
         stackScreenName: 'FiatAccountCreate',
@@ -72,7 +76,7 @@ export const BottomSheetFiatAccountList = ({
           onCloseButtonPress: () => dismissModal(),
           onElementCreatePress: async (item): Promise<void> => {
             if (item.iban !== undefined) {
-              filteredList.push(item)
+              filteredList.push(item as any)
               setAccountList(filteredList)
               setTrigger(random().toString())
             }
@@ -88,15 +92,13 @@ export const BottomSheetFiatAccountList = ({
   return (
     <>
       <FlatList
-        data={accountList}
+        data={accountList as any}
         extraData={trigger}
-        renderItem={({ item }: { item: SellRoute }): JSX.Element => {
+        renderItem={({ item }: { item: SellRoute | BankAccount }): JSX.Element => {
           return (
             <ThemedTouchableOpacity
               onPress={() => {
-                if (onFiatAccountPress !== undefined) {
-                  onFiatAccountPress(item)
-                }
+                onFiatAccountPress?.(item)
               }}
               style={tailwind('px-4 py-3 flex flex-row items-center justify-between')}
               testID={`select_${item.iban}`}
@@ -106,7 +108,7 @@ export const BottomSheetFiatAccountList = ({
                   <ThemedText
                     testID={`token_symbol_${item.iban}`}
                   >
-                    {`${item.fiat.name} / ${item.iban}`}
+                    {`${item?.fiat?.name ? item.fiat.name + ' / ' : ''}${item.iban}`}
                   </ThemedText>
                 </View>
               </View>
@@ -144,7 +146,7 @@ export const BottomSheetFiatAccountList = ({
         <ActionButton
           name='add'
           onPress={() => {
-            setFiatAccountCreateBottomSheet(fiatAccounts)
+            setFiatAccountCreateBottomSheet(accountList)
             expandModal()
           }}
           pair={' '}
