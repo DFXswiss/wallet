@@ -29,7 +29,7 @@ import { putKycData, putUser } from '@shared-api/dfx/ApiService'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { KycData } from '@shared-api/dfx/models/KycData'
-import { AccountType, User, UserDetail } from '@shared-api/dfx/models/User'
+import { AccountType, User, UserDetail, UserDetailRequestDto } from '@shared-api/dfx/models/User'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
 import { ButtonGroup } from '../../Dex/components/ButtonGroup'
 import { WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
@@ -270,30 +270,14 @@ export function UserDetailsScreen ({
       organizationZip: getValues(Fields.organizationZip),
       organizationCountry: orgCountry
     }
-    const userData: UserDetail | any = {
-      // refVolume: 0,
-      // refCredit: 0,
-      // paidRefCredit: 0,
-      // refCount: 0,
-      // refCountActive: 0,
-      // accountType: "/Users/david/Documents/DEV/DFX/wallet/shared/api/dfx/models/User".PERSONAL,
-      // address: '',
+    const userData: UserDetailRequestDto = {
       mail: getValues(Fields.mail),
       mobileNumber: getValues(Fields.phone)
-      // language: {} as Language,
-      // usedRef: ''
-      // status: "/Users/david/Documents/DEV/DFX/wallet/shared/api/dfx/models/User".NA,
-      // kycStatus: "/Users/david/Documents/DEV/DFX/wallet/shared/api/dfx/models/User".NA,
-      // kycState: "/Users/david/Documents/DEV/DFX/wallet/shared/api/dfx/models/User".NA,
-      // kycHash: '',
-      // depositLimit: 0,
-      // kycDataComplete: false,
-      // cfpVotes: undefined
     }
 
     setIsLoading(true)
     setloadingText('SENDING')
-    putKycData((kycData))
+    putKycData(kycData)
       .then((x) => {
         putUser(userData)
           .then(() => {
