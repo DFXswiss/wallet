@@ -1,14 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
-import { InputHelperText } from '@components/InputHelperText'
+/* eslint-disable react-native/no-raw-text */
 import { WalletTextInput } from '@components/WalletTextInput'
 import { StackScreenProps } from '@react-navigation/stack'
-import { DFIUtxoSelector, tokensSelector, WalletToken } from '@store/wallet'
+import { tokensSelector, WalletToken } from '@store/wallet'
 import BigNumber from 'bignumber.js'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Control, Controller, useForm } from 'react-hook-form'
 import { Platform, View } from 'react-native'
 import { useSelector } from 'react-redux'
-import { AmountButtonTypes, SetAmountButton } from '@components/SetAmountButton'
 import {
   ThemedIcon,
   ThemedScrollView,
@@ -16,40 +14,33 @@ import {
   ThemedTouchableOpacity,
   ThemedView
 } from '@components/themed'
-import { onTransactionBroadcast } from '@api/transaction/transaction_commands'
 import { RootState } from '@store'
 import { hasTxQueued as hasBroadcastQueued } from '@store/ocean'
 import { hasTxQueued } from '@store/transaction_queue'
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import { PortfolioParamList } from '../PortfolioNavigator'
-import { InfoRow, InfoType } from '@components/InfoRow'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
 import { SymbolIcon } from '@components/SymbolIcon'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { BottomSheetToken, BottomSheetTokenList, TokenType } from '@components/BottomSheetTokenList'
 import { SubmitButtonGroup } from '@components/SubmitButtonGroup'
-import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { LocalAddress } from '@store/userPreferences'
-import { useAppDispatch } from '@hooks/useAppDispatch'
 import { debounce } from 'lodash'
 import { useWalletAddress } from '@hooks/useWalletAddress'
 import { BottomSheetFiatAccountList } from '@components/SellComponents/BottomSheetFiatAccountList'
-import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
-import { SellRoute } from '@shared-api/dfx/models/SellRoute'
 import { DfxKycInfo } from '@components/DfxKycInfo'
 import { ActionButton } from '../../Dex/components/PoolPairCards/ActionSection'
-import { BottomSheetFiatAccountCreate } from '@components/SellComponents/BottomSheetFiatAccountCreate'
-import { send } from './SendConfirmationScreen'
+import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellComponents/BottomSheetFiatAccountCreate'
 import { useConversion } from '@hooks/wallet/Conversion'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
-import { getBankAccounts, getUserDetail } from '@shared-api/dfx/ApiService'
-import { DfxConversionInfo } from '@components/DfxConversionInfo'
+import { buyWithPaymentInfos, getAssets, getBankAccounts, getUserDetail } from '@shared-api/dfx/ApiService'
 import { useWalletContext } from '@shared-contexts/WalletContext'
-import { DfxDexFeeInfo } from '@components/DfxDexFeeInfo'
-import { WalletAccordion } from '@components/WalletAccordion'
 import { BankAccount } from '@shared-api/dfx/models/BankAccount'
+import { Fiat } from '@shared-api/dfx/models/Fiat'
+import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
+import { GetBuyPaymentInfoDtoGetBuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyScreen'>
 
@@ -57,12 +48,13 @@ export function BuyScreen ({
   route,
   navigation
 }: Props): JSX.Element {
-  const network = useNetworkContext()
   const logger = useLogger()
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const [token, setToken] = useState(route.params?.token)
-  const [selectedFiatAccount, setSelectedFiatAccount] = useState<BankAccount>()
-  const [fiatAccounts, setFiatAccounts] = useState<BankAccount[]>([])
+  const [selectedBankAccount, setSelectedbankAccount] = useState<BankAccount>()
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const [selectedFiat, setSelectedFiat] = useState<Fiat>({} as Fiat)
   const {
     control,
     setValue,
@@ -77,9 +69,6 @@ export function BuyScreen ({
   const walletAddress = useSelector((state: RootState) => state.userPreferences.addresses)
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [matchedAddress, setMatchedAddress] = useState<LocalAddress>()
-  const dispatch = useAppDispatch()
-  const [fee, setFee] = useState<number>(2.9)
-  const [dexFee, setDexFee] = useState<string>('0')
   const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
   const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
   const {
@@ -97,7 +86,6 @@ export function BuyScreen ({
 
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoadingKyc, setIsLoadingKyc] = useState(true)
-  const [isOnPage, setIsOnPage] = useState<boolean>(true)
 
   // Bottom sheet
   const [isModalDisplayed, setIsModalDisplayed] = useState(false)
@@ -178,17 +166,12 @@ export function BuyScreen ({
         if (bankAccounts === undefined || bankAccounts.length < 1) {
           // checkUserProfile()
         }
-        setFiatAccounts(bankAccounts)
+        setBankAccounts(bankAccounts)
         if (bankAccounts.length === 1) {
           setAccount(bankAccounts[0])
         }
       })
       .catch(logger.error)
-
-    setIsOnPage(true)
-    return () => {
-      setIsOnPage(false)
-    }
   }, [])
 
   useEffect(() => {
@@ -209,55 +192,11 @@ export function BuyScreen ({
   }, [address, addressBook])
 
   const setAccount = (item: BankAccount): void => {
-    setSelectedFiatAccount(item)
-    // setFee(item.fee)
+    setSelectedbankAccount(item)
+    if (item.fiat != null) {
+      setSelectedFiat(item.fiat)
+    }
   }
-
-  const setFiatAccountListBottomSheet = useCallback((accounts: BankAccount[]) => {
-    setBottomSheetScreen([
-      {
-        stackScreenName: 'FiatAccountList',
-        component: BottomSheetFiatAccountList({
-          fiatAccounts: [],
-          bankAccounts: accounts,
-          headerLabel: translate('screens/SellScreen', 'Select account to cash out'),
-          onCloseButtonPress: () => dismissModal(),
-          onFiatAccountPress: async (item): Promise<void> => {
-            if (item.iban !== undefined && 'sepaInstant' in item) {
-              const it = item
-              it.fiat = { id: 0, name: '', enable: true }
-              setAccount(item)
-            }
-            dismissModal()
-          }
-        }),
-        option: {
-          header: () => null
-        }
-      }])
-  }, [fiatAccounts])
-
-  const setFiatAccountCreateBottomSheet = useCallback((accounts: BankAccount[]) => { // TODO: remove accounts?
-    setBottomSheetScreen([
-      {
-        stackScreenName: 'FiatAccountCreate',
-        component: BottomSheetFiatAccountCreate({
-          fiatAccounts: accounts,
-          headerLabel: translate('screens/SellScreen', 'Add account'),
-          onCloseButtonPress: () => dismissModal(),
-          onElementCreatePress: async (item): Promise<void> => {
-            if (item.iban !== undefined && 'sepaInstant' in item) {
-              fiatAccounts.push(item)
-              setAccount(item)
-            }
-            dismissModal()
-          }
-        }),
-        option: {
-          header: () => null
-        }
-      }])
-  }, [fiatAccounts])
 
   const setTokenListBottomSheet = useCallback(() => {
     setBottomSheetScreen([
@@ -284,22 +223,125 @@ export function BuyScreen ({
       }])
   }, [])
 
+  const setFiatAccountListBottomSheet = useCallback((accounts: BankAccount[]) => {
+    setBottomSheetScreen([
+      {
+        stackScreenName: 'FiatAccountList',
+        component: BottomSheetFiatAccountList({
+          fiatAccounts: [],
+          bankAccounts: accounts,
+          headerLabel: translate('screens/SellScreen', 'Select account to cash out'),
+          onCloseButtonPress: () => dismissModal(),
+          onFiatAccountPress: async (item): Promise<void> => {
+            if (item.iban !== undefined && 'sepaInstant' in item) {
+              setAccount(item)
+            }
+            dismissModal()
+          }
+        }),
+        option: {
+          header: () => null
+        }
+      }])
+  }, [bankAccounts])
+
+  const setFiatAccountCreateBottomSheet = useCallback((accounts: BankAccount[]) => { // TODO: remove accounts?
+    setBottomSheetScreen([
+      {
+        stackScreenName: 'FiatAccountCreate',
+        component: BottomSheetFiatAccountCreate({
+          // fiatAccounts: accounts,
+          bankAccounts: accounts,
+          headerLabel: translate('screens/SellScreen', 'Add account'),
+          onCloseButtonPress: () => dismissModal(),
+          onElementCreatePress: async (item, newAccountsList): Promise<void> => {
+            if (item.iban !== undefined && 'sepaInstant' in item) {
+              // add elem or update/replace AccountsList
+              if (newAccountsList != null) {
+                setBankAccounts(newAccountsList)
+              } else {
+                bankAccounts.push(item)
+              }
+              // set account (+ fiat)
+              setAccount(item)
+            }
+            dismissModal()
+          }
+        }),
+        option: {
+          header: () => null
+        }
+      }])
+  }, [bankAccounts])
+
+  // fiat picker modal => open / return
+  const setFiatPickerBottomSheet = useCallback((fiats: Fiat[]) => {
+    setBottomSheetScreen([
+      {
+        stackScreenName: 'FiatAccountList',
+        component: BottomSheetFiatPicker({
+          onFiatPress: async (selectedFiat): Promise<void> => {
+            if (selectedFiat !== undefined) {
+              setSelectedFiat(selectedFiat)
+              // TODO: (thabrad) maybe automatically update preferredCurrency for Account
+            }
+            dismissModal()
+          },
+          onCloseModal: () => dismissModal(),
+          fiats: fiats
+        }),
+        option: {
+          header: () => null
+        }
+      }])
+  }, [])
+
+  const canProcess = (): boolean => {
+    return !(hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount === undefined || !selectedFiat.enable)
+  }
+
   async function onSubmit (): Promise<void> {
-    if (hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedFiatAccount === undefined) {
+    if (!canProcess()) {
+      return
+    }
+
+    if (token === undefined) {
       return
     }
 
     if (formState.isValid /* && (selectedFiatAccount?.deposit?.address?.length > 0) */) {
       setIsSubmitting(true)
-      // await send({
-      //   address: selectedFiatAccount.deposit.address,
-      //   token,
-      //   amount: new BigNumber(getValues('amount')),
-      //   networkName: network.networkName
-      // }, dispatch, () => {
-      //   onTransactionBroadcast(isOnPage, navigation.dispatch, 0, 'SellConfirmationScreen')
-      // }, logger)
-      setIsSubmitting(false)
+
+      // const asset: Asset = {
+      //   id: 0,
+      //   chainId: 0,
+      //   type: AssetType.Coin,
+      //   name: token.displaySymbol,
+      //   buyable: true,
+      //   sellable: true
+      // }
+
+      const assets = await getAssets()
+
+      const matchedAsset = assets.find((asset) => asset.name === token.displaySymbol)
+      // console.log('matchedAsset: ', matchedAsset)
+
+      const paymentInfos: GetBuyPaymentInfoDtoGetBuyPaymentInfoDto = {
+        iban: String(getValues('iban')),
+        asset: matchedAsset,
+        amount: new BigNumber(getValues('amount')).toNumber(),
+        currency: selectedFiat
+      }
+
+      buyWithPaymentInfos(paymentInfos)
+        .then((res) => {
+          // console.log('res: ', res)
+          navigation.navigate('BuyConfirmationScreen')
+        })
+        // .catch((err) => {
+        //   console.log('err: ', err)
+        // })
+        .finally(() => setIsSubmitting(false))
     }
   }
 
@@ -324,11 +366,11 @@ export function BuyScreen ({
           )
           : (
             <>
-              {!(fiatAccounts.length > 0)
+              {!(bankAccounts.length > 0)
               ? <ActionButton
                   name='add'
                   onPress={() => {
-                    setFiatAccountCreateBottomSheet(fiatAccounts)
+                    setFiatAccountCreateBottomSheet(bankAccounts)
                     expandModal()
                   }}
                   pair={' '}
@@ -342,14 +384,19 @@ export function BuyScreen ({
                   <View style={tailwind('px-4')}>
                     <FiatAccountInput
                       onPress={() => {
-                        setFiatAccountListBottomSheet(fiatAccounts)
+                        setFiatAccountListBottomSheet(bankAccounts)
                         expandModal()
                       }}
-                      fiatAccount={selectedFiatAccount}
-                      isDisabled={!(fiatAccounts.length > 0)}
+                      fiatAccount={selectedBankAccount}
                     />
 
-                    <DfxKycInfo />
+                    <FiatPickerRow
+                      fiat={selectedFiat}
+                      openFiatBottomSheet={(fiats) => {
+                        setFiatPickerBottomSheet(fiats)
+                        expandModal()
+                      }}
+                    />
 
                     <AmountRow
                       control={control}
@@ -364,55 +411,17 @@ export function BuyScreen ({
                       token={token}
                       conversionAmount={conversionAmount}
                     />
+                    <DfxKycInfo calcKyc={{ amount: getValues('amount'), currency: selectedFiat }} />
 
-                    <DfxConversionInfo token={token} />
                   </View>
-
-                  <ThemedView style={tailwind('px-4')}>
-                    <WalletAccordion
-                      title={translate('screens/SendScreen', 'TRANSACTION DETAILS')}
-                      content={[{
-                        title: translate('components/BottomSheetInfo', 'Fees'),
-                        childComponent:
-                          () => {
-                            return (
-                              <>
-                                <InfoRow
-                                  type={InfoType.DfxFee}
-                                  value={fee.toString()} // TODO: (thabrad) check if still valid after merge !!
-                                  testID='fiat_fee'
-                                  suffix='%'
-                                  containerStyle={{
-                                    style: tailwind('py-2 flex-row items-start w-full'),
-                                    dark: tailwind('')
-                                  }}
-                                />
-                                {dexFee !== '0' && (
-                                  <InfoRow
-                                    type={InfoType.DexFee}
-                                    value={dexFee}
-                                    testID='fiat_fee'
-                                    suffix='%'
-                                    containerStyle={{
-                                      style: tailwind('pt-2 flex-row items-start w-full'),
-                                      dark: tailwind('')
-                                    }}
-                                  />
-                                )}
-                              </>
-                            )
-                          }
-                      }]}
-                    />
-                  </ThemedView>
                 </>)}
             </>
           )}
 
         <View style={tailwind('mt-6')}>
           <SubmitButtonGroup
-            isDisabled={!formState.isValid /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedFiatAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
-            label={translate('screens/SellScreen', 'Transfer to your bank account')}
+            isDisabled={!formState.isValid || !canProcess() /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
+            label={isSubmitting ? translate('screens/BuyScreen', 'Submitting Data...') : translate('screens/BuyScreen', 'Buy Asset')}
             processingLabel={translate('screens/SellScreen', 'Transfer to your bank account')}
             onSubmit={onSubmit}
             title='sell_sell'
@@ -514,7 +523,7 @@ function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabl
   )
 }
 
-function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => void, isDisabled: boolean }): JSX.Element {
+function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => void}): JSX.Element {
   return (
     <>
       <ThemedText
@@ -525,57 +534,52 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
       >
         {translate('screens/SellScreen', 'Bank account')}
       </ThemedText>
-      {/* TODO  -> came from SendScreen(fork) -> why? */}
-      <ThemedTouchableOpacity
-        onPress={props.onPress}
-        dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
-        light={tailwind({
-          'bg-gray-200 border-0': props.isDisabled,
-          'border-gray-300 bg-white': !props.isDisabled
-        })}
-        style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2 mb-4')}
-        testID='select_fiatAccount_input'
-        disabled={props.isDisabled}
-      >
-        {props.fiatAccount === undefined || props.isDisabled
-          ? (
-            <ThemedText
-              dark={tailwind({
-                'text-dfxgray-500': !props.isDisabled,
-                'text-dfxblue-900': props.isDisabled
-              })}
-              style={tailwind('text-sm')}
-              testID='select_fiatAccount_placeholder'
-            >
-              {translate('screens/SellScreen', 'please select')}
-            </ThemedText>
-          )
-          : (
-            <View style={tailwind('flex flex-row')}>
-              {/* <SymbolIcon symbol={props.fiat.displaySymbol} styleProps={tailwind('w-6 h-6')} /> */}
+
+      <ThemedView dark={tailwind('mb-4')}>
+        <ThemedTouchableOpacity
+          onPress={props.onPress}
+          dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
+          light={tailwind('border-gray-300 bg-white')}
+          style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2')}
+          testID='select_fiatAccount_input'
+        >
+          {props.fiatAccount === undefined
+            ? (
               <ThemedText
-                style={tailwind('ml-2 font-medium')}
-                testID='selected_fiatAccount'
+                dark={tailwind('text-dfxgray-500')}
+                style={tailwind('text-sm')}
+                testID='select_fiatAccount_placeholder'
               >
-                {`${props.fiatAccount.fiat.name} / ${props.fiatAccount.iban}`}
+                {translate('screens/SellScreen', 'please select')}
               </ThemedText>
-            </View>
-          )}
-        <ThemedIcon
-          iconType='MaterialIcons'
-          name='unfold-more'
-          size={24}
-          dark={tailwind({
-            'text-dfxred-500': !props.isDisabled,
-            'text-transparent': props.isDisabled
-          })}
-          light={tailwind({
-            'text-primary-500': !props.isDisabled,
-            'text-gray-500': props.isDisabled
-          })}
-          style={tailwind('-mr-1.5 flex-shrink-0')}
-        />
-      </ThemedTouchableOpacity>
+            )
+            : (
+              <View style={tailwind('flex flex-row')}>
+                <ThemedText
+                  style={tailwind('ml-2 font-medium')}
+                  testID='selected_fiatAccount'
+                >
+                  {`${props.fiatAccount.label ?? props.fiatAccount.iban}`}
+                </ThemedText>
+              </View>
+            )}
+          <ThemedIcon
+            iconType='MaterialIcons'
+            name='unfold-more'
+            size={24}
+            dark={tailwind('text-dfxred-500')}
+            light={tailwind('text-primary-500')}
+            style={tailwind('-mr-1.5 flex-shrink-0')}
+          />
+        </ThemedTouchableOpacity>
+        {props.fiatAccount?.sepaInstant === true && (
+          <ThemedView dark={tailwind('bg-dfxred-500 rounded-b')}>
+            <ThemedText style={tailwind('text-sm')}>
+              {'\tSEPA instant available'}
+            </ThemedText>
+          </ThemedView>
+        )}
+      </ThemedView>
     </>
   )
 }
@@ -589,27 +593,18 @@ interface AmountForm {
 }
 
 function AmountRow ({
-  token,
   control,
   onAmountChange,
-  onClearButtonPress,
-  conversionAmount
+  onClearButtonPress
 }: AmountForm): JSX.Element {
-  const reservedDFI = 0.1
-  // TODO (thabrad) use only max UTXO amount
-  const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet))
-
-  // TODO (thabrad) maybe add in-place conversion element for token type conversion
-  let maxAmount = token.symbol === 'DFI' ? new BigNumber(DFIUtxo.amount).minus(reservedDFI)/* .minus(conversionAmount) */.toFixed(8) : token.amount
-  maxAmount = BigNumber.max(maxAmount, 0).toFixed(8)
-
-  // cap amount with maxAmount before setting the setValue('amount', amount) field
+  // check format and round input
   const onAmountChangeCAPPED = (amount: string): void => {
-    const base = new BigNumber(amount)
-    const max = new BigNumber(maxAmount)
-    base.isGreaterThan(max)
+    const amountBN = new BigNumber(amount)
+    const roundedAmount = amountBN.decimalPlaces(2).toString()
 
-    return onAmountChange(new BigNumber(amount).isGreaterThan(new BigNumber(maxAmount)) ? maxAmount : amount)
+    // !number => clear amount
+    // decimal places > 2 => rounding
+    return onAmountChange(roundedAmount.toString() === 'NaN' ? '' : amountBN.decimalPlaces() > 2 ? roundedAmount : amount)
   }
 
   const defaultValue = ''
@@ -628,58 +623,33 @@ function AmountRow ({
           <ThemedView
             dark={tailwind('bg-transparent')}
             light={tailwind('bg-transparent')}
-            style={tailwind('flex-row w-full mt-8')}
+            style={tailwind('flex-row w-full my-4')}
           >
             <WalletTextInput
               autoCapitalize='none'
               onChange={onChange}
               onChangeText={onAmountChangeCAPPED}
               placeholder={translate('screens/SendScreen', 'Enter an amount')}
-              style={tailwind('flex-grow w-2/5')}
+              style={tailwind('flex-grow w-2/5 h-8')}
               testID='amount_input'
               value={value}
               displayClearButton={value !== defaultValue}
               onClearButtonPress={onClearButtonPress}
-              title={translate('screens/SellScreen', 'Enter your desired payout amount')}
+              title={translate('screens/BuyScreen', 'Purchase Amount')}
               titleTestID='title_sell'
               inputType='numeric'
-            >
-              <ThemedView
-                dark={tailwind('bg-dfxblue-800')}
-                light={tailwind('bg-white')}
-                style={tailwind('flex-row items-center')}
-              >
-                <SetAmountButton
-                  amount={new BigNumber(maxAmount)}
-                  onPress={onAmountChangeCAPPED}
-                  type={AmountButtonTypes.half}
-                />
-
-                <SetAmountButton
-                  amount={new BigNumber(maxAmount)}
-                  onPress={onAmountChangeCAPPED}
-                  type={AmountButtonTypes.max}
-                />
-              </ThemedView>
-            </WalletTextInput>
+            />
 
           </ThemedView>
         )}
         rules={{
           required: true,
           pattern: /^\d*\.?\d*$/,
-          max: maxAmount,
+          // max: maxAmount,
           validate: {
             greaterThanZero: (value: string) => new BigNumber(value !== undefined && value !== '' ? value : 0).isGreaterThan(0)
           }
         }}
-      />
-
-      <InputHelperText
-        testID='max_value'
-        label={`${translate('screens/SellScreen', 'Available to sell')}: `}
-        content={maxAmount}
-        suffix={` ${token.displaySymbol}`}
       />
     </>
   )

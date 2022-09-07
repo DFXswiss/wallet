@@ -72,12 +72,19 @@ export const BottomSheetFiatAccountList = ({
         stackScreenName: 'FiatAccountCreate',
         component: BottomSheetFiatAccountCreate({
           fiatAccounts: accounts,
+          bankAccounts: accounts,
           headerLabel: translate('screens/SellScreen', 'Add account'),
           onCloseButtonPress: () => dismissModal(),
-          onElementCreatePress: async (item): Promise<void> => {
+          onElementCreatePress: async (item, newAccountsList): Promise<void> => {
             if (item.iban !== undefined) {
-              filteredList.push(item as any)
-              setAccountList(filteredList)
+              if (newAccountsList != null) {
+                fiatAccounts = newAccountsList
+                setAccountList(newAccountsList)
+              } else {
+                fiatAccounts.push(item)
+                filteredList.push(item as any)
+                setAccountList(filteredList)
+              }
               setTrigger(random().toString())
             }
             dismissModal()
@@ -108,7 +115,8 @@ export const BottomSheetFiatAccountList = ({
                   <ThemedText
                     testID={`token_symbol_${item.iban}`}
                   >
-                    {`${item?.fiat?.name ? item.fiat.name + ' / ' : ''}${item.iban}`}
+                    {/* {`${item?.label ?? ''} ${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`} */}
+                    {`${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`}
                   </ThemedText>
                 </View>
               </View>

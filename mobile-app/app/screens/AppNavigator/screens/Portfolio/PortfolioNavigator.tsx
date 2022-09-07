@@ -50,12 +50,14 @@ import { VMTransaction } from '@screens/AppNavigator/screens/Transactions/screen
 import { HeaderNetworkStatus } from '@components/HeaderNetworkStatus'
 import { useNavigatorScreenOptions } from '@hooks/useNavigatorScreenOptions'
 import { BuyScreen } from './screens/BuyScreen'
+import { BuyConfirmationScreen } from './screens/BuyConfirmationScreen'
 
 export interface PortfolioParamList {
   PortfolioScreen: undefined
   ReceiveScreen: undefined
   ReceiveDTokenScreen: { crypto?: CryptoButtonGroupTabKey, fromReceiveScreen?: boolean }
   BuyScreen: { token?: WalletToken }
+  BuyConfirmationScreen: undefined
   SellScreen: { token?: WalletToken }
   SellConfirmationScreen: undefined
   UserDetailsScreen: undefined
@@ -309,6 +311,21 @@ export function PortfolioNavigator (): JSX.Element {
             />
           ),
           headerBackTitleVisible: false
+        }}
+      />
+
+      <PortfolioStack.Screen
+        component={BuyConfirmationScreen}
+        name='BuyConfirmationScreen'
+        options={{
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('screens/BuyConfirmationScreen', 'Processing Sell Order')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false,
+          headerLeft: () => null
         }}
       />
 

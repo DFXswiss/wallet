@@ -4,8 +4,8 @@ export interface BankAccountDto {
   readonly name: 'BankAccount' // TODO: (thabrad) remove once dependencies migrated
   id: string
   iban: string
-  preferredCurrency: Fiat
-  label: string
+  preferredCurrency: Fiat | null
+  label: string | null
   sepaInstant: boolean
 }
 
@@ -13,15 +13,15 @@ export interface BankAccount {
   readonly name: 'BankAccount'
   id: string
   iban: string
-  fiat: Fiat
-  label: string
+  fiat: Fiat | null
+  label: string | null
   sepaInstant: boolean
 }
 
 export interface BankAccountData {
   iban: string
-  preferredCurrency: Fiat
-  label: string
+  preferredCurrency: Fiat | null
+  label: string | null
 }
 
 export const fromBankAccountDto = (route: BankAccountDto): BankAccount => ({
