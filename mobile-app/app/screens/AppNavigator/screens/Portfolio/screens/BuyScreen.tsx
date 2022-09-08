@@ -40,7 +40,9 @@ import { useWalletContext } from '@shared-contexts/WalletContext'
 import { BankAccount } from '@shared-api/dfx/models/BankAccount'
 import { Fiat } from '@shared-api/dfx/models/Fiat'
 import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
-import { GetBuyPaymentInfoDtoGetBuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
+import { GetBuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
+import { Asset } from '@shared-api/dfx/models/Asset'
+import { WalletAlertErrorApi } from '@components/WalletAlert'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyScreen'>
 
@@ -305,11 +307,11 @@ export function BuyScreen ({
       return
     }
 
-    if (token === undefined) {
+    if (token === undefined || ((selectedBankAccount?.iban) == null)) {
       return
     }
 
-    if (formState.isValid /* && (selectedFiatAccount?.deposit?.address?.length > 0) */) {
+    if (formState.isValid) {
       setIsSubmitting(true)
 
       // const asset: Asset = {
@@ -326,21 +328,21 @@ export function BuyScreen ({
       const matchedAsset = assets.find((asset) => asset.name === token.displaySymbol)
       // console.log('matchedAsset: ', matchedAsset)
 
-      const paymentInfos: GetBuyPaymentInfoDtoGetBuyPaymentInfoDto = {
-        iban: String(getValues('iban')),
-        asset: matchedAsset,
+      const paymentInfos: GetBuyPaymentInfoDto = {
+        iban: selectedBankAccount.iban,
+        asset: matchedAsset as Asset,
         amount: new BigNumber(getValues('amount')).toNumber(),
         currency: selectedFiat
       }
 
+      // console.log('paymentInfos: ', paymentInfos)
+
       buyWithPaymentInfos(paymentInfos)
-        .then((res) => {
-          // console.log('res: ', res)
-          navigation.navigate('BuyConfirmationScreen')
+        .then((buyPaymentInfo) => {
+          const transactionDetails = { token: token.displaySymbol, iban: paymentInfos.iban }
+          navigation.navigate('BuyConfirmationScreen', { buyPaymentInfo, transactionDetails })
         })
-        // .catch((err) => {
-        //   console.log('err: ', err)
-        // })
+        .catch(WalletAlertErrorApi)
         .finally(() => setIsSubmitting(false))
     }
   }

@@ -35,14 +35,14 @@ export interface BuyRoute {
   refBonus: number
 }
 
-export interface GetBuyPaymentInfoDtoGetBuyPaymentInfoDto {
+export interface GetBuyPaymentInfoDto {
   iban: string
   asset: Asset
   amount: number
   currency: Fiat
 }
 
-export interface BuyPaymentInfoDtoBuyPaymentInfoDto {
+export interface BuyPaymentInfoDto {
   name: string
   street: string
   number: string

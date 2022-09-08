@@ -2,7 +2,7 @@ import { History } from './models/History'
 import { getEnvironment } from '@environment'
 import { AuthResponse, SignMessageRespone } from './models/ApiDto'
 import { Asset } from './models/Asset'
-import { BuyPaymentInfoDtoBuyPaymentInfoDto, BuyRoute, BuyRouteDto, fromBuyRouteDto, GetBuyPaymentInfoDtoGetBuyPaymentInfoDto, toBuyRouteDto } from './models/BuyRoute'
+import { BuyPaymentInfoDto, BuyRoute, BuyRouteDto, fromBuyRouteDto, GetBuyPaymentInfoDto, toBuyRouteDto } from './models/BuyRoute'
 import { CfpResult } from './models/CfpResult'
 import { Country } from './models/Country'
 import { Fiat } from './models/Fiat'
@@ -151,8 +151,8 @@ export const putBuyRoute = async (route: BuyRoute): Promise<BuyRoute> => {
   return await fetchFrom<BuyRouteDto>(`${BuyUrl}/${route.id}`, 'PUT', toBuyRouteDto(route)).then(fromBuyRouteDto)
 }
 
-export const buyWithPaymentInfos = async (payentInfos: GetBuyPaymentInfoDtoGetBuyPaymentInfoDto): Promise<BuyPaymentInfoDtoBuyPaymentInfoDto> => {
-  return await fetchFrom<BuyPaymentInfoDtoBuyPaymentInfoDto>(`${BuyUrl}/${PaymentInfosUrl}`, 'PUT', payentInfos)//, toBuyRouteDto(route)).then(fromBuyRouteDto)
+export const buyWithPaymentInfos = async (payentInfos: GetBuyPaymentInfoDto): Promise<BuyPaymentInfoDto> => {
+  return await fetchFrom<BuyPaymentInfoDto>(`${BuyUrl}/${PaymentInfosUrl}`, 'PUT', payentInfos)//, toBuyRouteDto(route)).then(fromBuyRouteDto)
 }
 
 export const getSellRoutes = async (): Promise<SellRoute[]> => {
