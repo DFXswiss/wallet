@@ -1,16 +1,19 @@
 // import React from 'react'
 import { StackScreenProps } from '@react-navigation/stack'
 import { StackActions } from '@react-navigation/native'
-import { ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedTextBasic, ThemedView } from '@components/themed'
+import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedTextBasic, ThemedView } from '@components/themed'
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import { PortfolioParamList } from '../PortfolioNavigator'
 import { Button } from '@components/Button'
 import { FlatList } from 'react-native-gesture-handler'
 import BankTransferIcon from '@assets/images/dfx_buttons/misc/BankTransfer.svg'
-import React from 'react'
+import React, { useCallback, useState } from 'react'
 import { InfoText } from '@components/InfoText'
 import { View } from '@components'
+import { TouchableOpacity } from 'react-native'
+import { debounce } from 'lodash'
+import * as Clipboard from 'expo-clipboard'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyConfirmationScreen'>
 
@@ -100,8 +103,21 @@ interface ListItemProps {
   copyIcon?: boolean
 }
 function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
+  const [showToast, setShowToast] = useState(false)
+  const TOAST_DURATION = 2000
+
+  const copyToClipboard = useCallback(debounce(() => {
+    if (showToast) {
+      return
+    }
+    setShowToast(true)
+    setTimeout(() => setShowToast(false), TOAST_DURATION)
+  }, 500), [showToast])
+
   return (
     <ThemedView dark={tailwind('flex px-4 border-b border-dfxblue-900', (copyIcon ?? false) ? ' py-2' : 'py-1')}>
+
+      {/* TITLE Section ('IBAN' + SEPA instant?) */}
       {(title != null) && (
         <View style={tailwind('flex-row')}>
           <ThemedText dark={tailwind('text-xs text-dfxgray-400')}>
@@ -117,9 +133,34 @@ function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
           )}
         </View>
       )}
-      <ThemedTextBasic selectable style={tailwind('text-lg')}>
-        {translate('screens/BuyConfirmationScreen', detail)}
-      </ThemedTextBasic>
+
+      {/* DETAIL Section ('DFX AG' + pasteIcon?) */}
+      <View style={tailwind('flex-row')}>
+        <ThemedTextBasic selectable style={tailwind('text-lg')}>
+          {translate('screens/BuyConfirmationScreen', detail)}
+        </ThemedTextBasic>
+
+        {copyIcon === true && (
+          <TouchableOpacity
+            onPress={() => {
+              copyToClipboard()
+              Clipboard.setString(detail)
+            }}
+            style={tailwind('flex flex-1 flex-row justify-center text-center items-center')}
+            testID='copy_button'
+          >
+            <View style={tailwind('flex-grow')} />
+            <ThemedIcon
+              dark={tailwind('text-dfxred-500')}
+              iconType='MaterialIcons'
+              light={tailwind('text-primary-500')}
+              name='content-copy'
+              size={18}
+              style={tailwind('self-center')}
+            />
+          </TouchableOpacity>
+        )}
+      </View>
     </ThemedView>
   )
 }
