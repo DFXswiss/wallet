@@ -117,7 +117,7 @@ function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
           )}
         </View>
       )}
-      <ThemedTextBasic style={tailwind('text-lg')}>
+      <ThemedTextBasic selectable style={tailwind('text-lg')}>
         {translate('screens/BuyConfirmationScreen', detail)}
       </ThemedTextBasic>
     </ThemedView>
