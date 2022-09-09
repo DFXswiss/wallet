@@ -14,6 +14,7 @@ import { View } from '@components'
 import { TouchableOpacity } from 'react-native'
 import { debounce } from 'lodash'
 import * as Clipboard from 'expo-clipboard'
+import { SepaInstantComponent } from './BuyScreen'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyConfirmationScreen'>
 
@@ -125,11 +126,7 @@ function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
           </ThemedText>
 
           {title === 'Your IBAN' && (
-            <ThemedView style={tailwind('ml-3 px-2')} dark={tailwind('bg-dfxgray-300 rounded border-b border-dfxgray-500')}>
-              <ThemedTextBasic style={tailwind('text-xs')} dark={tailwind('text-dfxblue-900')}>
-                SEPA instant available
-              </ThemedTextBasic>
-            </ThemedView>
+            <SepaInstantComponent widget />
           )}
         </View>
       )}

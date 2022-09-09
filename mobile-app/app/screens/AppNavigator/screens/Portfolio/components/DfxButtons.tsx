@@ -1,21 +1,23 @@
-import * as React from 'react'
+import React, { useEffect, useState } from 'react'
+import Popover, { PopoverPlacement } from 'react-native-popover-view'
 import { tailwind } from '@tailwind'
-import { StyleSheet, Linking, TouchableOpacity, TouchableOpacityProps, View } from 'react-native'
+import { StyleSheet, Linking, TouchableOpacity, TouchableOpacityProps, View, Platform, StatusBar } from 'react-native'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { useWalletContext } from '@shared-contexts/WalletContext'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 
-import DfxIcon from '@assets/images/dfx_buttons/buttons/DFX_Icon.svg'
+import BuyIcon from '@assets/images/dfx_buttons/buttons/Buy_Icon.svg'
 import SellIcon from '@assets/images/dfx_buttons/buttons/Sell_Icon.svg'
 import BtcIcon from '@assets/images/dfx_buttons/crypto/Bitcoin_icon.svg'
+import DfxIcon from '@assets/images/dfx_buttons/buttons/DFX_Icon.svg'
 import DefichainIncomeIcon from '@assets/images/dfx_buttons/buttons/Defichain_Income_Icon.svg'
 import DFItaxIcon from '@assets/images/dfx_buttons/buttons/DFItax_Icon.svg'
+import MoreIcon from '@assets/images/dfx_buttons/buttons/More_Icon.svg'
 
 // import BtnDobby from '@assets/images/dfx_buttons/btn_dobby.png'
 
-import { ThemedActivityIndicator, ThemedText } from '@components/themed'
+import { ThemedActivityIndicator, ThemedProps, ThemedText } from '@components/themed'
 import { PortfolioParamList } from '../PortfolioNavigator'
-import { useState } from 'react'
 import { getUserDetail } from '@shared-api/dfx/ApiService'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
 import { CryptoButtonGroupTabKey } from '../screens/ReceiveDTokenScreen'
@@ -45,12 +47,12 @@ export function DfxButtons (): JSX.Element {
   }
 
   // update loading, set isKInfo state & navigate accordingly
-  const navigateSell = (isKyc: boolean): void => {
+  const navigateAfterKycCheckTo = (isKyc: boolean, screen: string): void => {
     setIsLoadingKycInfo(false)
-    isKyc ? navigation.navigate('Sell') : navigation.navigate('UserDetails')
+    isKyc ? navigation.navigate(screen) : navigation.navigate('UserDetails')
   }
 
-  function checkUserProfile (): void {
+  function checkUserProfile (screen: string): void {
     // start loading UserInfoCompleted/KycDataComplete --> (1) from STORE --> (2) from API + store result
     setIsLoadingKycInfo(true)
 
@@ -60,7 +62,7 @@ export function DfxButtons (): JSX.Element {
 
       if (isUserDetailStored !== null && isUserDetailStored) {
         // if stored, navigate to Sell Screen
-        navigateSell(true)
+        navigateAfterKycCheckTo(true, screen)
       } else {
         // if not, retrieve from API
         void (async () => {
@@ -72,7 +74,7 @@ export function DfxButtons (): JSX.Element {
           await DFXPersistence.setUserInfoComplete(address, userDetail.kycDataComplete)
 
           // navigate based on BackendData result
-          navigateSell(userDetail.kycDataComplete)
+          navigateAfterKycCheckTo(userDetail.kycDataComplete, screen)
         })()
       }
     })()
@@ -80,16 +82,19 @@ export function DfxButtons (): JSX.Element {
 
   const buttons: Array<{ hide?: boolean, Svg: React.FC<SvgProps>, label: string, onPress: () => Promise<void>|void }> = [
     {
-      Svg: DfxIcon,
-      label: translate('screens/DfxButtons', 'Buy & Staking'),
-      onPress: openDfxServices
+      Svg: BuyIcon,
+      label: translate('screens/DfxButtons', 'Buy'),
+      onPress: () => {
+        // check kycData
+        checkUserProfile('Buy')
+      }
     },
     {
       Svg: SellIcon,
       label: translate('screens/DfxButtons', 'Sell'),
       onPress: () => {
         // check kycData
-        checkUserProfile()
+        checkUserProfile('Sell')
       }
     },
     {
@@ -103,6 +108,11 @@ export function DfxButtons (): JSX.Element {
           merge: true
         })
       }
+    },
+    {
+      Svg: DfxIcon,
+      label: translate('screens/DfxButtons', 'Staking'),
+      onPress: openDfxServices
     },
     {
       Svg: DefichainIncomeIcon,
@@ -122,17 +132,21 @@ export function DfxButtons (): JSX.Element {
     }
   ]
 
+  const BUTTONS_SHOWN = 5
+  const headerButtons = buttons.splice(BUTTONS_SHOWN - 1)
+
   return (
     <View style={tailwind('flex justify-center flex-row mt-3')}>
       <View style={tailwind('flex w-2')} />
       {buttons
         .filter((b) => !(b.hide ?? false))
-        .map((b, i) => (b.Svg === SellIcon) // loading spinner when loading userInfo
+        .map((b, i) => (b.Svg === BuyIcon || b.Svg === SellIcon) // loading spinner when loading userInfo
           ? (
             <SvgButton key={i} Svg={b.Svg} label={b.label} onPress={async () => await b.onPress()} loading={isLoadingKycInfo} />
           )
           : <SvgButton key={i} Svg={b.Svg} label={b.label} onPress={async () => await b.onPress()} />
       )}
+      <PopoverView buttons={headerButtons} />
       <View style={tailwind('flex w-2')} />
     </View>
   )
@@ -166,5 +180,47 @@ export function SvgButton (props: SvgButtonProps): JSX.Element {
       </View>
       {(props.loading ?? false) && <ThemedActivityIndicator size='large' color='#65728a' style={tailwind('absolute inset-0 items-center justify-center')} />}
     </TouchableOpacity>
+  )
+}
+
+interface PopoverViewProps extends ThemedProps {
+  buttons: Array<{ hide?: boolean, Svg: React.FC<SvgProps>, label: string, onPress: () => Promise<void> | void }>
+}
+
+export function PopoverView (props: PopoverViewProps): JSX.Element {
+  const offsetAndroidHeight = StatusBar.currentHeight !== undefined ? (StatusBar.currentHeight * -1) : 0
+  const [showPopover, setShowPopover] = useState(false)
+
+  // to fix memory leak error
+  useEffect(() => {
+    // May work on Web, but not officially supported, as per documentation, add condition to hide popover/tooltip
+    if (Platform.OS === 'web') {
+      setTimeout(() => setShowPopover(false), 2000)
+    }
+  }, [showPopover])
+
+  return (
+    <Popover
+      verticalOffset={Platform.OS === 'android' ? offsetAndroidHeight : 0} // to correct tooltip poition on android
+      placement={PopoverPlacement.AUTO}
+      popoverStyle={tailwind('bg-dfxblue-800')}
+      isVisible={showPopover}
+      onRequestClose={() => setShowPopover(false)}
+      from={(
+        <View>
+          <SvgButton key='xtra' Svg={MoreIcon} label={translate('screens/DfxButtons', 'more')} onPress={() => setShowPopover(true)} />
+        </View>
+      )}
+    >
+      <View style={tailwind('flex-row')}>
+        {props.buttons
+          .filter((b) => !(b.hide ?? false))
+          .map((btn, i) =>
+            <View key={`ov${i}`} style={tailwind('p-4')}>
+              <SvgButton Svg={btn.Svg} label={translate('screens/DfxButtons', btn.label)} onPress={async () => await btn.onPress()} />
+            </View>
+        )}
+      </View>
+    </Popover>
   )
 }

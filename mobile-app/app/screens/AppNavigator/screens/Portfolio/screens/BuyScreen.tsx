@@ -5,12 +5,14 @@ import { tokensSelector, WalletToken } from '@store/wallet'
 import BigNumber from 'bignumber.js'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Control, Controller, useForm } from 'react-hook-form'
-import { Platform, View } from 'react-native'
+import { Platform, StatusBar, View } from 'react-native'
 import { useSelector } from 'react-redux'
 import {
   ThemedIcon,
+  ThemedProps,
   ThemedScrollView,
   ThemedText,
+  ThemedTextBasic,
   ThemedTouchableOpacity,
   ThemedView
 } from '@components/themed'
@@ -43,6 +45,10 @@ import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFia
 import { GetBuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
 import { Asset } from '@shared-api/dfx/models/Asset'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
+import SepaInstantIcon from '@assets/images/dfx_buttons/misc/SEPAinstant.svg'
+import Popover, { PopoverPlacement } from 'react-native-popover-view'
+import { Button } from '@components/Button'
+import { InfoText } from '@components/InfoText'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyScreen'>
 
@@ -432,6 +438,10 @@ export function BuyScreen ({
           />
         </View>
 
+        {(selectedBankAccount?.sepaInstant != null) && (
+          <SepaInstantLayover />
+        )}
+
         {Platform.OS === 'web' && (
           <BottomSheetWebWithNav
             modalRef={containerRef}
@@ -576,13 +586,31 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
         </ThemedTouchableOpacity>
         {props.fiatAccount?.sepaInstant === true && (
           <ThemedView dark={tailwind('bg-dfxred-500 rounded-b')}>
-            <ThemedText style={tailwind('text-sm')}>
-              {'\tSEPA instant available'}
-            </ThemedText>
+            <SepaInstantComponent invertedColor />
           </ThemedView>
         )}
       </ThemedView>
     </>
+  )
+}
+
+export function SepaInstantComponent ({ widget, invertedColor }: { widget?: boolean, invertedColor?: boolean }): JSX.Element {
+  return (
+    <ThemedView
+      style={tailwind('flex-row ml-4 py-0.5', (widget ?? false) ? 'px-3' : '')}
+      dark={tailwind({
+        'bg-dfxgray-300 rounded border-b border-dfxgray-300': widget
+        // 'bg-white': invertedColor,
+        // '': !invertedColor
+      })}
+    >
+      {/* bg-white text-white */}
+      <SepaInstantIcon fill={[44, 44, 44, 0]} style={tailwind('self-center mr-1')} />
+      {/* <Sepa /> */}
+      <ThemedTextBasic style={tailwind('text-xs')} dark={tailwind((invertedColor ?? false) ? 'text-white' : 'text-dfxblue-900')}>
+        {translate('component/SepaInstant', 'SEPA instant available')}
+      </ThemedTextBasic>
+    </ThemedView>
   )
 }
 
@@ -673,4 +701,58 @@ function getBottomSheetToken (tokens: WalletToken[]): BottomSheetToken[] {
     }
     return token
   })
+}
+
+interface LayoverProps extends ThemedProps {
+  size?: number
+}
+
+export function SepaInstantLayover (props: LayoverProps): JSX.Element {
+  const offsetAndroidHeight = StatusBar.currentHeight !== undefined ? (StatusBar.currentHeight * -1) : 0
+  const [showPopover, setShowPopover] = useState(true)
+
+  // to fix memory leak error
+  useEffect(() => {
+    // May work on Web, but not officially supported, as per documentation, add condition to hide popover/tooltip
+    if (Platform.OS === 'web') {
+      setTimeout(() => setShowPopover(false), 2000)
+    }
+  }, [showPopover])
+
+  return (
+    <Popover
+      verticalOffset={Platform.OS === 'android' ? offsetAndroidHeight : 0} // to correct tooltip position on android
+      placement={PopoverPlacement.AUTO}
+      popoverStyle={tailwind('bg-dfxblue-900 rounded-3xl')}
+      isVisible={showPopover}
+      onRequestClose={() => setShowPopover(false)}
+    >
+      <ThemedView style={tailwind('mx-4')} dark={tailwind('bg-dfxblue-900')}>
+        <View style={tailwind('mt-8 mb-2 flex-shrink self-center')}>
+          <SepaInstantComponent widget />
+        </View>
+        <ThemedTextBasic
+          style={tailwind('py-2 px-4 text-lg text-center')}
+          light={tailwind('text-white')}
+          dark={tailwind('text-white')}
+          testID='icon-tooltip-text'
+        >
+          {translate('component/SepaInstantLayover', 'Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.')}
+        </ThemedTextBasic>
+        <InfoText
+          testID='dfx_sepa_info'
+          text={translate('component/SepaInstantLayover', 'Please note that your bank may charge fees for real-time payments.')}
+          style={tailwind('mx-4 mt-2')}
+          noBorder
+        />
+        <View style={tailwind('mb-2')}>
+          <Button
+            label={translate('component/SepaInstantLayover', 'Thanks for the note.')}
+            onPress={() => setShowPopover(false)}
+            margin='m-4 '
+          />
+        </View>
+      </ThemedView>
+    </Popover>
+  )
 }

@@ -422,13 +422,13 @@ function LabelRow ({
             autoCapitalize='none'
             onChange={onChange}
             onChangeText={onTextChange}
-            placeholder='Intl. State Bank'
+            placeholder='e.g.: Deutsche Bank'
             style={tailwind('flex-grow w-2/5 h-8')}
             testID='iban_input'
             value={value}
             displayClearButton={value !== ''}
             onClearButtonPress={onClearButtonPress}
-            title={translate('component/AccountCreate', 'Label')}
+            title={translate('component/AccountCreate', 'Optional - Account Designation')}
             titleTestID='title_send'
             inputType='default'
             hasBottomSheet
