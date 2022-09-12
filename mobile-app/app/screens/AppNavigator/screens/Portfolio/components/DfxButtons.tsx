@@ -83,7 +83,7 @@ export function DfxButtons (): JSX.Element {
   const buttons: Array<{ hide?: boolean, Svg: React.FC<SvgProps>, label: string, onPress: () => Promise<void>|void }> = [
     {
       Svg: BuyIcon,
-      label: translate('screens/DfxButtons', 'Buy'),
+      label: 'Buy',
       onPress: () => {
         // check kycData
         checkUserProfile('Buy')
@@ -91,7 +91,7 @@ export function DfxButtons (): JSX.Element {
     },
     {
       Svg: SellIcon,
-      label: translate('screens/DfxButtons', 'Sell'),
+      label: 'Sell',
       onPress: () => {
         // check kycData
         checkUserProfile('Sell')
@@ -99,7 +99,7 @@ export function DfxButtons (): JSX.Element {
     },
     {
       Svg: BtcIcon,
-      label: translate('screens/DfxButtons', 'Deposit Bitcoin'),
+      label: 'Deposit Bitcoin',
       onPress: () => {
         // TODO: (thabrad) maybe will need to do kycCheck here in future
         navigation.navigate({
@@ -111,23 +111,23 @@ export function DfxButtons (): JSX.Element {
     },
     {
       Svg: DfxIcon,
-      label: translate('screens/DfxButtons', 'Staking'),
+      label: 'Staking',
       onPress: openDfxServices
     },
     {
       Svg: DefichainIncomeIcon,
-      label: translate('screens/DfxButtons', 'Defichain Income'),
+      label: 'Defichain Income',
       onPress: onOverviewButtonPress
     },
     {
       Svg: DFItaxIcon,
-      label: translate('screens/DfxButtons', 'DFI.Tax'),
+      label: 'DFI.Tax',
       onPress: onTaxButtonPress
     },
     {
       hide: true, // TODO(davidleomay)
       Svg: DFItaxIcon,
-      label: translate('screens/DfxButtons', 'Dobby'),
+      label: 'Dobby',
       onPress: onDobbyButtonPress
     }
   ]
@@ -175,7 +175,7 @@ export function SvgButton (props: SvgButtonProps): JSX.Element {
         <ThemedText
           style={tailwind('h-8 mt-1 text-center text-xs')}
         >
-          {props.label}
+          {translate('screens/DfxButtons', props.label ?? '')}
         </ThemedText>
       </View>
       {(props.loading ?? false) && <ThemedActivityIndicator size='large' color='#65728a' style={tailwind('absolute inset-0 items-center justify-center')} />}
@@ -208,16 +208,16 @@ export function PopoverView (props: PopoverViewProps): JSX.Element {
       onRequestClose={() => setShowPopover(false)}
       from={(
         <View>
-          <SvgButton key='xtra' Svg={MoreIcon} label={translate('screens/DfxButtons', 'more')} onPress={() => setShowPopover(true)} />
+          <SvgButton key='xtra' Svg={MoreIcon} label='more' onPress={() => setShowPopover(true)} />
         </View>
       )}
     >
       <View style={tailwind('flex-row')}>
         {props.buttons
-          .filter((b) => !(b.hide ?? false))
+          .filter((btn) => !(btn.hide ?? false))
           .map((btn, i) =>
             <View key={`ov${i}`} style={tailwind('p-4')}>
-              <SvgButton Svg={btn.Svg} label={translate('screens/DfxButtons', btn.label)} onPress={async () => await btn.onPress()} />
+              <SvgButton Svg={btn.Svg} label={btn.label} onPress={async () => await btn.onPress()} />
             </View>
         )}
       </View>

@@ -320,19 +320,8 @@ export function BuyScreen ({
     if (formState.isValid) {
       setIsSubmitting(true)
 
-      // const asset: Asset = {
-      //   id: 0,
-      //   chainId: 0,
-      //   type: AssetType.Coin,
-      //   name: token.displaySymbol,
-      //   buyable: true,
-      //   sellable: true
-      // }
-
       const assets = await getAssets()
-
       const matchedAsset = assets.find((asset) => asset.name === token.displaySymbol)
-      // console.log('matchedAsset: ', matchedAsset)
 
       const paymentInfos: GetBuyPaymentInfoDto = {
         iban: selectedBankAccount.iban,
@@ -340,8 +329,6 @@ export function BuyScreen ({
         amount: new BigNumber(getValues('amount')).toNumber(),
         currency: selectedFiat
       }
-
-      // console.log('paymentInfos: ', paymentInfos)
 
       buyWithPaymentInfos(paymentInfos)
         .then((buyPaymentInfo) => {
