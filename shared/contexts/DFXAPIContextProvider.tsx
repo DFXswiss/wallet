@@ -82,33 +82,28 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
   //   }
   // })
   const openKycLink = async (): Promise<void> => {
-    await getActiveWebToken()
-      .catch(async () => {
-        // try login first
-        await activePairHandler({ network: networkName, addr: address })
-        return await getActiveWebToken()
-      })
-      .then(async (token) => {
-        if (token === undefined || token.length === 0) {
-          throw new Error('webToken is undefined')
-        }
+    const user = await getUser()
 
-        const user = await getUser()
-        let urlParams
-        if ((user.mail.length > 0) && (user.mobileNumber.length > 0)) {
-          const params = { mail: user.mail, phone: user.mobileNumber }
-          urlParams = new URLSearchParams(params).toString()
-        }
+    interface kycParams {
+      code: string
+      [key: string]: string
+    }
 
-        const baseUrl = getEnvironment(Updates.releaseChannel).dfxPaymentUrl
-        const url = `${baseUrl}/kyc?code=${user.kycHash}${(urlParams != null) ? '&' + urlParams : ''}`
+    const params: kycParams = {
+      code: user.kycHash
+    }
+    ;(user.mail != null) && (params.mail = user.mail)
+    ;(user.mail != null) && (params.phone = user.mobileNumber)
+    const url = `/kyc?${new URLSearchParams(params).toString()}`
 
-        await Linking.openURL(url)
-      })
-      .catch(logger.error)
+    checkLoginAndRouteTo(url)
   }
 
   const openDfxServices = async (): Promise<void> => {
+    return await checkLoginAndRouteTo()
+  }
+
+  const checkLoginAndRouteTo = async (url?: string): Promise<void> => {
     await getActiveWebToken()
       .catch(async () => {
         // try login first
@@ -119,11 +114,11 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
         if (token === undefined || token.length === 0) {
           throw new Error('webToken is undefined')
         }
-
         const baseUrl = getEnvironment(Updates.releaseChannel).dfxPaymentUrl
-        const url = `${baseUrl}/login?token=${token}`
-        // console.log(url) // TODO!!! (thabrad) comment out / REMOVE!!
-        await Linking.openURL(url)
+        const urlEnding = url ?? `/login?token=${token}`
+
+        // console.log(urlEnding) // TODO!!! (thabrad) comment out / REMOVE!!
+        await Linking.openURL(`${baseUrl}${urlEnding}`)
       })
       .catch(logger.error)
   }
