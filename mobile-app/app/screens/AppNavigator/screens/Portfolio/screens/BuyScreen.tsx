@@ -419,7 +419,7 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
         dark={tailwind('text-dfxgray-300')}
         style={tailwind('flex-grow my-2')}
       >
-        {translate('screens/SellScreen', 'Bank account')}
+        {translate('screens/BuyScreen', 'Payment account')}
       </ThemedText>
 
       <ThemedView dark={tailwind('mb-4')}>
