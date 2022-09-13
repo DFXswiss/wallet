@@ -63,10 +63,11 @@ export function ReceiveDTokenScreen ({
   const defaultFee = 1.2
   const [fee, setFee] = useState(defaultFee)
   const [refBonus, setRefBonus] = useState(0)
-  const { openDfxServices } = useDFXAPIContext()
+  const { openKycLink } = useDFXAPIContext()
   const [showToast, setShowToast] = useState(false)
   const toast = useToast()
   const TOAST_DURATION = 2000
+  const [isLoadingKyc, setIsLoadingKyc] = useState(false)
 
   const copyToClipboard = useCallback(debounce(() => {
     if (showToast) {
@@ -205,10 +206,15 @@ export function ReceiveDTokenScreen ({
           )
           : activeButton === CryptoButtonGroupTabKey.BTC && bitcoinAddress === ''
           ? (
-            <TouchableOpacity onPress={async () => await openDfxServices()}>
+            <TouchableOpacity onPress={async () => {
+                setIsLoadingKyc(true)
+                openKycLink().finally(() => setIsLoadingKyc(false))
+              }}
+            >
               <ThemedText style={tailwind('text-center')}>
                 {translate('screens/ReceiveDTokenScreen', 'Please click here to finish the KYC process to receive your bitcoin address')}
               </ThemedText>
+              {(isLoadingKyc) && <ThemedActivityIndicator size='large' color='#65728a' style={tailwind('absolute inset-0 items-center justify-center')} />}
             </TouchableOpacity>
           )
           : (
