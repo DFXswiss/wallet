@@ -198,7 +198,7 @@ export function BuyScreen ({
         component: BottomSheetFiatAccountList({
           fiatAccounts: [],
           bankAccounts: accounts,
-          headerLabel: translate('screens/SellScreen', 'Select account to cash out'),
+          headerLabel: translate('screens/BuyScreen', 'Select your account for purchase'),
           onCloseButtonPress: () => dismissModal(),
           onFiatAccountPress: async (item): Promise<void> => {
             if (item.iban !== undefined && 'sepaInstant' in item) {
@@ -316,7 +316,7 @@ export function BuyScreen ({
         {token === undefined
           ? (
             <ThemedText style={tailwind('px-4')}>
-              {translate('screens/SellScreen', 'Select a token you want to sell to get started')}
+              {translate('screens/BuyScreen', 'Select a token you want to buy to get started')}
             </ThemedText>
           )
           : (
@@ -376,7 +376,7 @@ export function BuyScreen ({
           <SubmitButtonGroup
             isDisabled={!formState.isValid || !canProcess() /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
             label={isSubmitting ? translate('screens/BuyScreen', 'Submitting Data...') : translate('screens/BuyScreen', 'Buy Asset')}
-            processingLabel={translate('screens/SellScreen', 'Transfer to your bank account')}
+            // processingLabel={translate('screens/BuyScreen', 'Transfer to your bank account')}
             onSubmit={onSubmit}
             title='sell_sell'
             isProcessing={hasPendingJob || hasPendingBroadcastJob || isSubmitting || isLoadingData}

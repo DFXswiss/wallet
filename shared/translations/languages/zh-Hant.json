@@ -1668,14 +1668,31 @@
   },
   "screens/BuyScreen": {
     "Purchase Amount": "",
-    "Choose token to buy": ""
+    "Choose token to buy": "",
+    "Select your account for purchase": "",
+    "Select a token you want to buy to get started": "",
+    "Purchase with bank transfer": "",
+    "Payment account": ""
   },
   "components/SepaInstantLayover": {
     "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "",
     "Please note that your bank may charge fees for real-time payments.": "",
-    "Thanks for the note.": ""
+    "Thanks for the note.": "",
+    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": ""
   },
   "components/SepaInstant": {
     "SEPA instant available": ""
+  },
+  "screens/BuyConfirmationScreen": {
+    "BANK TRANSFER COMPLETED": "",
+    "PAYMENT INFORMATION": "",
+    "Please transfer the purchase amount using this information. The payment purpose is important and also that the payment is executed from your stored IBAN!": "",
+    "TRANSACTION DETAILS": "",
+    "PURPOSE OF PAYMENT": "",
+    "BENEFICIARY": "",
+    "You are buying": "",
+    "Your IBAN": "",
+    "Transaction Fee": "",
+    "Transfer Details": ""
   }
 }

@@ -73,7 +73,7 @@ export function BuyConfirmationScreen ({ route, navigation }: Props): JSX.Elemen
 
         <Button
           fill='fill'
-          label={translate('screens/common', buttonTitle)}
+          label={buttonTitle}
           margin='m-8 mb-24'
           onPress={() => setShowTransferCompleteMessage(true)}
           testID={`button_finish_${buttonTitle}`}

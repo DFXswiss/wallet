@@ -1712,14 +1712,31 @@
   "screens/BuyScreen": {
     "Buy Asset": "Asset Kaufen",
     "Purchase Amount": "Kaufbetrag",
-    "Choose token to buy": "Wähle token"
+    "Choose token to buy": "Wähle token",
+    "Select your account for purchase": "Wähle Bankkonto",
+    "Select a token you want to buy to get started": "Wähle einen Token, den du kaufen möchtest, um loszulegen",
+    "Purchase with bank transfer": "Mit Banküberweißung kaufen",
+    "Payment account": "Zahlungskonto"
   },
   "components/SepaInstantLayover": {
     "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "DFX und deine Bank unterstützen SEPA instant",
     "Please note that your bank may charge fees for real-time payments.": "Deine Bank könnte…",
-    "Thanks for the note.": "Danke für die Info."
+    "Thanks for the note.": "Danke für die Info.",
+    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": "As soon as the bank transfer arrives on our bank …"
   },
   "components/SepaInstant": {
     "SEPA instant available": "Sepa instant verfügbar"
+  },
+  "screens/BuyConfirmationScreen": {
+    "BANK TRANSFER COMPLETED": "BANK TRANSFER ABSCHLIESSEN",
+    "PAYMENT INFORMATION": "ZAHLUNGSINFORMATIONEN",
+    "Please transfer the purchase amount using this information. The payment purpose is important and also that the payment is executed from your stored IBAN!": "Bitte nur Überweißungen mit…",
+    "TRANSACTION DETAILS": "TRANSAKTIONSDETAILS",
+    "PURPOSE OF PAYMENT": "VERWENDUNGSZWECK",
+    "BENEFICIARY": "EMPFÄNGER",
+    "You are buying": "Du kaufst",
+    "Your IBAN": "Deine IBAN",
+    "Transaction Fee": "Transaktionsgebühr",
+    "Transfer Details": "Transfer Details"
   }
 }
