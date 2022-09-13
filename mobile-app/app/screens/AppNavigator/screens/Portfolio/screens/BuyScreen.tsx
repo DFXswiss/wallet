@@ -32,9 +32,7 @@ import { BottomSheetFiatAccountList } from '@components/SellComponents/BottomShe
 import { DfxKycInfo } from '@components/DfxKycInfo'
 import { ActionButton } from '../../Dex/components/PoolPairCards/ActionSection'
 import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellComponents/BottomSheetFiatAccountCreate'
-import { DFXPersistence } from '@api/persistence/dfx_storage'
-import { buyWithPaymentInfos, getAssets, getBankAccounts, getUserDetail } from '@shared-api/dfx/ApiService'
-import { useWalletContext } from '@shared-contexts/WalletContext'
+import { buyWithPaymentInfos, getAssets, getBankAccounts } from '@shared-api/dfx/ApiService'
 import { BankAccount } from '@shared-api/dfx/models/BankAccount'
 import { Fiat } from '@shared-api/dfx/models/Fiat'
 import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
@@ -72,7 +70,6 @@ export function BuyScreen ({
     trigger,
     watch
   } = useForm({ mode: 'onChange' })
-  const walletContext = useWalletContext()
   const { address } = watch()
   const addressBook = useSelector((state: RootState) => state.userPreferences.addressBook)
   const walletAddress = useSelector((state: RootState) => state.userPreferences.addresses)
@@ -85,7 +82,7 @@ export function BuyScreen ({
   const [jellyfishWalletAddress, setJellyfishWalletAddresses] = useState<string[]>([])
 
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [isLoadingKyc, setIsLoadingKyc] = useState(true)
+  const [isLoadingData, setIsLoadingData] = useState(true)
 
   // Bottom sheet
   const [isModalDisplayed, setIsModalDisplayed] = useState(false)
@@ -128,42 +125,11 @@ export function BuyScreen ({
     void fetchWalletAddresses().then((walletAddresses) => setJellyfishWalletAddresses(walletAddresses))
   }, [fetchWalletAddresses])
 
-  function checkUserProfile (): void {
-    void (async () => {
-      // (1) from STORE
-      const isUserDetailStored = await DFXPersistence.getUserInfoComplete(walletContext.address)
-
-      if (isUserDetailStored === null || !isUserDetailStored) {
-        // if not, retrieve from API
-        void (async () => {
-          // (2) from API
-          const userDetail = await getUserDetail()
-          // persist result to STORE
-          await DFXPersistence.setUserInfoComplete(walletContext.address, userDetail.kycDataComplete)
-          // navigate based on BackendData result
-          if (!userDetail.kycDataComplete) {
-            navigation.popToTop()
-            navigation.navigate('UserDetails')
-          }
-
-          // finished loading kycInfo
-          setIsLoadingKyc(false)
-        })()
-      } else {
-        // finished loading kycInfo on Success
-        setIsLoadingKyc(false)
-      }
-    })()
-  }
-
-  // check kycInfo & load sell routes
   useEffect(() => {
-    checkUserProfile()
-    // TODO: wire up with following logic
+    setIsLoadingData(true)
 
     getBankAccounts()
       .then((bankAccounts) => {
-        // if no sell routes check kycDataComplete --> navigate to UserDetailsScreen
         if (bankAccounts === undefined || bankAccounts.length < 1) {
           // checkUserProfile()
         }
@@ -173,6 +139,7 @@ export function BuyScreen ({
         }
       })
       .catch(logger.error)
+      .finally(() => setIsLoadingData(false))
   }, [])
 
   useEffect(() => {
@@ -412,7 +379,7 @@ export function BuyScreen ({
             processingLabel={translate('screens/SellScreen', 'Transfer to your bank account')}
             onSubmit={onSubmit}
             title='sell_sell'
-            isProcessing={hasPendingJob || hasPendingBroadcastJob || isSubmitting || isLoadingKyc}
+            isProcessing={hasPendingJob || hasPendingBroadcastJob || isSubmitting || isLoadingData}
             displayCancelBtn={false}
           />
         </View>

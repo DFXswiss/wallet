@@ -86,7 +86,9 @@ export function DfxButtons (): JSX.Element {
       label: 'Buy',
       onPress: () => {
         // check kycData
-        checkUserProfile('Buy')
+        // DEACTIVATED (next line)
+        // checkUserProfile('Buy')
+        navigation.navigate('Buy')
       }
     },
     {
