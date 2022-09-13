@@ -13,6 +13,7 @@ import { BottomSheetFiatAccountCreate } from './BottomSheetFiatAccountCreate'
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { random } from 'lodash'
 import { BankAccount } from '@shared-api/dfx/models/BankAccount'
+import { SepaInstantComponent } from '@screens/AppNavigator/screens/Portfolio/components/SepaInstantComponent'
 
 interface BottomSheetFiatAccountListProps {
   headerLabel: string
@@ -71,8 +72,8 @@ export const BottomSheetFiatAccountList = ({
       {
         stackScreenName: 'FiatAccountCreate',
         component: BottomSheetFiatAccountCreate({
-          fiatAccounts: accounts,
-          bankAccounts: accounts,
+          fiatAccounts: (fiatAccounts != null && accounts) as SellRoute[],
+          bankAccounts: (bankAccounts != null && accounts) as BankAccount[],
           headerLabel: translate('screens/SellScreen', 'Add account'),
           onCloseButtonPress: () => dismissModal(),
           onElementCreatePress: async (item, newAccountsList): Promise<void> => {
@@ -110,15 +111,19 @@ export const BottomSheetFiatAccountList = ({
               style={tailwind('px-4 py-3 flex flex-row items-center justify-between')}
               testID={`select_${item.iban}`}
             >
-              <View style={tailwind('flex flex-row items-center')}>
-                <View style={tailwind('ml-2')}>
-                  <ThemedText
-                    testID={`token_symbol_${item.iban}`}
-                  >
-                    {/* {`${item?.label ?? ''} ${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`} */}
-                    {`${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`}
-                  </ThemedText>
-                </View>
+              <View style={tailwind('ml-2')}>
+                {('sepaInstant' in item) && item.sepaInstant && (
+                  <View style={tailwind('flex-shrink flex-row')}>
+                    <SepaInstantComponent red invertedColor />
+                    {/* <View style={tailwind('flex-grow bg-primary-200')} /> */}
+                  </View>
+                )}
+                <ThemedText
+                  testID={`token_symbol_${item.iban}`}
+                >
+                  {/* {`${item?.label ?? ''} ${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`} */}
+                  {`${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`}
+                </ThemedText>
               </View>
               <View style={tailwind('flex flex-row items-center')}>
                 <ThemedIcon iconType='MaterialIcons' name='chevron-right' size={20} />

@@ -1,18 +1,16 @@
 /* eslint-disable react-native/no-raw-text */
 import { WalletTextInput } from '@components/WalletTextInput'
 import { StackScreenProps } from '@react-navigation/stack'
-import { tokensSelector, WalletToken } from '@store/wallet'
+import { WalletToken } from '@store/wallet'
 import BigNumber from 'bignumber.js'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Control, Controller, useForm } from 'react-hook-form'
-import { Platform, StatusBar, View } from 'react-native'
+import { Platform, View } from 'react-native'
 import { useSelector } from 'react-redux'
 import {
   ThemedIcon,
-  ThemedProps,
   ThemedScrollView,
   ThemedText,
-  ThemedTextBasic,
   ThemedTouchableOpacity,
   ThemedView
 } from '@components/themed'
@@ -23,7 +21,6 @@ import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import { PortfolioParamList } from '../PortfolioNavigator'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { SymbolIcon } from '@components/SymbolIcon'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { BottomSheetToken, BottomSheetTokenList, TokenType } from '@components/BottomSheetTokenList'
@@ -35,7 +32,6 @@ import { BottomSheetFiatAccountList } from '@components/SellComponents/BottomShe
 import { DfxKycInfo } from '@components/DfxKycInfo'
 import { ActionButton } from '../../Dex/components/PoolPairCards/ActionSection'
 import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellComponents/BottomSheetFiatAccountCreate'
-import { useConversion } from '@hooks/wallet/Conversion'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
 import { buyWithPaymentInfos, getAssets, getBankAccounts, getUserDetail } from '@shared-api/dfx/ApiService'
 import { useWalletContext } from '@shared-contexts/WalletContext'
@@ -45,10 +41,9 @@ import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFia
 import { GetBuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
 import { Asset } from '@shared-api/dfx/models/Asset'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
-import SepaInstantIcon from '@assets/images/dfx_buttons/misc/SEPAinstant.svg'
-import Popover, { PopoverPlacement } from 'react-native-popover-view'
-import { Button } from '@components/Button'
-import { InfoText } from '@components/InfoText'
+import { SepaInstantComponent } from '../components/SepaInstantComponent'
+import { TokenInput } from './SellScreen'
+import { useSwappableTokens } from '../../Dex/hook/SwappableTokens'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyScreen'>
 
@@ -57,7 +52,13 @@ export function BuyScreen ({
   navigation
 }: Props): JSX.Element {
   const logger = useLogger()
-  const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
+  // const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
+
+  const {
+    fromTokens
+  } = useSwappableTokens(undefined)
+
+  // const { allTokens } = useSelector((state: RootState) => state.wallet)
   const [token, setToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedbankAccount] = useState<BankAccount>()
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
@@ -79,16 +80,7 @@ export function BuyScreen ({
   const [matchedAddress, setMatchedAddress] = useState<LocalAddress>()
   const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
   const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
-  const {
-    conversionAmount
-  } = useConversion({
-    inputToken: {
-      type: token?.id === '0_unified' ? 'utxo' : 'others',
-      amount: new BigNumber(getValues('amount'))
-    },
-    deps: [getValues('amount'), JSON.stringify(token)]
-  })
-  const [hasBalance, setHasBalance] = useState(false)
+
   const { fetchWalletAddresses } = useWalletAddress()
   const [jellyfishWalletAddress, setJellyfishWalletAddresses] = useState<string[]>([])
 
@@ -167,6 +159,7 @@ export function BuyScreen ({
   // check kycInfo & load sell routes
   useEffect(() => {
     checkUserProfile()
+    // TODO: wire up with following logic
 
     getBankAccounts()
       .then((bankAccounts) => {
@@ -181,19 +174,6 @@ export function BuyScreen ({
       })
       .catch(logger.error)
   }, [])
-
-  useEffect(() => {
-    const t = tokens.find((t) => t.id === token?.id)
-    if (t !== undefined) {
-      setToken({ ...t })
-    }
-
-    const totalBalance = tokens.reduce((total, token) => {
-      return total.plus(new BigNumber(token.amount))
-    }, new BigNumber(0))
-
-    setHasBalance(totalBalance.isGreaterThan(0))
-  }, [JSON.stringify(tokens)])
 
   useEffect(() => {
     debounceMatchAddress()
@@ -211,14 +191,27 @@ export function BuyScreen ({
       {
         stackScreenName: 'TokenList',
         component: BottomSheetTokenList({
-          tokens: getBottomSheetToken(tokens),
+          tokens: getBottomSheetToken(fromTokens),
           tokenType: TokenType.BottomSheetToken,
           headerLabel: translate('screens/BuyScreen', 'Choose token to buy'),
           onCloseButtonPress: () => dismissModal(),
           onTokenPress: async (item): Promise<void> => {
-            const _token = tokens.find(t => t.id === item.tokenId)
+            const _token = fromTokens.find(t => t.tokenId === item.tokenId)
             if (_token !== undefined) {
-              setToken(_token)
+              const walletToken: WalletToken = {
+                avatarSymbol: _token.token.symbol,
+                id: _token.tokenId,
+                amount: '1',
+                symbol: _token.token.symbol,
+                displaySymbol: _token.token.displaySymbol,
+                symbolKey: '',
+                name: _token.token.name,
+                isDAT: false,
+                isLPS: _token.token.isLPS ?? false,
+                isLoanToken: false
+              }
+
+              setToken(walletToken)
               setValue('amount', '')
               await trigger('amount')
             }
@@ -229,7 +222,7 @@ export function BuyScreen ({
           header: () => null
         }
       }])
-  }, [])
+  }, [fromTokens])
 
   const setFiatAccountListBottomSheet = useCallback((accounts: BankAccount[]) => {
     setBottomSheetScreen([
@@ -350,7 +343,6 @@ export function BuyScreen ({
             setTokenListBottomSheet()
             expandModal()
           }}
-          isDisabled={!hasBalance}
         />
 
         {token === undefined
@@ -404,7 +396,6 @@ export function BuyScreen ({
                         await trigger('amount')
                       }}
                       token={token}
-                      conversionAmount={conversionAmount}
                     />
                     <DfxKycInfo calcKyc={{ amount: getValues('amount'), currency: selectedFiat }} />
 
@@ -447,73 +438,6 @@ export function BuyScreen ({
           />
         )}
       </ThemedScrollView>
-    </View>
-  )
-}
-
-function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabled: boolean }): JSX.Element {
-  const hasNoBalanceForSelectedToken = props.token?.amount === undefined ? true : new BigNumber(props.token?.amount).lte(0)
-  return (
-    <View style={tailwind('px-4')}>
-      <ThemedText
-        testID='transaction_details_info_text'
-        light={tailwind('text-gray-600')}
-        dark={tailwind('text-dfxgray-300')}
-        style={tailwind('text-xl font-semibold')}
-      >
-        {translate('screens/BuyScreen', 'Buy Asset')}
-      </ThemedText>
-      {/* TODO */}
-      <ThemedTouchableOpacity
-        onPress={props.onPress}
-        dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
-        light={tailwind({
-          'bg-gray-200 border-0': props.isDisabled,
-          'border-gray-300 bg-white': !props.isDisabled
-        })}
-        style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2 mb-6')}
-        testID='select_token_input'
-        disabled={props.isDisabled}
-      >
-        {props.token === undefined || props.isDisabled || hasNoBalanceForSelectedToken
-          ? (
-            <ThemedText
-              dark={tailwind({
-                'text-dfxgray-500': !props.isDisabled,
-                'text-dfxblue-900': props.isDisabled
-              })}
-              style={tailwind('text-sm')}
-              testID='select_token_placeholder'
-            >
-              {translate('screens/SendScreen', 'Select token')}
-            </ThemedText>
-          )
-          : (
-            <View style={tailwind('flex flex-row')}>
-              <SymbolIcon symbol={props.token.displaySymbol} styleProps={tailwind('w-6 h-6')} />
-              <ThemedText
-                style={tailwind('ml-2 font-medium')}
-                testID='selected_token'
-              >
-                {props.token.displaySymbol}
-              </ThemedText>
-            </View>
-          )}
-        <ThemedIcon
-          iconType='MaterialIcons'
-          name='unfold-more'
-          size={24}
-          dark={tailwind({
-            'text-dfxred-500': !props.isDisabled,
-            'text-transparent': props.isDisabled
-          })}
-          light={tailwind({
-            'text-primary-500': !props.isDisabled,
-            'text-gray-500': props.isDisabled
-          })}
-          style={tailwind('-mr-1.5 flex-shrink-0')}
-        />
-      </ThemedTouchableOpacity>
     </View>
   )
 }
@@ -569,31 +493,11 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
         </ThemedTouchableOpacity>
         {props.fiatAccount?.sepaInstant === true && (
           <ThemedView dark={tailwind('bg-dfxred-500 rounded-b')}>
-            <SepaInstantComponent invertedColor />
+            <SepaInstantComponent red invertedColor />
           </ThemedView>
         )}
       </ThemedView>
     </>
-  )
-}
-
-export function SepaInstantComponent ({ widget, invertedColor }: { widget?: boolean, invertedColor?: boolean }): JSX.Element {
-  return (
-    <ThemedView
-      style={tailwind('flex-row ml-4 py-0.5', (widget ?? false) ? 'px-3' : '')}
-      dark={tailwind({
-        'bg-dfxgray-300 rounded border-b border-dfxgray-300': widget
-        // 'bg-white': invertedColor,
-        // '': !invertedColor
-      })}
-    >
-      {/* bg-white text-white */}
-      <SepaInstantIcon fill={[44, 44, 44, 0]} style={tailwind('self-center mr-1')} />
-      {/* <Sepa /> */}
-      <ThemedTextBasic style={tailwind('text-xs')} dark={tailwind((invertedColor ?? false) ? 'text-white' : 'text-dfxblue-900')}>
-        {translate('components/SepaInstant', 'SEPA instant available')}
-      </ThemedTextBasic>
-    </ThemedView>
   )
 }
 
@@ -602,7 +506,6 @@ interface AmountForm {
   token: WalletToken
   onAmountChange: (amount: string) => void
   onClearButtonPress: () => void
-  conversionAmount: BigNumber
 }
 
 function AmountRow ({
@@ -668,79 +571,8 @@ function AmountRow ({
   )
 }
 
-function getBottomSheetToken (tokens: WalletToken[]): BottomSheetToken[] {
-  return tokens.filter(t => {
-    return new BigNumber(t.amount).isGreaterThan(0) && t.id !== '0' && t.id !== '0_utxo'
-  }).map(t => {
-    const token: BottomSheetToken = {
-      tokenId: t.id,
-      available: new BigNumber(t.amount),
-      token: {
-        name: t.name,
-        displaySymbol: t.displaySymbol,
-        symbol: t.symbol,
-        isLPS: t.isLPS
-      }
-    }
-    return token
+function getBottomSheetToken (tokens: BottomSheetToken[]): BottomSheetToken[] {
+  return tokens.map((token) => {
+    return { ...token, available: new BigNumber(1) }
   })
-}
-
-interface LayoverProps extends ThemedProps {
-  onDismiss?: () => void
-}
-
-export function SepaInstantLayover (props: LayoverProps): JSX.Element {
-  const offsetAndroidHeight = StatusBar.currentHeight !== undefined ? (StatusBar.currentHeight * -1) : 0
-  const [showPopover, setShowPopover] = useState(true)
-
-  // to fix memory leak error
-  useEffect(() => {
-    // May work on Web, but not officially supported, as per documentation, add condition to hide popover/tooltip
-    if (Platform.OS === 'web') {
-      setTimeout(() => setShowPopover(false), 2000)
-    }
-  }, [showPopover])
-
-  const onDismissInternal = (): void => {
-    setShowPopover(false)
-    props.onDismiss?.()
-  }
-
-  return (
-    <Popover
-      verticalOffset={Platform.OS === 'android' ? offsetAndroidHeight : 0} // to correct tooltip position on android
-      placement={PopoverPlacement.AUTO}
-      popoverStyle={tailwind('bg-dfxblue-900 rounded-3xl')}
-      isVisible={showPopover}
-      onRequestClose={() => onDismissInternal()}
-    >
-      <ThemedView style={tailwind('mx-4')} dark={tailwind('bg-dfxblue-900')}>
-        <View style={tailwind('mt-8 mb-2 flex-shrink self-center')}>
-          <SepaInstantComponent widget />
-        </View>
-        <ThemedTextBasic
-          style={tailwind('py-2 px-4 text-lg text-center')}
-          light={tailwind('text-white')}
-          dark={tailwind('text-white')}
-          testID='icon-tooltip-text'
-        >
-          {translate('components/SepaInstantLayover', 'Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.')}
-        </ThemedTextBasic>
-        <InfoText
-          testID='dfx_sepa_info'
-          text={translate('components/SepaInstantLayover', 'Please note that your bank may charge fees for real-time payments.')}
-          style={tailwind('mx-4 mt-2')}
-          noBorder
-        />
-        <View style={tailwind('mb-2')}>
-          <Button
-            label={translate('components/SepaInstantLayover', 'Thanks for the note.')}
-            onPress={() => onDismissInternal()}
-            margin='m-4 '
-          />
-        </View>
-      </ThemedView>
-    </Popover>
-  )
 }

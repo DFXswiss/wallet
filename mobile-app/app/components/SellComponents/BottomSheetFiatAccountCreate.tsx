@@ -18,7 +18,7 @@ import { useLogger } from '@shared-contexts/NativeLoggingProvider'
 import { getFiats, postBankAccount, postSellRoute, putBankAccount } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { BankAccount, BankAccountData } from '@shared-api/dfx/models/BankAccount'
-import { SepaInstantLayover } from '@screens/AppNavigator/screens/Portfolio/screens/BuyScreen'
+import { SepaInstantOverlay } from '@screens/AppNavigator/screens/Portfolio/components/SepaInstantLayover'
 
 interface BottomSheetFiatAccountCreateProps {
   headerLabel: string
@@ -227,7 +227,7 @@ export const BottomSheetFiatAccountCreate = ({
           </View>
 
           {(sepaInstantAccount?.sepaInstant === true) &&
-            <SepaInstantLayover onDismiss={() => onElementCreatePress(sepaInstantAccount)} />}
+            <SepaInstantOverlay onDismiss={() => onElementCreatePress(sepaInstantAccount)} />}
 
           {Platform.OS === 'web' && (
             <BottomSheetWebWithNav

@@ -14,11 +14,13 @@ import { View } from '@components'
 import { TouchableOpacity } from 'react-native'
 import { debounce } from 'lodash'
 import * as Clipboard from 'expo-clipboard'
-import { SepaInstantComponent } from './BuyScreen'
+import { SepaInstantComponent } from '../components/SepaInstantComponent'
+import { BuySuccessOverlay } from '../components/SepaInstantLayover'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyConfirmationScreen'>
 
 export function BuyConfirmationScreen ({ route, navigation }: Props): JSX.Element {
+  const [showTransferCompleteMessage, setShowTransferCompleteMessage] = useState(false)
   const buttonTitle = translate('screens/BuyConfirmationScreen', 'BANK TRANSFER COMPLETED')
 
   const buyPaymentInfo = route.params.buyPaymentInfo
@@ -73,12 +75,15 @@ export function BuyConfirmationScreen ({ route, navigation }: Props): JSX.Elemen
           fill='fill'
           label={translate('screens/common', buttonTitle)}
           margin='m-8 mb-24'
-          onPress={() => navigation.dispatch(StackActions.popToTop())}
+          onPress={() => setShowTransferCompleteMessage(true)}
           testID={`button_finish_${buttonTitle}`}
           title={buttonTitle}
           style={tailwind('flex')}
         />
       </View>
+
+      {showTransferCompleteMessage &&
+        <BuySuccessOverlay onDismiss={() => navigation.dispatch(StackActions.popToTop())} />}
 
     </ThemedScrollView>
   )

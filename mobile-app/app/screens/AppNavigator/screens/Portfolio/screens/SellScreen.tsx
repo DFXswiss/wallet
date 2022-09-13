@@ -461,7 +461,7 @@ export function SellScreen ({
   )
 }
 
-function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabled: boolean }): JSX.Element {
+export function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabled?: boolean }): JSX.Element {
   const hasNoBalanceForSelectedToken = props.token?.amount === undefined ? true : new BigNumber(props.token?.amount).lte(0)
   return (
     <View style={tailwind('px-4')}>
@@ -479,17 +479,17 @@ function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabl
         dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
         light={tailwind({
           'bg-gray-200 border-0': props.isDisabled,
-          'border-gray-300 bg-white': !props.isDisabled
+          'border-gray-300 bg-white': !(props.isDisabled ?? false)
         })}
         style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2 mb-6')}
         testID='select_token_input'
         disabled={props.isDisabled}
       >
-        {props.token === undefined || props.isDisabled || hasNoBalanceForSelectedToken
+        {props.token === undefined || (props.isDisabled ?? false) || hasNoBalanceForSelectedToken
           ? (
             <ThemedText
               dark={tailwind({
-                'text-dfxgray-500': !props.isDisabled,
+                'text-dfxgray-500': !(props.isDisabled ?? false),
                 'text-dfxblue-900': props.isDisabled
               })}
               style={tailwind('text-sm')}
@@ -514,11 +514,11 @@ function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabl
           name='unfold-more'
           size={24}
           dark={tailwind({
-            'text-dfxred-500': !props.isDisabled,
+            'text-dfxred-500': !(props.isDisabled ?? false),
             'text-transparent': props.isDisabled
           })}
           light={tailwind({
-            'text-primary-500': !props.isDisabled,
+            'text-primary-500': !(props.isDisabled ?? false),
             'text-gray-500': props.isDisabled
           })}
           style={tailwind('-mr-1.5 flex-shrink-0')}
