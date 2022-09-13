@@ -18,6 +18,7 @@ import { useLogger } from '@shared-contexts/NativeLoggingProvider'
 import { getFiats, postBankAccount, postSellRoute, putBankAccount } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { BankAccount, BankAccountData } from '@shared-api/dfx/models/BankAccount'
+import { SepaInstantLayover } from '@screens/AppNavigator/screens/Portfolio/screens/BuyScreen'
 
 interface BottomSheetFiatAccountCreateProps {
   headerLabel: string
@@ -51,7 +52,7 @@ export const BottomSheetFiatAccountCreate = ({
 
   // returned from picker
   const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
-
+  const [sepaInstantAccount, setSepaInstantAccount] = useState<BankAccount>()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // fiat picker modal setup
@@ -107,43 +108,45 @@ export const BottomSheetFiatAccountCreate = ({
 
     const iban: string = getValues('iban')
     const sellData = { iban: iban, fiat: selectedFiat }
-
     const label: string = getValues('label')
 
-    const newBankAccount: BankAccountData = {
+    const createNewBankAccount: BankAccountData = {
       iban,
       preferredCurrency: selectedFiat,
       label
     }
 
     // check if account already exists (based on iban) and replace currency and label
-    const matchedAccount = bankAccounts?.find((account: BankAccount) => account.iban.split(' ').join('') === newBankAccount.iban)
+    const matchedAccount = bankAccounts?.find((account: BankAccount) => account.iban.split(' ').join('') === createNewBankAccount.iban)
     let updatedAccountsList: BankAccount[] | undefined
     if (matchedAccount != null) {
       const matchedIndex = bankAccounts?.indexOf(matchedAccount)
       if (bankAccounts != null && matchedIndex != null && matchedIndex > -1) {
-        bankAccounts[matchedIndex] = { ...matchedAccount, label: newBankAccount.label, fiat: newBankAccount.preferredCurrency }
+        bankAccounts[matchedIndex] = { ...matchedAccount, label: createNewBankAccount.label, fiat: createNewBankAccount.preferredCurrency }
         updatedAccountsList = bankAccounts
       }
     }
 
-    if (newBankAccount != null) {
+    if (createNewBankAccount != null) {
       if (matchedAccount != null) {
-        putBankAccount(newBankAccount, matchedAccount.id)
+        // if IBAN exists already, edit props
+        putBankAccount(createNewBankAccount, matchedAccount.id)
           .then((updatedBankAccount) => onElementCreatePress(updatedBankAccount, updatedAccountsList))
           .catch((error) => {
             WalletAlertErrorApi(error)
           })
           .finally(() => setIsSubmitting(false))
       } else {
-        postBankAccount(newBankAccount)
-          .then((newBankAccount) => onElementCreatePress(newBankAccount))
+        // create new account and show SEPAinstant popup if qualifying
+        postBankAccount(createNewBankAccount)
+          .then((newBankAccount) => newBankAccount.sepaInstant ? setSepaInstantAccount(newBankAccount) : onElementCreatePress(newBankAccount))
           .catch((error) => {
             WalletAlertErrorApi(error)
           })
           .finally(() => setIsSubmitting(false))
       }
     } else {
+      // legacy method (new sellRoute)
       postSellRoute(sellData)
         .then((sellRoute) => onElementCreatePress(sellRoute))
         .catch((error) => {
@@ -222,6 +225,9 @@ export const BottomSheetFiatAccountCreate = ({
               displayCancelBtn={false}
             />
           </View>
+
+          {(sepaInstantAccount?.sepaInstant === true) &&
+            <SepaInstantLayover onDismiss={() => onElementCreatePress(sepaInstantAccount)} />}
 
           {Platform.OS === 'web' && (
             <BottomSheetWebWithNav

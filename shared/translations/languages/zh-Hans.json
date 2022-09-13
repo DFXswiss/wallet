@@ -1659,13 +1659,22 @@
     "Defichain Income": "Defichain \nIncome",
     "Dobby": "Dobby",
     "Sell": "Sell",
-    "Buy & Staking": "Buy &\nStaking",
-    "Deposit Bitcoin": "Deposit Bitcoin"
+    "Deposit Bitcoin": "Deposit Bitcoin",
+    "Staking": "Staking"
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "请注意，所有dTokens（如dUSD、dCOIN、dTSLA、dSPY...）的销售都需要支付DEX稳定费。加密代币如DFI、dBTC、dETH和稳定币如dUSDT/dUSDC不受影响。更多信息"
   },
   "screens/BuyScreen": {
-    "Buy Asset": ""
+    "Purchase Amount": "",
+    "Choose token to buy": ""
+  },
+  "components/SepaInstantLayover": {
+    "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "",
+    "Please note that your bank may charge fees for real-time payments.": "",
+    "Thanks for the note.": ""
+  },
+  "components/SepaInstant": {
+    "SEPA instant available": ""
   }
 }
