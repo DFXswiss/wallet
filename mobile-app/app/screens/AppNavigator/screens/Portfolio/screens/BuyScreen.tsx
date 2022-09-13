@@ -338,6 +338,7 @@ export function BuyScreen ({
       <ThemedScrollView contentContainerStyle={tailwind('pt-6 pb-8')} testID='sell_screen'>
 
         <TokenInput
+          title={translate('screens/BuyScreen', 'Buy Asset')}
           token={token}
           onPress={() => {
             setTokenListBottomSheet()

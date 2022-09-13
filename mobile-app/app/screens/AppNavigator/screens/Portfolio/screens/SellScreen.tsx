@@ -305,6 +305,7 @@ export function SellScreen ({
       <ThemedScrollView contentContainerStyle={tailwind('pt-6 pb-8')} testID='sell_screen'>
 
         <TokenInput
+          title={translate('screens/SellScreen', 'Cash out to my bank account')}
           token={token}
           onPress={() => {
             setTokenListBottomSheet()
@@ -461,7 +462,7 @@ export function SellScreen ({
   )
 }
 
-export function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabled?: boolean }): JSX.Element {
+export function TokenInput (props: { title: string, token?: WalletToken, onPress: () => void, isDisabled?: boolean }): JSX.Element {
   const hasNoBalanceForSelectedToken = props.token?.amount === undefined ? true : new BigNumber(props.token?.amount).lte(0)
   return (
     <View style={tailwind('px-4')}>
@@ -471,7 +472,7 @@ export function TokenInput (props: { token?: WalletToken, onPress: () => void, i
         dark={tailwind('text-dfxgray-300')}
         style={tailwind('text-xl font-semibold')}
       >
-        {translate('screens/SellScreen', 'Cash out to my bank account')}
+        {props.title}
       </ThemedText>
       {/* TODO */}
       <ThemedTouchableOpacity
