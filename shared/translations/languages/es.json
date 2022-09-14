@@ -1626,14 +1626,14 @@
     "Cash out to my bank account": "Ingresar en mi cuenta bancaria",
     "Bank account": "Cuenta bancaria",
     "Select a token you want to sell to get started": "Seleccione el token que desea vender para empezar",
-    "please select": "por favor selecciona",
     "Enter your desired payout amount": "Teclea la cantidad de pago deseada",
     "Available to sell": "Disponible para vender",
     "Transfer to your bank account": "Transferencia a mi cuenta bancaria",
     "Your Currency": "Su moneda",
     "Select account to cash out": "Seleccionar cuenta para cobrar",
     "Add account": "Añadir cuenta",
-    "Sell": "Vender"
+    "Sell": "Vender",
+    "Please select": "Por favor selecciona"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "DATOS DE LA ORGANIZACIÓN",

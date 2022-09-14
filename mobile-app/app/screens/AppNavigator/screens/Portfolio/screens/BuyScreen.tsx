@@ -375,8 +375,8 @@ export function BuyScreen ({
         <View style={tailwind('mt-6')}>
           <SubmitButtonGroup
             isDisabled={!formState.isValid || !canProcess() /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
-            label={isSubmitting ? translate('screens/BuyScreen', 'Submitting Data...') : translate('screens/BuyScreen', 'Buy Asset')}
-            // processingLabel={translate('screens/BuyScreen', 'Transfer to your bank account')}
+            label={translate('screens/BuyScreen', 'Buy Asset')}
+            processingLabel={translate('screens/BuyScreen', 'Buy Asset')}
             onSubmit={onSubmit}
             title='sell_sell'
             isProcessing={hasPendingJob || hasPendingBroadcastJob || isSubmitting || isLoadingData}
@@ -437,7 +437,7 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
                 style={tailwind('text-sm')}
                 testID='select_fiatAccount_placeholder'
               >
-                {translate('screens/SellScreen', 'please select')}
+                {translate('screens/SellScreen', 'Please select')}
               </ThemedText>
             )
             : (

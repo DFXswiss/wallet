@@ -1606,14 +1606,14 @@
     "Cash out to my bank account": "提現到我的銀行賬戶",
     "Bank account": "銀行賬戶",
     "Select a token you want to sell to get started": "若要開始，請先選您想發出的代幣",
-    "please select": "請選擇",
     "Enter your desired payout amount": "輸入您想要的付款金額",
     "Available to sell": "可出售",
     "Transfer to your bank account": "轉賬到我的銀行賬戶",
     "Your Currency": "您的貨幣",
     "Select account to cash out": "選擇要提現的賬戶",
     "Add account": "新增帳戶",
-    "Sell": "賣"
+    "Sell": "賣",
+    "Please select": "請選擇"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "組織數據",

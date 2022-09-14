@@ -1647,14 +1647,14 @@
     "Cash out to my bank account": "Auf mein Bankkonto auszahlen",
     "Bank account": "Auszahlungskonto",
     "Select a token you want to sell to get started": "Wähle einen Token, den du verkaufen möchtest, um loszulegen",
-    "please select": "bitte auswählen",
     "Enter your desired payout amount": "Gebe deinen gewünschten Auszahlungsbetrag an",
     "Available to sell": "Zum Verkauf verfügbar",
     "Transfer to your bank account": "Auf dein Bankkonto auszahlen",
     "Your Currency": "Deine Währung",
     "Select account to cash out": "Konto für Auszahlung auswählen",
     "Add account": "Konto hinzufügen",
-    "Sell": "Verkaufen"
+    "Sell": "Verkaufen",
+    "Please select": "Bitte auswählen"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "ORGANISATIONSDATEN",

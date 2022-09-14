@@ -562,7 +562,7 @@ function FiatAccountInput (props: { fiatAccount?: SellRoute, onPress: () => void
               style={tailwind('text-sm')}
               testID='select_fiatAccount_placeholder'
             >
-              {translate('screens/SellScreen', 'please select')}
+              {translate('screens/SellScreen', 'Please select')}
             </ThemedText>
           )
           : (
