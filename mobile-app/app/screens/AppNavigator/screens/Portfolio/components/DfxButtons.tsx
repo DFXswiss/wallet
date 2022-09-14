@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
 import Popover, { PopoverPlacement } from 'react-native-popover-view'
 import { tailwind } from '@tailwind'
 import { StyleSheet, Linking, TouchableOpacity, TouchableOpacityProps, View, Platform, StatusBar } from 'react-native'
@@ -16,13 +16,17 @@ import MoreIcon from '@assets/images/dfx_buttons/buttons/More_Icon.svg'
 
 // import BtnDobby from '@assets/images/dfx_buttons/btn_dobby.png'
 
-import { ThemedActivityIndicator, ThemedProps, ThemedText } from '@components/themed'
+import { ThemedActivityIndicator, ThemedIcon, ThemedProps, ThemedScrollView, ThemedText, ThemedView } from '@components/themed'
 import { PortfolioParamList } from '../PortfolioNavigator'
 import { getUserDetail } from '@shared-api/dfx/ApiService'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
 import { CryptoButtonGroupTabKey } from '../screens/ReceiveDTokenScreen'
 import { SvgProps } from 'react-native-svg'
 import { translate } from '@translations'
+import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
+import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet'
+
+interface DfxButton { hide?: boolean, Svg: React.FC<SvgProps>, label: string, onPress: () => Promise<void> | void }
 
 export function DfxButtons (): JSX.Element {
   const { address } = useWalletContext()
@@ -80,7 +84,7 @@ export function DfxButtons (): JSX.Element {
     })()
   }
 
-  const buttons: Array<{ hide?: boolean, Svg: React.FC<SvgProps>, label: string, onPress: () => Promise<void>|void }> = [
+  const buttons: DfxButton[] = [
     {
       Svg: BuyIcon,
       label: 'Buy',
@@ -135,10 +139,63 @@ export function DfxButtons (): JSX.Element {
   ]
 
   const BUTTONS_SHOWN = 5
-  const headerButtons = buttons.splice(BUTTONS_SHOWN - 1)
+  const partnerServiceButtons = buttons.splice(BUTTONS_SHOWN - 1)
+
+  // Bottom sheet
+  const [isModalDisplayed, setIsModalDisplayed] = useState(false)
+  const [bottomSheetScreen, setBottomSheetScreen] = useState<BottomSheetNavScreen[]>([])
+  const containerRef = useRef(null)
+  const bottomSheetRef = useRef<BottomSheetModal>(null)
+  const expandModal = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setIsModalDisplayed(true)
+    } else {
+      bottomSheetRef.current?.present()
+    }
+  }, [])
+  const dismissModal = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setIsModalDisplayed(false)
+    } else {
+      bottomSheetRef.current?.close()
+    }
+  }, [])
+
+  const setPartnerServices = useCallback(() => {
+    setBottomSheetScreen([
+      {
+        stackScreenName: 'PartnerServices',
+        component: BottomSheetPartnerServices({
+          partnerServiceButtons: partnerServiceButtons,
+          headerLabel: translate('screens/DfxButtons', 'Partner Services'),
+          onCloseButtonPress: () => dismissModal(),
+          onPress: async (): Promise<void> => dismissModal()
+        }),
+        option: {
+          header: () => {
+            return (
+              <ThemedView
+                light={tailwind('bg-white border-gray-200')}
+                dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
+                style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b', { 'py-3.5 border-t -mb-px': Platform.OS === 'android' })} // border top on android to handle 1px of horizontal transparent line when scroll past header
+              >
+                <ThemedText
+                  style={tailwind('text-lg font-medium')}
+                >
+                  {translate('screens/DfxButtons', 'Partner Services')}
+                </ThemedText>
+                <TouchableOpacity onPress={() => dismissModal()}>
+                  <ThemedIcon iconType='MaterialIcons' name='close' size={20} />
+                </TouchableOpacity>
+              </ThemedView>
+            )
+          }
+        }
+      }])
+  }, [partnerServiceButtons])
 
   return (
-    <View style={tailwind('flex justify-center flex-row mt-3')}>
+    <View style={tailwind('flex justify-center flex-row mt-3')} ref={containerRef}>
       <View style={tailwind('flex w-2')} />
       {buttons
         .filter((b) => !(b.hide ?? false))
@@ -148,8 +205,43 @@ export function DfxButtons (): JSX.Element {
           )
           : <SvgButton key={i} Svg={b.Svg} label={b.label} onPress={async () => await b.onPress()} />
       )}
-      <PopoverView buttons={headerButtons} />
       <View style={tailwind('flex w-2')} />
+
+      {/* <PopoverView buttons={partnerServiceButtons} /> */}
+
+      <SvgButton
+        Svg={MoreIcon}
+        label='more'
+        onPress={() => {
+          setPartnerServices()
+          expandModal()
+        }}
+      />
+      {
+        Platform.OS === 'web' && (
+          <BottomSheetWebWithNav
+            modalRef={containerRef}
+            screenList={bottomSheetScreen}
+            isModalDisplayed={isModalDisplayed}
+            modalStyle={{
+              position: 'absolute',
+              height: '350px',
+              width: '375px',
+              zIndex: 50,
+              bottom: '0'
+            }}
+          />
+        )
+      }
+
+      {
+        Platform.OS !== 'web' && (
+          <BottomSheetWithNav
+            modalRef={bottomSheetRef}
+            screenList={bottomSheetScreen}
+          />
+        )
+      }
     </View>
   )
 }
@@ -185,8 +277,43 @@ export function SvgButton (props: SvgButtonProps): JSX.Element {
   )
 }
 
+interface BottomSheetPartnerServicesProps {
+  headerLabel: string
+  onCloseButtonPress: () => void
+  onPress: () => void
+  partnerServiceButtons: DfxButton[]
+}
+
+const BottomSheetPartnerServices = ({
+  headerLabel,
+  onCloseButtonPress,
+  onPress,
+  partnerServiceButtons
+}: BottomSheetPartnerServicesProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
+  // modal scrollView setup
+  const bottomSheetComponents = {
+    mobile: BottomSheetScrollView,
+    web: ThemedScrollView
+  }
+  const ScrollView = Platform.OS === 'web' ? bottomSheetComponents.web : bottomSheetComponents.mobile
+
+  return (
+    <ScrollView>
+      <View style={tailwind('flex flex-row')}>
+        {partnerServiceButtons
+          .filter((btn) => !(btn.hide ?? false))
+          .map((btn, i) =>
+            <View key={`ov${i}`} style={tailwind('p-4')}>
+              <SvgButton Svg={btn.Svg} label={btn.label} onPress={async () => await btn.onPress()} />
+            </View>
+          )}
+      </View>
+    </ScrollView>
+  )
+})
+
 interface PopoverViewProps extends ThemedProps {
-  buttons: Array<{ hide?: boolean, Svg: React.FC<SvgProps>, label: string, onPress: () => Promise<void> | void }>
+  buttons: DfxButton[]
 }
 
 export function PopoverView (props: PopoverViewProps): JSX.Element {
