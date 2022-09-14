@@ -1684,7 +1684,7 @@
     "Deposit Bitcoin": "Deposita Bitcoin",
     "Buy": "Compra",
     "Staking": "Staking",
-    "more": ""
+    "more": "Más"
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "Por favor date cuenta de que todas las ventas de dTokens como dUSD, dCOIN, dTSLA, dSPY, etc. están sujetas a la tasa de estabilización del DEX. Los tokens como DFI, dBTC, dETH y las monedas estables como dUSDT/dUSDC no se ven afectadasas . Más información"
