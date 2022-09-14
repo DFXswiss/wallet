@@ -14,6 +14,7 @@ import { getNativeIcon } from '@components/icons/assets'
 import {
   CustomIcon,
   IconName,
+  IconType,
   ThemedIcon,
   ThemedScrollView,
   ThemedSectionTitle,
@@ -29,6 +30,7 @@ import { RootState } from '@store'
 interface TokenActionItems {
   title: string
   icon: IconName | typeof CustomIcon
+  iconType?: IconType
   onPress: () => void
   testID: string
 }
@@ -139,6 +141,18 @@ export function TokenDetailScreen ({
       {
         token.id !== '0' && (
           <>
+            <TokenActionRow
+              icon='bank' // {BtnSell} // TODO: add + implement custom icon
+              iconType='MaterialCommunityIcons'
+              onPress={() => navigation.navigate({
+                name: 'Buy',
+                params: { token },
+                merge: true
+              })}
+              testID='buy_button'
+              title={translate('screens/TokenDetailScreen', 'Buy')}
+            />
+
             <TokenActionRow
               icon='money' // {BtnSell} // TODO: add + implement custom icon
               onPress={() => navigation.navigate({
@@ -313,6 +327,7 @@ function TokenSummary (props: { token: WalletToken }): JSX.Element {
 function TokenActionRow ({
   title,
   icon,
+  iconType,
   onPress,
   testID
 }: TokenActionItems): JSX.Element {
@@ -324,7 +339,7 @@ function TokenActionRow ({
     >
       <ThemedIcon
         dark={tailwind('text-dfxred-500')}
-        iconType={(icon === CustomIcon) ? 'DfxIcon' : 'MaterialIcons'}
+        iconType={iconType ?? 'MaterialIcons'}
         light={tailwind('text-primary-500')}
         name={icon}
         size={24}

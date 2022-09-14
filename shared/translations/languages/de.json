@@ -1647,14 +1647,14 @@
     "Cash out to my bank account": "Auf mein Bankkonto auszahlen",
     "Bank account": "Auszahlungskonto",
     "Select a token you want to sell to get started": "Wähle einen Token, den du verkaufen möchtest, um loszulegen",
-    "please select": "bitte auswählen",
     "Enter your desired payout amount": "Gebe deinen gewünschten Auszahlungsbetrag an",
     "Available to sell": "Zum Verkauf verfügbar",
     "Transfer to your bank account": "Auf dein Bankkonto auszahlen",
     "Your Currency": "Deine Währung",
     "Select account to cash out": "Konto für Auszahlung auswählen",
     "Add account": "Konto hinzufügen",
-    "Sell": "Verkaufen"
+    "Sell": "Verkaufen",
+    "Please select": "Bitte auswählen"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "ORGANISATIONSDATEN",
@@ -1704,7 +1704,8 @@
     "Dobby": "Dobby",
     "Sell": "Verkaufen",
     "Buy": "Kauf",
-    "Staking": "Staking"
+    "Staking": "Staking",
+    "more": "mehr"
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "Bitte beachte, dass das bei allen Verkäufen von dToken (z.B. dUSD, dCOIN, dTSLA, dSPY..) eine DEX Stabilisationsgebühr anfällt. Die Cryptotoken wie z.B. DFI, dBTC, dETH und Stablecoins wie dUSDT/dUSDC sind davon nicht betroffen. Weitere Informationen"

@@ -1626,14 +1626,14 @@
     "Cash out to my bank account": "Ingresar en mi cuenta bancaria",
     "Bank account": "Cuenta bancaria",
     "Select a token you want to sell to get started": "Seleccione el token que desea vender para empezar",
-    "please select": "por favor selecciona",
     "Enter your desired payout amount": "Teclea la cantidad de pago deseada",
     "Available to sell": "Disponible para vender",
     "Transfer to your bank account": "Transferencia a mi cuenta bancaria",
     "Your Currency": "Su moneda",
     "Select account to cash out": "Seleccionar cuenta para cobrar",
     "Add account": "Añadir cuenta",
-    "Sell": "Vender"
+    "Sell": "Vender",
+    "Please select": "Por favor selecciona"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "DATOS DE LA ORGANIZACIÓN",
@@ -1683,7 +1683,8 @@
     "Sell": "Venta",
     "Deposit Bitcoin": "Deposita Bitcoin",
     "Buy": "Compra",
-    "Staking": "Staking"
+    "Staking": "Staking",
+    "more": ""
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "Por favor date cuenta de que todas las ventas de dTokens como dUSD, dCOIN, dTSLA, dSPY, etc. están sujetas a la tasa de estabilización del DEX. Los tokens como DFI, dBTC, dETH y las monedas estables como dUSDT/dUSDC no se ven afectadasas . Más información"
