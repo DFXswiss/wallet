@@ -1716,33 +1716,33 @@
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "Veuillez noter que toute vente de dTokens (par ex. dUSD, dCOIN, dTSLA, dSPY...) est actuellement soumise à la taxe de stabilisation du DEX. Les tokens crypto comme DFI, dBTC, dETH et les stablecoins dUSDT/dUSDC ne sont pas impactés. Plus d'information"
   },
   "screens/BuyScreen": {
-    "Buy Asset": "",
-    "Purchase Amount": "",
-    "Choose token to buy": "",
-    "Select your account for purchase": "",
-    "Select a token you want to buy to get started": "",
-    "Purchase with bank transfer": "",
-    "Payment account": ""
+    "Buy Asset": "Acheter des actifs",
+    "Purchase Amount": "Montant acheté",
+    "Choose token to buy": "Choisissez le token à acheter",
+    "Select your account for purchase": "Sélectionnez votre compte pour faire un achat",
+    "Select a token you want to buy to get started": "Commencez par choisir le token que vous voulez acheter",
+    "Purchase with bank transfer": "Achat par virement bancaire",
+    "Payment account": "Compte d'achat"
   },
   "components/SepaInstantLayover": {
-    "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "",
-    "Please note that your bank may charge fees for real-time payments.": "",
-    "Thanks for the note.": "",
-    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": ""
+    "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "Les virements SEPA instantanés sont autorisés par DFX et par votre banque. Vous pouvez ainsi faire votre dépôt encore plus rapidement si vous choisissez cette option.",
+    "Please note that your bank may charge fees for real-time payments.": "Veuillez noter que votre banque peut appliquer des frais sur les paiements instantanés.",
+    "Thanks for the note.": "Merci pour l'information.",
+    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": "Dès que le virement sera reçu sur notre compte bancaire, nous réserverons les actifs souhaités.\nMerci d'utiliser DFX.swiss."
   },
   "components/SepaInstant": {
-    "SEPA instant available": ""
+    "SEPA instant available": "Virement instantané disponible"
   },
   "screens/BuyConfirmationScreen": {
-    "BANK TRANSFER COMPLETED": "",
-    "PAYMENT INFORMATION": "",
-    "Please transfer the purchase amount using this information. The payment purpose is important and also that the payment is executed from your stored IBAN!": "",
-    "TRANSACTION DETAILS": "",
-    "PURPOSE OF PAYMENT": "",
-    "BENEFICIARY": "",
-    "You are buying": "",
-    "Your IBAN": "",
-    "Transaction Fee": "",
-    "Transfer Details": ""
+    "BANK TRANSFER COMPLETED": "VIREMENT EFFECTUÉ",
+    "PAYMENT INFORMATION": "INFORMATION DU PAIEMENT",
+    "Please transfer the purchase amount using this information. The payment purpose is important and also that the payment is executed from your stored IBAN!": "Veuillez effectuer le virement du montant d'achat avec l'IBAN que vous avez enregistré en utilisant ces informations. Le motif de paiement est primordial.",
+    "TRANSACTION DETAILS": "DÉTAILS DE LA TRANSACTION",
+    "PURPOSE OF PAYMENT": "MOTIF DU PAIEMENT",
+    "BENEFICIARY": "BÉNÉFICIAIRE",
+    "You are buying": "Vous achetez",
+    "Your IBAN": "Votre IBAN",
+    "Transaction Fee": "Frais de transaction",
+    "Transfer Details": "Détails du virement"
   }
 }
