@@ -18,8 +18,7 @@ import { SepaInstantComponent } from '@screens/AppNavigator/screens/Portfolio/co
 interface BottomSheetFiatAccountListProps {
   headerLabel: string
   onCloseButtonPress: () => void
-  onFiatAccountPress?: (sellRoute: SellRoute | BankAccount) => void
-  fiatAccounts: SellRoute[]
+  onFiatAccountPress: (sellRoute: BankAccount) => void
   bankAccounts: BankAccount[]
 }
 
@@ -27,7 +26,6 @@ export const BottomSheetFiatAccountList = ({
   headerLabel,
   onCloseButtonPress,
   onFiatAccountPress,
-  fiatAccounts,
   bankAccounts
 }: BottomSheetFiatAccountListProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const { isLight } = useThemeContext()
@@ -57,14 +55,7 @@ export const BottomSheetFiatAccountList = ({
     }
   }, [])
 
-  const filterEnabled = (sellRouteList: SellRoute[]): SellRoute[] => {
-    return sellRouteList?.filter((item) => {
-      return item.active
-    })
-  }
-
-  const filteredList = bankAccounts !== undefined ? bankAccounts : filterEnabled(fiatAccounts)
-  const [accountList, setAccountList] = useState(filteredList)
+  const [accountList, setAccountList] = useState(bankAccounts)
   const [trigger, setTrigger] = useState('')
 
   const setFiatAccountCreateBottomSheet = React.useCallback((accounts: SellRoute[] | BankAccount[]) => { // TODO: remove accounts?
@@ -72,20 +63,17 @@ export const BottomSheetFiatAccountList = ({
       {
         stackScreenName: 'FiatAccountCreate',
         component: BottomSheetFiatAccountCreate({
-          fiatAccounts: (fiatAccounts != null && accounts) as SellRoute[],
           bankAccounts: (bankAccounts != null && accounts) as BankAccount[],
           headerLabel: translate('screens/SellScreen', 'Add account'),
           onCloseButtonPress: () => dismissModal(),
           onElementCreatePress: async (item, newAccountsList): Promise<void> => {
             if (item.iban !== undefined) {
               if (newAccountsList != null) {
-                fiatAccounts = newAccountsList
-                setAccountList(newAccountsList)
+                bankAccounts = newAccountsList
               } else {
-                fiatAccounts.push(item)
-                filteredList.push(item as any)
-                setAccountList(filteredList)
+                bankAccounts.push(item)
               }
+              setAccountList(bankAccounts)
               setTrigger(random().toString())
             }
             dismissModal()
@@ -95,14 +83,14 @@ export const BottomSheetFiatAccountList = ({
           header: () => null
         }
       }])
-  }, [fiatAccounts])
+  }, [bankAccounts])
 
   return (
     <>
       <FlatList
         data={accountList as any}
         extraData={trigger}
-        renderItem={({ item }: { item: SellRoute | BankAccount }): JSX.Element => {
+        renderItem={({ item }: { item: BankAccount }): JSX.Element => {
           return (
             <ThemedTouchableOpacity
               onPress={() => {
@@ -112,17 +100,16 @@ export const BottomSheetFiatAccountList = ({
               testID={`select_${item.iban}`}
             >
               <View style={tailwind('ml-2')}>
-                {('sepaInstant' in item) && item.sepaInstant && (
+                {item.sepaInstant && (
                   <View style={tailwind('flex-shrink flex-row')}>
                     <SepaInstantComponent red invertedColor />
-                    {/* <View style={tailwind('flex-grow bg-primary-200')} /> */}
                   </View>
                 )}
                 <ThemedText
                   testID={`token_symbol_${item.iban}`}
                 >
-                  {/* {`${item?.label ?? ''} ${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`} */}
-                  {`${(item?.fiat?.name) ? item.fiat.name + ' / ' : ''}${item.iban}`}
+                  {/* {`${item?.label ?? (item?.fiat?.name ? item.fiat.name + ' / ' : ' ')}${item.iban}`} */}
+                  {`${item?.label ?? item?.fiat?.name ?? '-'} / ${item.iban}`}
                 </ThemedText>
               </View>
               <View style={tailwind('flex flex-row items-center')}>

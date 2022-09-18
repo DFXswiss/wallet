@@ -196,7 +196,6 @@ export function BuyScreen ({
       {
         stackScreenName: 'FiatAccountList',
         component: BottomSheetFiatAccountList({
-          fiatAccounts: [],
           bankAccounts: accounts,
           headerLabel: translate('screens/BuyScreen', 'Select your account for purchase'),
           onCloseButtonPress: () => dismissModal(),

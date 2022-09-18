@@ -11,11 +11,10 @@ import { useThemeContext } from '@shared-contexts/ThemeProvider'
 import { isValidIBAN } from 'ibantools'
 import { Control, Controller, useForm } from 'react-hook-form'
 import { WalletTextInput } from '@components/WalletTextInput'
-import { SellRoute } from '@shared-api/dfx/models/SellRoute'
 import { BottomSheetFiatPicker } from './BottomSheetFiatPicker'
 import { Fiat } from '@shared-api/dfx/models/Fiat'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { getFiats, postBankAccount, postSellRoute, putBankAccount } from '@shared-api/dfx/ApiService'
+import { getFiats, postBankAccount, putBankAccount } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { BankAccount, BankAccountData } from '@shared-api/dfx/models/BankAccount'
 import { SepaInstantOverlay } from '@screens/AppNavigator/screens/Portfolio/components/SepaInstantLayover'
@@ -23,16 +22,14 @@ import { SepaInstantOverlay } from '@screens/AppNavigator/screens/Portfolio/comp
 interface BottomSheetFiatAccountCreateProps {
   headerLabel: string
   onCloseButtonPress: () => void
-  onElementCreatePress: (fiatAccount: SellRoute | BankAccount, updatedAccounts?: BankAccount[]) => void
-  fiatAccounts?: SellRoute[]
-  bankAccounts?: BankAccount[]
+  onElementCreatePress: (fiatAccount: BankAccount, updatedAccounts?: BankAccount[]) => void
+  bankAccounts: BankAccount[]
 }
 
 export const BottomSheetFiatAccountCreate = ({
   headerLabel,
   onCloseButtonPress,
   onElementCreatePress,
-  fiatAccounts,
   bankAccounts
 }: BottomSheetFiatAccountCreateProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const { isLight } = useThemeContext()
@@ -107,7 +104,6 @@ export const BottomSheetFiatAccountCreate = ({
     setIsSubmitting(true)
 
     const iban: string = getValues('iban')
-    const sellData = { iban: iban, fiat: selectedFiat }
     const label: string = getValues('label')
 
     const createNewBankAccount: BankAccountData = {
@@ -145,14 +141,6 @@ export const BottomSheetFiatAccountCreate = ({
           })
           .finally(() => setIsSubmitting(false))
       }
-    } else {
-      // legacy method (new sellRoute)
-      postSellRoute(sellData)
-        .then((sellRoute) => onElementCreatePress(sellRoute))
-        .catch((error) => {
-          WalletAlertErrorApi(error)
-        })
-        .finally(() => setIsSubmitting(false))
     }
   }
 

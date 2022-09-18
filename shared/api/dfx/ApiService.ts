@@ -7,7 +7,7 @@ import { CfpResult } from './models/CfpResult'
 import { Country } from './models/Country'
 import { Fiat } from './models/Fiat'
 import { Language } from './models/Language'
-import { fromSellRouteDto, SellData, SellRoute, SellRouteDto, toSellRouteDto } from './models/SellRoute'
+import { fromSellRouteDto, GetSellPaymentInfoDto, SellData, SellPaymentInfoDto, SellRoute, SellRouteDto, toSellRouteDto } from './models/SellRoute'
 import {
   CfpVotes,
   fromUserDetailDto,
@@ -153,6 +153,10 @@ export const putBuyRoute = async (route: BuyRoute): Promise<BuyRoute> => {
 
 export const buyWithPaymentInfos = async (payentInfos: GetBuyPaymentInfoDto): Promise<BuyPaymentInfoDto> => {
   return await fetchFrom<BuyPaymentInfoDto>(`${BuyUrl}/${PaymentInfosUrl}`, 'PUT', payentInfos)//, toBuyRouteDto(route)).then(fromBuyRouteDto)
+}
+
+export const sellWithPaymentInfos = async (payentInfos: GetSellPaymentInfoDto): Promise<SellPaymentInfoDto> => {
+  return await fetchFrom<SellPaymentInfoDto>(`${SellUrl}/${PaymentInfosUrl}`, 'PUT', payentInfos)//, toBuyRouteDto(route)).then(fromBuyRouteDto)
 }
 
 export const getSellRoutes = async (): Promise<SellRoute[]> => {
