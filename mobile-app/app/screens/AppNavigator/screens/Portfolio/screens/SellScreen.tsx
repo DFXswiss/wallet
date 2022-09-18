@@ -585,7 +585,7 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
                   style={tailwind('ml-2 font-medium')}
                   testID='selected_fiatAccount'
                 >
-                  {`${props.fiatAccount.label ?? props.fiatAccount.iban}`}
+                  {`${props.fiatAccount.label ?? props.fiatAccount.fiat?.name ?? '-'} / ${props.fiatAccount.iban}`}
                 </ThemedText>
               </View>
             )}

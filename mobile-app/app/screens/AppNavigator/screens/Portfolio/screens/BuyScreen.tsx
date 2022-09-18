@@ -158,6 +158,7 @@ export function BuyScreen ({
       {
         stackScreenName: 'TokenList',
         component: BottomSheetTokenList({
+          simple: true,
           tokens: getBottomSheetToken(fromTokens),
           tokenType: TokenType.BottomSheetToken,
           headerLabel: translate('screens/BuyScreen', 'Choose token to buy'),
@@ -445,7 +446,7 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
                   style={tailwind('ml-2 font-medium')}
                   testID='selected_fiatAccount'
                 >
-                  {`${props.fiatAccount.label ?? props.fiatAccount.iban}`}
+                  {`${props.fiatAccount.label ?? props.fiatAccount.fiat?.name ?? '-'} / ${props.fiatAccount.iban}`}
                 </ThemedText>
               </View>
             )}
