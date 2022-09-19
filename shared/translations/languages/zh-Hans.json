@@ -9,5 +9,8 @@
     "Sell": "出售",
     "Staking": "钉子",
     "more": "更多"
+  },
+  "screens/SellScreen": {
+    "Optional - Account Designation": "可选 - 帐户指定"
   }
 }

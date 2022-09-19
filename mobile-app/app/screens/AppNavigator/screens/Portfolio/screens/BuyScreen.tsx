@@ -50,13 +50,9 @@ export function BuyScreen ({
   navigation
 }: Props): JSX.Element {
   const logger = useLogger()
-  // const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
-
   const {
     fromTokens
   } = useSwappableTokens(undefined)
-
-  // const { allTokens } = useSelector((state: RootState) => state.wallet)
   const [token, setToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedbankAccount] = useState<BankAccount>()
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
@@ -378,7 +374,7 @@ export function BuyScreen ({
 
         <View style={tailwind('mt-6')}>
           <SubmitButtonGroup
-            isDisabled={!formState.isValid || !canProcess() /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
+            isDisabled={!formState.isValid || !canProcess() || selectedBankAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
             label={translate('screens/BuyScreen', 'Buy Asset')}
             processingLabel={translate('screens/BuyScreen', 'Buy Asset')}
             onSubmit={onSubmit}

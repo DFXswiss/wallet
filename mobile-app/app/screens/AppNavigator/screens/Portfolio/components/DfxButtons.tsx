@@ -205,10 +205,6 @@ export function DfxButtons (): JSX.Element {
           )
           : <SvgButton key={i} Svg={b.Svg} label={b.label} onPress={async () => await b.onPress()} />
       )}
-      <View style={tailwind('flex w-2')} />
-
-      {/* <PopoverView buttons={partnerServiceButtons} /> */}
-
       <SvgButton
         Svg={MoreIcon}
         label='more'
@@ -217,6 +213,9 @@ export function DfxButtons (): JSX.Element {
           expandModal()
         }}
       />
+      <View style={tailwind('flex w-2')} />
+
+      {/* <PopoverView buttons={partnerServiceButtons} /> */}
       {
         Platform.OS === 'web' && (
           <BottomSheetWebWithNav

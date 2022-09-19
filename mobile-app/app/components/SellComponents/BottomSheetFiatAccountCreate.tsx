@@ -418,7 +418,7 @@ function LabelRow ({
             value={value}
             displayClearButton={value !== ''}
             onClearButtonPress={onClearButtonPress}
-            title={translate('component/AccountCreate', 'Optional - Account Designation')}
+            title={translate('screens/SellScreen', 'Optional - Account Designation')}
             titleTestID='title_send'
             inputType='default'
             hasBottomSheet

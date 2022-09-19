@@ -1016,7 +1016,7 @@
     "Send Liquidity Pool tokens only to DeFiChain compatible wallets. Otherwise, sending to other exchanges (except DFX) may result in irreversible loss of funds.": "Sende Liquiditätspool-Token nur an DeFiChain-kompatible Wallets. Andernfalls kann der Versand an andere Tauschbörsen (bis auf DFX) zu einem irreversiblen Verlust von Einlagen führen."
   },
   "components/DfxKycInfo": {
-    "Your account needs to get verified once your daily transaction volume exceeds 900 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Ab einem Transaktionsvolumen von mehr als 900 € pro Tag muss dein Account verifiziert sein. Möchtest du dieses Limit erhöhen, dann schließe bitte den KYC-Prozess (Know-Your-Customer) ab."
+    "Your account needs to get verified once your daily transaction volume exceeds 1000 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Ab einem Transaktionsvolumen von mehr als 900 € pro Tag muss dein Account verifiziert sein. Möchtest du dieses Limit erhöhen, dann schließe bitte den KYC-Prozess (Know-Your-Customer) ab."
   },
   "components/ConversionTag": {
     "Conversion required": "Konvertierung erforderlich"
@@ -1654,7 +1654,8 @@
     "Select account to cash out": "Konto für Auszahlung auswählen",
     "Add account": "Konto hinzufügen",
     "Sell": "Verkaufen",
-    "Please select": "Bitte auswählen"
+    "Please select": "Bitte auswählen",
+    "Optional - Account Designation": "Optional - Kontobezeichnung"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "ORGANISATIONSDATEN",
@@ -1723,7 +1724,7 @@
     "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "DFX und deine Bank unterstützen SEPA instant. Das bedeutet, dass wir deine Einzahlung noch schneller bearbeiten können, wenn du diese Option nutzt.",
     "Please note that your bank may charge fees for real-time payments.": "Beachte, dass deine Bank möglicherweise Gebühren für Echtzeitzahlungen erhebt. ",
     "Thanks for the note.": "Danke für die Info.",
-    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": "Sobald die Überweisung auf unserem Konto eintrifft, kaufen wir Ihr gewünschtes Asset. Vielen Dank, dass Sie DFX.swiss nutzen."
+    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": "Sobald die Überweisung auf unserem Konto eintrifft, kaufen wir das gewünschte Asset. Vielen Dank, dass du DFX.swiss nutzt."
   },
   "components/SepaInstant": {
     "SEPA instant available": "Sepa instant verfügbar"
