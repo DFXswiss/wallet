@@ -57,6 +57,19 @@ export interface NewUser {
   usedRef: string | undefined | null
 }
 
+export interface KycInfo {
+  kycStatus: KycStatus
+  kycState: KycState
+  kycDataComplete: boolean
+  kycHash: string
+  accountType: AccountType
+  depositLimit: number
+  sessionUrl?: string
+  setupUrl?: string
+  blankedPhone?: string
+  blankedMail?: string
+}
+
 export interface Fees {
   buy: number
   refBonus: number
@@ -123,6 +136,11 @@ export interface UserDetail extends User {
   refCount: number
   refCountActive: number
   stakingBalance: number
+}
+
+export interface UserDetailRequestDto {
+  mail: string
+  mobileNumber: string
 }
 
 export const fromUserDto = (user: UserDto): User => ({

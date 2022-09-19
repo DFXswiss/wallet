@@ -12,12 +12,14 @@ import {
   CfpVotes,
   fromUserDetailDto,
   fromUserDto,
+  KycInfo,
   KycResult,
   NewUser,
   toUserDto,
   User,
   UserDetail,
   UserDetailDto,
+  UserDetailRequestDto,
   UserDto
 } from './models/User'
 import { AuthService, Credentials, Session } from './AuthService'
@@ -79,8 +81,8 @@ export const getUserDetail = async (): Promise<UserDetail> => {
   return await fetchFrom<UserDetailDto>(`${UserUrl}/detail`).then(fromUserDetailDto)
 }
 
-export const putUser = async (user: User): Promise<UserDetail> => {
-  return await fetchFrom<UserDetailDto>(UserUrl, 'PUT', toUserDto(user)).then(fromUserDetailDto)
+export const putUser = async (user: User | UserDetailRequestDto): Promise<UserDetail> => {
+  return await fetchFrom<UserDetailDto>(UserUrl, 'PUT', toUserDto(user as User)).then(fromUserDetailDto)
 }
 
 export const updateRefFee = async (fee: number): Promise<void> => {
@@ -88,23 +90,75 @@ export const updateRefFee = async (fee: number): Promise<void> => {
 }
 
 // --- KYC --- //
-export const putKycData = async (data: KycData): Promise<void> => {
+export const putKycData = async (data: KycData, code?: string): Promise<KycInfo> => {
+  if (code === undefined) {
+    return await putKycDataOLD(data) as unknown as KycInfo
+  }
+  return await fetchFrom<KycInfo>(`${KycUrl}/${code}/data`, 'PUT', toKycDataDto(data))
+}
+
+export const postKyc = async (code?: string): Promise<KycInfo> => {
+  if (code === undefined) {
+    return await postKycOLD() as unknown as KycInfo
+  }
+  return await fetchFrom<KycInfo>(`${KycUrl}/${code}`, 'POST')
+}
+
+export const getKyc = async (code: string): Promise<KycInfo> => {
+  try {
+    return await fetchFrom<KycInfo>(`${KycUrl}/${code}`)
+  } catch (err) {
+    return await getKycOLD(code) as unknown as KycInfo
+  }
+}
+
+export const postLimit = async (request: LimitRequest, code?: string): Promise<LimitRequest> => {
+  if (code === undefined) {
+    return await postLimitOLD(request)
+  }
+  return await fetchFrom<LimitRequest>(`${KycUrl}/${code}/limit`, 'POST', request)
+}
+
+export const postFounderCertificate = async (files: File[], code?: string): Promise<void> => {
+  if (code === undefined) {
+    return await postFounderCertificateOLD(files)
+  }
+  return await postFiles(`${KycUrl}/${code}/incorporationCertificate`, files)
+}
+
+// --- KYC @deprecated --- //
+/**
+ * @deprecated The method should not be used
+ */
+export const putKycDataOLD = async (data: KycData): Promise<void> => {
   return await fetchFrom(`${KycUrl}/data`, 'POST', toKycDataDto(data))
 }
 
-export const postKyc = async (): Promise<string> => {
+/**
+ * @deprecated The method should not be used
+ */
+export const postKycOLD = async (): Promise<string> => {
   return await fetchFrom<string>(KycUrl, 'POST')
 }
 
-export const getKyc = async (code: string): Promise<KycResult> => {
+/**
+ * @deprecated The method should not be used
+ */
+export const getKycOLD = async (code: string): Promise<KycResult> => {
   return await fetchFrom<KycResult>(`${KycUrl}?code=${code}`)
 }
 
-export const postLimit = async (request: LimitRequest): Promise<LimitRequest> => {
+/**
+ * @deprecated The method should not be used
+ */
+export const postLimitOLD = async (request: LimitRequest): Promise<LimitRequest> => {
   return await fetchFrom<LimitRequest>(`${KycUrl}/limit`, 'POST', request)
 }
 
-export const postFounderCertificate = async (files: File[]): Promise<void> => {
+/**
+ * @deprecated The method should not be used
+ */
+export const postFounderCertificateOLD = async (files: File[]): Promise<void> => {
   return await postFiles(`${KycUrl}/incorporationCertificate`, files)
 }
 
