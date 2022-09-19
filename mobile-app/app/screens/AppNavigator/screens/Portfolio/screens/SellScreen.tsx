@@ -38,7 +38,7 @@ import { BottomSheetFiatAccountList } from '@components/SellComponents/BottomShe
 import { GetSellPaymentInfoDto } from '@shared-api/dfx/models/SellRoute'
 import { DfxKycInfo } from '@components/DfxKycInfo'
 import { ActionButton } from '../../Dex/components/PoolPairCards/ActionSection'
-import { BottomSheetFiatAccountCreate } from '@components/SellComponents/BottomSheetFiatAccountCreate'
+import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellComponents/BottomSheetFiatAccountCreate'
 import { send } from './SendConfirmationScreen'
 import { useConversion } from '@hooks/wallet/Conversion'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
@@ -49,8 +49,9 @@ import { DfxDexFeeInfo } from '@components/DfxDexFeeInfo'
 import { WalletAccordion } from '@components/WalletAccordion'
 import { BankAccount } from '@shared-api/dfx/models/BankAccount'
 import { Fiat } from '@shared-api/dfx/models/Fiat'
-import { WalletAlert } from '@components/WalletAlert'
+import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { SepaInstantComponent } from '../components/SepaInstantComponent'
+import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
 
 type Props = StackScreenProps<PortfolioParamList, 'SellScreen'>
 
@@ -63,7 +64,12 @@ export function SellScreen ({
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const [token, setToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedBankAccount] = useState<BankAccount>()
-  // const [fiatAccounts, setFiatAccounts] = useState<SellRoute[]>([])
+  const initialFiat: Fiat = {
+    id: 2,
+    name: 'EUR',
+    enable: true
+  }
+  const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
   const [isLoadingData, setIsLoadingData] = useState(true)
   const {
@@ -218,9 +224,9 @@ export function SellScreen ({
 
     // load sell infos
     const paymentInfos: GetSellPaymentInfoDto = {
-      iban: selectedBankAccount?.iban ?? '',
+      iban: item.iban ?? selectedBankAccount?.iban,
       // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      currency: selectedBankAccount?.fiat ?? {} as Fiat
+      currency: item.fiat ?? selectedFiat
     }
 
     sellWithPaymentInfos(paymentInfos)
@@ -229,8 +235,37 @@ export function SellScreen ({
         setDepositAddress(sellPaymentInfo.depositAddress)
         // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
         setSelectedBankAccount(item)
+        if (item.fiat != null) {
+          setSelectedFiat(item.fiat)
+        }
       })
-      .catch(WalletAlert)
+      .catch(WalletAlertErrorApi)
+      .finally(() => setIsLoadingData(false))
+  }
+
+  const setFiat = (fiat: Fiat): void => {
+    if (selectedBankAccount === undefined) {
+      setSelectedFiat(fiat)
+      return
+    }
+
+    // when bankAccount is already selected, get new corresponding depositAddress
+    setIsLoadingData(true)
+
+    // load sell infos
+    const paymentInfos: GetSellPaymentInfoDto = {
+      iban: selectedBankAccount.iban,
+      currency: fiat
+    }
+
+    sellWithPaymentInfos(paymentInfos)
+      .then((sellPaymentInfo) => {
+        setFee(sellPaymentInfo.fee)
+        setDepositAddress(sellPaymentInfo.depositAddress)
+        // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
+        setSelectedFiat(fiat)
+      })
+      .catch(WalletAlertErrorApi)
       .finally(() => setIsLoadingData(false))
   }
 
@@ -302,8 +337,30 @@ export function SellScreen ({
       }])
   }, [])
 
+  // fiat picker modal => open / return
+  const setFiatPickerBottomSheet = useCallback((fiats: Fiat[]) => {
+    setBottomSheetScreen([
+      {
+        stackScreenName: 'FiatAccountList',
+        component: BottomSheetFiatPicker({
+          onFiatPress: async (selectedFiat): Promise<void> => {
+            if (selectedFiat !== undefined) {
+              // update preferredCurrency und recheck deposit address (if bank already selected
+              setFiat(selectedFiat)
+            }
+            dismissModal()
+          },
+          onCloseModal: () => dismissModal(),
+          fiats: fiats
+        }),
+        option: {
+          header: () => null
+        }
+      }])
+  }, [])
+
   async function onSubmit (): Promise<void> {
-    if (hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount === undefined || depositAddress === undefined) {
+    if (hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount === undefined || selectedFiat === undefined || depositAddress === undefined) {
       return
     }
 
@@ -368,7 +425,7 @@ export function SellScreen ({
                   <View style={tailwind('px-4')}>
                     <FiatAccountInput
                       onPress={() => {
-                          setFiatAccountListBottomSheet(bankAccounts)
+                        setFiatAccountListBottomSheet(bankAccounts)
                         expandModal()
                       }}
                       fiatAccount={selectedBankAccount}
@@ -385,6 +442,14 @@ export function SellScreen ({
                       />} */}
 
                     <DfxKycInfo />
+
+                    <FiatPickerRow
+                      fiat={selectedFiat}
+                      openFiatBottomSheet={(fiats) => {
+                        setFiatPickerBottomSheet(fiats)
+                        expandModal()
+                      }}
+                    />
 
                     <AmountRow
                       control={control}
@@ -446,7 +511,7 @@ export function SellScreen ({
 
         <View style={tailwind('mt-6')}>
           <SubmitButtonGroup
-            isDisabled={!formState.isValid /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
+            isDisabled={!formState.isValid /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || selectedFiat === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
             label={translate('screens/SellScreen', 'Transfer to your bank account')}
             processingLabel={translate('screens/SellScreen', 'Transfer to your bank account')}
             onSubmit={onSubmit}
@@ -585,7 +650,7 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
                   style={tailwind('ml-2 font-medium')}
                   testID='selected_fiatAccount'
                 >
-                  {`${props.fiatAccount.label ?? props.fiatAccount.fiat?.name ?? '-'} / ${props.fiatAccount.iban}`}
+                  {`${props.fiatAccount?.label ?? props.fiatAccount?.fiat?.name ?? '-'} / ${props.fiatAccount.iban}`}
                 </ThemedText>
               </View>
             )}

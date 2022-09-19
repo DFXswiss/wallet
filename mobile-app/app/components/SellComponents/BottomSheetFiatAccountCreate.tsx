@@ -113,7 +113,7 @@ export const BottomSheetFiatAccountCreate = ({
     }
 
     // check if account already exists (based on iban) and replace currency and label
-    const matchedAccount = bankAccounts?.find((account: BankAccount) => account.iban.split(' ').join('') === createNewBankAccount.iban)
+    const matchedAccount = bankAccounts?.find((account: BankAccount) => account.iban.split(' ').join('') === createNewBankAccount.iban.split(' ').join(''))
     let updatedAccountsList: BankAccount[] | undefined
     if (matchedAccount != null) {
       const matchedIndex = bankAccounts?.indexOf(matchedAccount)
@@ -128,17 +128,13 @@ export const BottomSheetFiatAccountCreate = ({
         // if IBAN exists already, edit props
         putBankAccount(createNewBankAccount, matchedAccount.id)
           .then((updatedBankAccount) => onElementCreatePress(updatedBankAccount, updatedAccountsList))
-          .catch((error) => {
-            WalletAlertErrorApi(error)
-          })
+          .catch(WalletAlertErrorApi)
           .finally(() => setIsSubmitting(false))
       } else {
         // create new account and show SEPAinstant popup if qualifying
         postBankAccount(createNewBankAccount)
           .then((newBankAccount) => newBankAccount.sepaInstant ? setSepaInstantAccount(newBankAccount) : onElementCreatePress(newBankAccount))
-          .catch((error) => {
-            WalletAlertErrorApi(error)
-          })
+          .catch(WalletAlertErrorApi)
           .finally(() => setIsSubmitting(false))
       }
     }

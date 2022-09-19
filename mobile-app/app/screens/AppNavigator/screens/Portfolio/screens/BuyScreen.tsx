@@ -60,8 +60,12 @@ export function BuyScreen ({
   const [token, setToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedbankAccount] = useState<BankAccount>()
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
-  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-  const [selectedFiat, setSelectedFiat] = useState<Fiat>({} as Fiat)
+  const initialFiat: Fiat = {
+    id: 2,
+    name: 'EUR',
+    enable: true
+  }
+  const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
   const {
     control,
     setValue,
@@ -446,7 +450,7 @@ function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => vo
                   style={tailwind('ml-2 font-medium')}
                   testID='selected_fiatAccount'
                 >
-                  {`${props.fiatAccount.label ?? props.fiatAccount.fiat?.name ?? '-'} / ${props.fiatAccount.iban}`}
+                  {`${props.fiatAccount?.label ?? props.fiatAccount?.fiat?.name ?? '-'} / ${props.fiatAccount.iban}`}
                 </ThemedText>
               </View>
             )}

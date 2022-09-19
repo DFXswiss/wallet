@@ -15,7 +15,7 @@ interface DfxKycInfoProps {
   }
 }
 
-const KYC_MAX_AMOUNT = 900
+const KYC_MAX_AMOUNT = 1000
 
 export function DfxKycInfo (props: DfxKycInfoProps): JSX.Element {
 const { openDfxServices } = useDFXAPIContext()
@@ -29,7 +29,7 @@ const { openDfxServices } = useDFXAPIContext()
         >
           <InfoText
             testID='dfx_kyc_info'
-            text={translate('components/DfxKycInfo', 'Your account needs to get verified once your daily transaction volume exceeds 900 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.')}
+            text={translate('components/DfxKycInfo', 'Your account needs to get verified once your daily transaction volume exceeds 1000 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.')}
             style={props.style}
           />
         </TouchableOpacity>
