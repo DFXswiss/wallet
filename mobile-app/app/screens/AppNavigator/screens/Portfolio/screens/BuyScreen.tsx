@@ -491,11 +491,13 @@ function AmountRow ({
 }: AmountForm): JSX.Element {
   // check format and round input
   const onAmountChangeCAPPED = (amount: string): void => {
+    amount = (new BigNumber(amount).isLessThan(1)) ? new BigNumber(1).toString() : amount
     const amountBN = new BigNumber(amount)
     const roundedAmount = amountBN.decimalPlaces(2).toString()
 
     // !number => clear amount
     // decimal places > 2 => rounding
+    // minValue 1
     return onAmountChange(roundedAmount.toString() === 'NaN' ? '' : amountBN.decimalPlaces() > 2 ? roundedAmount : amount)
   }
 
