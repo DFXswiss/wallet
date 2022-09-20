@@ -8,7 +8,7 @@ import { PortfolioParamList } from '../PortfolioNavigator'
 import { Button } from '@components/Button'
 import { FlatList } from 'react-native-gesture-handler'
 import BankTransferIcon from '@assets/images/dfx_buttons/misc/BankTransfer.svg'
-import React, { useCallback, useState } from 'react'
+import React, { useCallback, useEffect, useState } from 'react'
 import { InfoText } from '@components/InfoText'
 import { View } from '@components'
 import { TouchableOpacity } from 'react-native'
@@ -16,6 +16,7 @@ import { debounce } from 'lodash'
 import * as Clipboard from 'expo-clipboard'
 import { SepaInstantComponent } from '../components/SepaInstantComponent'
 import { BuySuccessOverlay } from '../components/SepaInstantLayover'
+import { useToast } from 'react-native-toast-notifications'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyConfirmationScreen'>
 
@@ -110,6 +111,7 @@ interface ListItemProps {
 }
 function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
   const [showToast, setShowToast] = useState(false)
+  const toast = useToast()
   const TOAST_DURATION = 2000
 
   const copyToClipboard = useCallback(debounce(() => {
@@ -119,6 +121,18 @@ function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
     setShowToast(true)
     setTimeout(() => setShowToast(false), TOAST_DURATION)
   }, 500), [showToast])
+
+  useEffect(() => {
+    if (showToast) {
+      toast.show(translate('components/toaster', 'Copied'), {
+        type: 'wallet_toast',
+        placement: 'top',
+        duration: TOAST_DURATION
+      })
+    } else {
+      toast.hideAll()
+    }
+  }, [showToast])
 
   return (
     <ThemedView dark={tailwind('flex px-4 border-b border-dfxblue-900', (copyIcon ?? false) ? ' py-2' : 'py-1')}>
