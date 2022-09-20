@@ -82,18 +82,18 @@ export function Announcements ({ channel }: { channel?: AnnouncementChannel }): 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBlockchainDown])
 
-  if (announcementToDisplay?.channel === channel && channel === AnnouncementChannel.BUY && announcementToDisplay !== undefined) {
-    return (
-      <AnnouncementBanner
-        announcement={announcementToDisplay} hideAnnouncement={hideAnnouncement}
-        testID='announcements_banner'
-      />
-    )
-  } else if (announcementToDisplay?.channel != null && announcementToDisplay?.channel !== channel) {
+  if (!isSuccess || announcementToDisplay === undefined) {
     return <></>
   }
 
-  if (!isSuccess || announcementToDisplay === undefined) {
+  if (channel != null && announcement?.channel === channel) {
+    return (
+      <AnnouncementBanner
+        announcement={announcement} hideAnnouncement={hideAnnouncement}
+        testID='announcements_banner'
+      />
+    )
+  } else if (channel != null && announcement?.channel !== channel) {
     return <></>
   }
 
