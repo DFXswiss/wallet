@@ -1,7 +1,7 @@
 import { ThemedText, ThemedView } from '@components/themed'
 import { tailwind } from '@tailwind'
 import { useGetAnnouncementsQuery } from '@store/website'
-import { AnnouncementData } from '@shared-types/website'
+import { AnnouncementChannel, AnnouncementData } from '@shared-types/website'
 import { satisfies } from 'semver'
 import { useLanguageContext } from '@shared-contexts/LanguageProvider'
 import { openURL } from '@api/linking'
@@ -17,7 +17,7 @@ import { useThemeContext } from '@shared-contexts/ThemeProvider'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useServiceProviderContext } from '@contexts/StoreServiceProvider'
 
-export function Announcements (): JSX.Element {
+export function Announcements ({ channel }: { channel?: AnnouncementChannel }): JSX.Element {
   const {
     data: announcements,
     isSuccess
@@ -81,6 +81,17 @@ export function Announcements (): JSX.Element {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isBlockchainDown])
+
+  if (announcementToDisplay?.channel === channel && channel === AnnouncementChannel.BUY && announcementToDisplay !== undefined) {
+    return (
+      <AnnouncementBanner
+        announcement={announcementToDisplay} hideAnnouncement={hideAnnouncement}
+        testID='announcements_banner'
+      />
+    )
+  } else if (announcementToDisplay?.channel != null && announcementToDisplay?.channel !== channel) {
+    return <></>
+  }
 
   if (!isSuccess || announcementToDisplay === undefined) {
     return <></>
@@ -192,6 +203,7 @@ export interface Announcement {
   url: string
   id?: string
   type: AnnouncementData['type']
+  channel?: AnnouncementChannel
 }
 
 export function findDisplayedAnnouncementForVersion (version: string, language: string, hiddenAnnouncements: string[], announcements?: AnnouncementData[]): Announcement | undefined {
@@ -209,7 +221,8 @@ export function findDisplayedAnnouncementForVersion (version: string, language: 
         content: lang[language] ?? lang.en,
         url: platformUrl !== undefined ? platformUrl[Platform.OS] : undefined,
         id: announcement.id,
-        type: announcement.type
+        type: announcement.type,
+        channel: announcement.channel
       }
     }
   }

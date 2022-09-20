@@ -52,6 +52,8 @@ import { Fiat } from '@shared-api/dfx/models/Fiat'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { SepaInstantComponent } from '../components/SepaInstantComponent'
 import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
+import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
+import { Announcements } from '../components/Announcements'
 
 type Props = StackScreenProps<PortfolioParamList, 'SellScreen'>
 
@@ -378,9 +380,18 @@ export function SellScreen ({
     }
   }
 
+  const [announcementDelayFinished, setAnnouncementDelayFinished] = useState(false)
+  useEffect(() => {
+    setTimeout(() => {
+      setAnnouncementDelayFinished(true)
+    }, ANNOUNCEMENTCHANNELDELAY)
+  }, [])
+
   return (
     <View style={tailwind('h-full')} ref={containerRef}>
       <ThemedScrollView contentContainerStyle={tailwind('pt-6 pb-8')} testID='sell_screen'>
+
+        {announcementDelayFinished && <Announcements channel={AnnouncementChannel.SELL} />}
 
         <TokenInput
           title={translate('screens/SellScreen', 'Cash out to my bank account')}

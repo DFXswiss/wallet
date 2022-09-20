@@ -41,6 +41,8 @@ import { Asset } from '@shared-api/dfx/models/Asset'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { SepaInstantComponent } from '../components/SepaInstantComponent'
 import { TokenInput } from './SellScreen'
+import { Announcements } from '../components/Announcements'
+import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyScreen'>
 
@@ -307,9 +309,18 @@ export function BuyScreen ({
     }
   }
 
+  const [announcementDelayFinished, setAnnouncementDelayFinished] = useState(false)
+  useEffect(() => {
+    setTimeout(() => {
+      setAnnouncementDelayFinished(true)
+    }, ANNOUNCEMENTCHANNELDELAY)
+  }, [])
+
   return (
     <View style={tailwind('h-full')} ref={containerRef}>
       <ThemedScrollView contentContainerStyle={tailwind('pt-6 pb-8')} testID='sell_screen'>
+
+        {announcementDelayFinished && <Announcements channel={AnnouncementChannel.BUY} />}
 
         <TokenInput
           title={translate('screens/BuyScreen', 'Buy Asset')}

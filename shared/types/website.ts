@@ -10,6 +10,13 @@ export interface AnnouncementText {
   it: string
 }
 
+export enum AnnouncementChannel {
+  BUY = 'BUY',
+  SELL = 'SELL'
+}
+
+export const ANNOUNCEMENTCHANNELDELAY = 2000
+
 export interface AnnouncementData {
   lang: AnnouncementText
   /**
@@ -28,6 +35,7 @@ export interface AnnouncementData {
    */
   id?: string
   type: 'EMERGENCY' | 'OTHER_ANNOUNCEMENT' | 'OUTAGE' | 'SCAN'
+  channel?: AnnouncementChannel
 }
 
 export interface FeatureFlag {
