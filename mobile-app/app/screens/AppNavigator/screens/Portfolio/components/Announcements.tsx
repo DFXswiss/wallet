@@ -69,7 +69,7 @@ export function Announcements ({ channel }: { channel?: AnnouncementChannel }): 
     3. Outages - Ocean API
     4. Other announcements
   */
-  const announcementToDisplay = emergencyAnnouncement ?? blockchainIsDownAnnouncement ?? oceanIsDownAnnouncement ?? announcement
+  const announcementToDisplay = channel != null ? channelAnnouncement : emergencyAnnouncement ?? blockchainIsDownAnnouncement ?? oceanIsDownAnnouncement ?? announcement
 
   useEffect(() => {
     // To display warning message in Announcement banner when blockchain is down for > 45 mins
@@ -84,18 +84,6 @@ export function Announcements ({ channel }: { channel?: AnnouncementChannel }): 
   }, [isBlockchainDown])
 
   if (!isSuccess || announcementToDisplay === undefined) {
-    return <></>
-  }
-
-  if (channelAnnouncement != null) {
-    return (
-      <AnnouncementBanner
-        announcement={channelAnnouncement} hideAnnouncement={hideAnnouncement}
-        testID='announcements_banner'
-      />
-    )
-  }
-  if (channel != null || channelAnnouncement != null) {
     return <></>
   }
 
