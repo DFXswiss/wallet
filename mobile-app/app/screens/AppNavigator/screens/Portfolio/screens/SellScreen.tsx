@@ -35,19 +35,25 @@ import { useAppDispatch } from '@hooks/useAppDispatch'
 import { debounce } from 'lodash'
 import { useWalletAddress } from '@hooks/useWalletAddress'
 import { BottomSheetFiatAccountList } from '@components/SellComponents/BottomSheetFiatAccountList'
-import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
-import { SellRoute } from '@shared-api/dfx/models/SellRoute'
+import { GetSellPaymentInfoDto } from '@shared-api/dfx/models/SellRoute'
 import { DfxKycInfo } from '@components/DfxKycInfo'
 import { ActionButton } from '../../Dex/components/PoolPairCards/ActionSection'
-import { BottomSheetFiatAccountCreate } from '@components/SellComponents/BottomSheetFiatAccountCreate'
+import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellComponents/BottomSheetFiatAccountCreate'
 import { send } from './SendConfirmationScreen'
 import { useConversion } from '@hooks/wallet/Conversion'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
-import { getUserDetail } from '@shared-api/dfx/ApiService'
+import { getBankAccounts, getUserDetail, sellWithPaymentInfos } from '@shared-api/dfx/ApiService'
 import { DfxConversionInfo } from '@components/DfxConversionInfo'
 import { useWalletContext } from '@shared-contexts/WalletContext'
 import { DfxDexFeeInfo } from '@components/DfxDexFeeInfo'
 import { WalletAccordion } from '@components/WalletAccordion'
+import { BankAccount } from '@shared-api/dfx/models/BankAccount'
+import { Fiat } from '@shared-api/dfx/models/Fiat'
+import { WalletAlertErrorApi } from '@components/WalletAlert'
+import { SepaInstantComponent } from '../components/SepaInstantComponent'
+import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
+import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
+import { Announcements } from '../components/Announcements'
 
 type Props = StackScreenProps<PortfolioParamList, 'SellScreen'>
 
@@ -59,9 +65,15 @@ export function SellScreen ({
   const logger = useLogger()
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const [token, setToken] = useState(route.params?.token)
-  const { listFiatAccounts } = useDFXAPIContext()
-  const [selectedFiatAccount, setSelectedFiatAccount] = useState<SellRoute>()
-  const [fiatAccounts, setFiatAccounts] = useState<SellRoute[]>([])
+  const [selectedBankAccount, setSelectedBankAccount] = useState<BankAccount>()
+  const initialFiat: Fiat = {
+    id: 2,
+    name: 'EUR',
+    enable: true
+  }
+  const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
+  const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
+  const [isLoadingData, setIsLoadingData] = useState(true)
   const {
     control,
     setValue,
@@ -78,6 +90,7 @@ export function SellScreen ({
   const [matchedAddress, setMatchedAddress] = useState<LocalAddress>()
   const dispatch = useAppDispatch()
   const [fee, setFee] = useState<number>(2.9)
+  const [depositAddress, setDepositAddress] = useState<string>()
   const [dexFee, setDexFee] = useState<string>('0')
   const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
   const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
@@ -171,18 +184,19 @@ export function SellScreen ({
   useEffect(() => {
     checkUserProfile()
 
-    listFiatAccounts()
-      .then((sellRoutes) => {
-        // if no sell routes check kycDataComplete --> navigate to UserDetailsScreen
-        if (sellRoutes === undefined || sellRoutes.length < 1) {
+    setIsLoadingData(true)
+    getBankAccounts()
+      .then((bankAccounts) => {
+        if (bankAccounts === undefined || bankAccounts.length < 1) {
           // checkUserProfile()
         }
-        setFiatAccounts(sellRoutes)
-        if (sellRoutes.length === 1) {
-          setAccount(sellRoutes[0])
+        setBankAccounts(bankAccounts)
+        if (bankAccounts.length === 1) {
+          setAccount(bankAccounts[0])
         }
       })
       .catch(logger.error)
+      .finally(() => setIsLoadingData(false))
 
     setIsOnPage(true)
     return () => {
@@ -207,17 +221,62 @@ export function SellScreen ({
     debounceMatchAddress()
   }, [address, addressBook])
 
-  const setAccount = (item: SellRoute): void => {
-    setSelectedFiatAccount(item)
-    setFee(item.fee)
+  const setAccount = (item: BankAccount): void => {
+    setIsLoadingData(true)
+
+    // load sell infos
+    const paymentInfos: GetSellPaymentInfoDto = {
+      iban: item.iban ?? selectedBankAccount?.iban,
+      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+      currency: item.fiat ?? selectedFiat
+    }
+
+    sellWithPaymentInfos(paymentInfos)
+      .then((sellPaymentInfo) => {
+        setFee(sellPaymentInfo.fee)
+        setDepositAddress(sellPaymentInfo.depositAddress)
+        // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
+        setSelectedBankAccount(item)
+        if (item.fiat != null) {
+          setSelectedFiat(item.fiat)
+        }
+      })
+      .catch(WalletAlertErrorApi)
+      .finally(() => setIsLoadingData(false))
   }
 
-  const setFiatAccountListBottomSheet = useCallback((accounts: SellRoute[]) => {
+  const setFiat = (fiat: Fiat): void => {
+    if (selectedBankAccount === undefined) {
+      setSelectedFiat(fiat)
+      return
+    }
+
+    // when bankAccount is already selected, get new corresponding depositAddress
+    setIsLoadingData(true)
+
+    // load sell infos
+    const paymentInfos: GetSellPaymentInfoDto = {
+      iban: selectedBankAccount.iban,
+      currency: fiat
+    }
+
+    sellWithPaymentInfos(paymentInfos)
+      .then((sellPaymentInfo) => {
+        setFee(sellPaymentInfo.fee)
+        setDepositAddress(sellPaymentInfo.depositAddress)
+        // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
+        setSelectedFiat(fiat)
+      })
+      .catch(WalletAlertErrorApi)
+      .finally(() => setIsLoadingData(false))
+  }
+
+  const setFiatAccountListBottomSheet = useCallback((accounts: BankAccount[]) => {
     setBottomSheetScreen([
       {
         stackScreenName: 'FiatAccountList',
         component: BottomSheetFiatAccountList({
-          fiatAccounts: accounts,
+          bankAccounts: accounts,
           headerLabel: translate('screens/SellScreen', 'Select account to cash out'),
           onCloseButtonPress: () => dismissModal(),
           onFiatAccountPress: async (item): Promise<void> => {
@@ -231,19 +290,19 @@ export function SellScreen ({
           header: () => null
         }
       }])
-  }, [fiatAccounts])
+  }, [bankAccounts])
 
-  const setFiatAccountCreateBottomSheet = useCallback((accounts: SellRoute[]) => { // TODO: remove accounts?
+  const setFiatAccountCreateBottomSheet = useCallback((accounts: BankAccount[]) => { // TODO: remove accounts?
     setBottomSheetScreen([
       {
         stackScreenName: 'FiatAccountCreate',
         component: BottomSheetFiatAccountCreate({
-          fiatAccounts: accounts,
+          bankAccounts: accounts,
           headerLabel: translate('screens/SellScreen', 'Add account'),
           onCloseButtonPress: () => dismissModal(),
           onElementCreatePress: async (item): Promise<void> => {
-            if (item.iban !== undefined) {
-              fiatAccounts.push(item)
+            if (item.iban !== undefined && 'deposit' in item) {
+              bankAccounts.push(item)
               setAccount(item)
             }
             dismissModal()
@@ -253,7 +312,7 @@ export function SellScreen ({
           header: () => null
         }
       }])
-  }, [fiatAccounts])
+  }, [bankAccounts])
 
   const setTokenListBottomSheet = useCallback(() => {
     setBottomSheetScreen([
@@ -280,15 +339,37 @@ export function SellScreen ({
       }])
   }, [])
 
+  // fiat picker modal => open / return
+  const setFiatPickerBottomSheet = useCallback((fiats: Fiat[]) => {
+    setBottomSheetScreen([
+      {
+        stackScreenName: 'FiatAccountList',
+        component: BottomSheetFiatPicker({
+          onFiatPress: async (selectedFiat): Promise<void> => {
+            if (selectedFiat !== undefined) {
+              // update preferredCurrency und recheck deposit address (if bank already selected
+              setFiat(selectedFiat)
+            }
+            dismissModal()
+          },
+          onCloseModal: () => dismissModal(),
+          fiats: fiats
+        }),
+        option: {
+          header: () => null
+        }
+      }])
+  }, [])
+
   async function onSubmit (): Promise<void> {
-    if (hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedFiatAccount === undefined) {
+    if (hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount === undefined || selectedFiat === undefined || depositAddress === undefined) {
       return
     }
 
-    if (formState.isValid && (selectedFiatAccount?.deposit?.address?.length > 0)) {
+    if (formState.isValid && ((depositAddress?.length ?? 0) > 0)) {
       setIsSubmitting(true)
       await send({
-        address: selectedFiatAccount.deposit.address,
+        address: depositAddress,
         token,
         amount: new BigNumber(getValues('amount')),
         networkName: network.networkName
@@ -299,11 +380,21 @@ export function SellScreen ({
     }
   }
 
+  const [announcementDelayFinished, setAnnouncementDelayFinished] = useState(false)
+  useEffect(() => {
+    setTimeout(() => {
+      setAnnouncementDelayFinished(true)
+    }, ANNOUNCEMENTCHANNELDELAY)
+  }, [])
+
   return (
     <View style={tailwind('h-full')} ref={containerRef}>
       <ThemedScrollView contentContainerStyle={tailwind('pt-6 pb-8')} testID='sell_screen'>
 
+        {announcementDelayFinished && <Announcements channel={AnnouncementChannel.SELL} />}
+
         <TokenInput
+          title={translate('screens/SellScreen', 'Cash out to my bank account')}
           token={token}
           onPress={() => {
             setTokenListBottomSheet()
@@ -327,11 +418,11 @@ export function SellScreen ({
                 />
               </ThemedView>
 
-              {!(fiatAccounts.length > 0)
+              {!(bankAccounts.length > 0)
               ? <ActionButton
                   name='add'
                   onPress={() => {
-                    setFiatAccountCreateBottomSheet(fiatAccounts)
+                    setFiatAccountCreateBottomSheet(bankAccounts)
                     expandModal()
                   }}
                   pair={' '}
@@ -345,11 +436,10 @@ export function SellScreen ({
                   <View style={tailwind('px-4')}>
                     <FiatAccountInput
                       onPress={() => {
-                        setFiatAccountListBottomSheet(fiatAccounts)
+                        setFiatAccountListBottomSheet(bankAccounts)
                         expandModal()
                       }}
-                      fiatAccount={selectedFiatAccount}
-                      isDisabled={!(fiatAccounts.length > 0)}
+                      fiatAccount={selectedBankAccount}
                     />
                     {/* {isConversionRequired &&
                       <NumberRow
@@ -363,6 +453,14 @@ export function SellScreen ({
                       />} */}
 
                     <DfxKycInfo />
+
+                    <FiatPickerRow
+                      fiat={selectedFiat}
+                      openFiatBottomSheet={(fiats) => {
+                        setFiatPickerBottomSheet(fiats)
+                        expandModal()
+                      }}
+                    />
 
                     <AmountRow
                       control={control}
@@ -424,12 +522,12 @@ export function SellScreen ({
 
         <View style={tailwind('mt-6')}>
           <SubmitButtonGroup
-            isDisabled={!formState.isValid /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedFiatAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
+            isDisabled={!formState.isValid /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || selectedFiat === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
             label={translate('screens/SellScreen', 'Transfer to your bank account')}
             processingLabel={translate('screens/SellScreen', 'Transfer to your bank account')}
             onSubmit={onSubmit}
             title='sell_sell'
-            isProcessing={hasPendingJob || hasPendingBroadcastJob || isSubmitting || isLoadingKyc}
+            isProcessing={hasPendingJob || hasPendingBroadcastJob || isSubmitting || isLoadingKyc || isLoadingData}
             displayCancelBtn={false}
           />
         </View>
@@ -460,7 +558,7 @@ export function SellScreen ({
   )
 }
 
-function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabled: boolean }): JSX.Element {
+export function TokenInput (props: { title: string, token?: WalletToken, onPress: () => void, isDisabled?: boolean }): JSX.Element {
   const hasNoBalanceForSelectedToken = props.token?.amount === undefined ? true : new BigNumber(props.token?.amount).lte(0)
   return (
     <View style={tailwind('px-4')}>
@@ -470,7 +568,7 @@ function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabl
         dark={tailwind('text-dfxgray-300')}
         style={tailwind('text-xl font-semibold')}
       >
-        {translate('screens/SellScreen', 'Cash out to my bank account')}
+        {props.title}
       </ThemedText>
       {/* TODO */}
       <ThemedTouchableOpacity
@@ -478,17 +576,17 @@ function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabl
         dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
         light={tailwind({
           'bg-gray-200 border-0': props.isDisabled,
-          'border-gray-300 bg-white': !props.isDisabled
+          'border-gray-300 bg-white': !(props.isDisabled ?? false)
         })}
         style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2 mb-6')}
         testID='select_token_input'
         disabled={props.isDisabled}
       >
-        {props.token === undefined || props.isDisabled || hasNoBalanceForSelectedToken
+        {props.token === undefined || (props.isDisabled ?? false) || hasNoBalanceForSelectedToken
           ? (
             <ThemedText
               dark={tailwind({
-                'text-dfxgray-500': !props.isDisabled,
+                'text-dfxgray-500': !(props.isDisabled ?? false),
                 'text-dfxblue-900': props.isDisabled
               })}
               style={tailwind('text-sm')}
@@ -513,11 +611,11 @@ function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabl
           name='unfold-more'
           size={24}
           dark={tailwind({
-            'text-dfxred-500': !props.isDisabled,
+            'text-dfxred-500': !(props.isDisabled ?? false),
             'text-transparent': props.isDisabled
           })}
           light={tailwind({
-            'text-primary-500': !props.isDisabled,
+            'text-primary-500': !(props.isDisabled ?? false),
             'text-gray-500': props.isDisabled
           })}
           style={tailwind('-mr-1.5 flex-shrink-0')}
@@ -527,7 +625,7 @@ function TokenInput (props: { token?: WalletToken, onPress: () => void, isDisabl
   )
 }
 
-function FiatAccountInput (props: { fiatAccount?: SellRoute, onPress: () => void, isDisabled: boolean }): JSX.Element {
+function FiatAccountInput (props: { fiatAccount?: BankAccount, onPress: () => void}): JSX.Element {
   return (
     <>
       <ThemedText
@@ -536,59 +634,52 @@ function FiatAccountInput (props: { fiatAccount?: SellRoute, onPress: () => void
         dark={tailwind('text-dfxgray-300')}
         style={tailwind('flex-grow my-2')}
       >
-        {translate('screens/SellScreen', 'Bank account')}
+        {translate('screens/BuyScreen', 'Payment account')}
       </ThemedText>
-      {/* TODO  -> came from SendScreen(fork) -> why? */}
-      <ThemedTouchableOpacity
-        onPress={props.onPress}
-        dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
-        light={tailwind({
-          'bg-gray-200 border-0': props.isDisabled,
-          'border-gray-300 bg-white': !props.isDisabled
-        })}
-        style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2 mb-4')}
-        testID='select_fiatAccount_input'
-        disabled={props.isDisabled}
-      >
-        {props.fiatAccount === undefined || props.isDisabled
-          ? (
-            <ThemedText
-              dark={tailwind({
-                'text-dfxgray-500': !props.isDisabled,
-                'text-dfxblue-900': props.isDisabled
-              })}
-              style={tailwind('text-sm')}
-              testID='select_fiatAccount_placeholder'
-            >
-              {translate('screens/SellScreen', 'please select')}
-            </ThemedText>
-          )
-          : (
-            <View style={tailwind('flex flex-row')}>
-              {/* <SymbolIcon symbol={props.fiat.displaySymbol} styleProps={tailwind('w-6 h-6')} /> */}
+
+      <ThemedView dark={tailwind('mb-4')}>
+        <ThemedTouchableOpacity
+          onPress={props.onPress}
+          dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
+          light={tailwind('border-gray-300 bg-white')}
+          style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2')}
+          testID='select_fiatAccount_input'
+        >
+          {props.fiatAccount === undefined
+            ? (
               <ThemedText
-                style={tailwind('ml-2 font-medium')}
-                testID='selected_fiatAccount'
+                dark={tailwind('text-dfxgray-500')}
+                style={tailwind('text-sm')}
+                testID='select_fiatAccount_placeholder'
               >
-                {`${props.fiatAccount.fiat.name} / ${props.fiatAccount.iban}`}
+                {translate('screens/SellScreen', 'Please select')}
               </ThemedText>
-            </View>
-          )}
-        <ThemedIcon
-          iconType='MaterialIcons'
-          name='unfold-more'
-          size={24}
-          dark={tailwind({
-            'text-dfxred-500': !props.isDisabled,
-            'text-transparent': props.isDisabled
-          })}
-          light={tailwind({
-            'text-primary-500': !props.isDisabled,
-            'text-gray-500': props.isDisabled
-          })}
-          style={tailwind('-mr-1.5 flex-shrink-0')}
-        />
-      </ThemedTouchableOpacity>
+            )
+            : (
+              <View style={tailwind('flex flex-row')}>
+                <ThemedText
+                  style={tailwind('ml-2 font-medium')}
+                  testID='selected_fiatAccount'
+                >
+                  {`${props.fiatAccount?.label ?? props.fiatAccount?.fiat?.name ?? '-'} / ${props.fiatAccount.iban}`}
+                </ThemedText>
+              </View>
+            )}
+          <ThemedIcon
+            iconType='MaterialIcons'
+            name='unfold-more'
+            size={24}
+            dark={tailwind('text-dfxred-500')}
+            light={tailwind('text-primary-500')}
+            style={tailwind('-mr-1.5 flex-shrink-0')}
+          />
+        </ThemedTouchableOpacity>
+        {props.fiatAccount?.sepaInstant === true && (
+          <ThemedView dark={tailwind('bg-dfxred-500 rounded-b')}>
+            <SepaInstantComponent red invertedColor />
+          </ThemedView>
+        )}
+      </ThemedView>
     </>
   )
 }

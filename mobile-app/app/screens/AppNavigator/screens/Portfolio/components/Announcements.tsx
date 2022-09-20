@@ -1,7 +1,7 @@
 import { ThemedText, ThemedView } from '@components/themed'
 import { tailwind } from '@tailwind'
 import { useGetAnnouncementsQuery } from '@store/website'
-import { AnnouncementData } from '@shared-types/website'
+import { AnnouncementChannel, AnnouncementData } from '@shared-types/website'
 import { satisfies } from 'semver'
 import { useLanguageContext } from '@shared-contexts/LanguageProvider'
 import { openURL } from '@api/linking'
@@ -17,7 +17,7 @@ import { useThemeContext } from '@shared-contexts/ThemeProvider'
 import { MaterialIcons } from '@expo/vector-icons'
 import { useServiceProviderContext } from '@contexts/StoreServiceProvider'
 
-export function Announcements (): JSX.Element {
+export function Announcements ({ channel }: { channel?: AnnouncementChannel }): JSX.Element {
   const {
     data: announcements,
     isSuccess
@@ -60,6 +60,7 @@ export function Announcements (): JSX.Element {
   const blockchainIsDownAnnouncement = findDisplayedAnnouncementForVersion('0.0.0', language, hiddenAnnouncements, blockchainStatusAnnouncement)
   const oceanIsDownAnnouncement = findDisplayedAnnouncementForVersion('0.0.0', language, hiddenAnnouncements, oceanStatusAnnouncement)
   const announcement = findDisplayedAnnouncementForVersion(nativeApplicationVersion ?? '0.0.0', language, hiddenAnnouncements, announcements)
+  const channelAnnouncement = findDisplayedAnnouncementForVersion(nativeApplicationVersion ?? '0.0.0', language, hiddenAnnouncements, announcements, channel)
 
   /*
     Display priority:
@@ -68,7 +69,7 @@ export function Announcements (): JSX.Element {
     3. Outages - Ocean API
     4. Other announcements
   */
-  const announcementToDisplay = emergencyAnnouncement ?? blockchainIsDownAnnouncement ?? oceanIsDownAnnouncement ?? announcement
+  const announcementToDisplay = channel != null ? channelAnnouncement : emergencyAnnouncement ?? blockchainIsDownAnnouncement ?? oceanIsDownAnnouncement ?? announcement
 
   useEffect(() => {
     // To display warning message in Announcement banner when blockchain is down for > 45 mins
@@ -192,26 +193,40 @@ export interface Announcement {
   url: string
   id?: string
   type: AnnouncementData['type']
+  channel?: AnnouncementChannel
 }
 
-export function findDisplayedAnnouncementForVersion (version: string, language: string, hiddenAnnouncements: string[], announcements?: AnnouncementData[]): Announcement | undefined {
+export function findDisplayedAnnouncementForVersion (version: string, language: string, hiddenAnnouncements: string[], announcements?: AnnouncementData[], channel?: AnnouncementChannel): Announcement | undefined {
   if (announcements === undefined || announcements.length === 0) {
     return
   }
 
+  const activeAnnouncements = []
   for (const announcement of announcements) {
     const lang: any = announcement.lang
     const platformUrl: any = announcement.url
 
     if (((Platform.OS !== 'ios' && Platform.OS !== 'android') ||
       satisfies(version, announcement.version)) && getDisplayAnnouncement(hiddenAnnouncements, announcement)) {
-      return {
+      activeAnnouncements.push({
         content: lang[language] ?? lang.en,
         url: platformUrl !== undefined ? platformUrl[Platform.OS] : undefined,
         id: announcement.id,
-        type: announcement.type
-      }
+        type: announcement.type,
+        channel: announcement.channel
+      })
     }
+  }
+  if (activeAnnouncements.length < 1) {
+    return undefined
+  }
+
+  if (channel != null) {
+    // return first active corresponding channel announcement
+    return activeAnnouncements.find(announcement => announcement.channel === channel)
+  } else {
+    // return first active general announcement
+    return activeAnnouncements.find(announcement => announcement.channel === undefined)
   }
 }
 

@@ -6,6 +6,7 @@ interface InfoTextProp extends ThemedProps, TextProps {
   text: string
   type?: InfoTextType
   simple?: boolean
+  noBorder?: boolean
 }
 
 export type InfoTextType = 'warning' | 'error' | 'success'
@@ -13,10 +14,11 @@ export type InfoTextType = 'warning' | 'error' | 'success'
 export function InfoText (props: InfoTextProp): JSX.Element {
   const {
     simple,
+    noBorder,
     type = 'warning',
     style,
     light = tailwind({ 'bg-warning-50 border-warning-200': type === 'warning', 'bg-error-50 border-error-200': type === 'error', 'bg-success-50 border-success-200': type === 'success' }),
-    dark = tailwind((simple ?? false) ? '' : 'bg-dfxblue-900 border-dfxblue-800'),
+    dark = tailwind((simple ?? false) ? '' : (noBorder ?? false) ? '' : 'bg-dfxblue-900 border-dfxblue-800'),
     ...otherProps
   } = props
 
@@ -24,7 +26,7 @@ export function InfoText (props: InfoTextProp): JSX.Element {
     <ThemedView
       style={[
         style
-      ].concat((simple ?? false) ? [] : [tailwind('rounded p-2 flex-row border')]
+      ].concat((simple ?? false) ? [] : [tailwind((noBorder ?? false) ? '' : 'rounded border', 'p-2 flex-row')]
       )}
       light={light}
       dark={dark}

@@ -2,12 +2,12 @@ import { History } from './models/History'
 import { getEnvironment } from '@environment'
 import { AuthResponse, SignMessageRespone } from './models/ApiDto'
 import { Asset } from './models/Asset'
-import { BuyRoute, BuyRouteDto, fromBuyRouteDto, toBuyRouteDto } from './models/BuyRoute'
+import { BuyPaymentInfoDto, BuyRoute, BuyRouteDto, fromBuyRouteDto, GetBuyPaymentInfoDto, toBuyRouteDto } from './models/BuyRoute'
 import { CfpResult } from './models/CfpResult'
 import { Country } from './models/Country'
 import { Fiat } from './models/Fiat'
 import { Language } from './models/Language'
-import { fromSellRouteDto, SellData, SellRoute, SellRouteDto, toSellRouteDto } from './models/SellRoute'
+import { fromSellRouteDto, GetSellPaymentInfoDto, SellData, SellPaymentInfoDto, SellRoute, SellRouteDto, toSellRouteDto } from './models/SellRoute'
 import {
   CfpVotes,
   fromUserDetailDto,
@@ -31,12 +31,15 @@ import { Settings } from './models/Settings'
 import { HistoryType } from './models/HistoryType'
 import { CryptoRoute } from './models/CryptoRoute'
 import * as Updates from 'expo-updates'
+import { BankAccount, BankAccountData, BankAccountDto, fromBankAccountDto, toBankAccountDto } from './models/BankAccount'
 
 const BaseUrl = getEnvironment(Updates.releaseChannel).dfxApiUrl
 const AuthUrl = 'auth'
 const UserUrl = 'user'
 const KycUrl = 'kyc'
+const BankAccountUrl = 'bankAccount'
 const BuyUrl = 'buy'
+const PaymentInfosUrl = 'paymentInfos'
 const RouteUrl = 'route'
 const SellUrl = 'sell'
 const StakingUrl = 'staking'
@@ -172,6 +175,19 @@ export const putCfpVotes = async (votes: CfpVotes): Promise<CfpVotes> => {
   return await fetchFrom<CfpVotes>(`${UserUrl}/cfpVotes`, 'PUT', votes)
 }
 
+// --- ACCOUNTS --- //
+export const getBankAccounts = async (): Promise<BankAccount[]> => {
+  return await fetchFrom<BankAccountDto[]>(BankAccountUrl).then((dtoList) => dtoList.map((dto) => fromBankAccountDto(dto)))
+}
+
+export const postBankAccount = async (bankAccount: BankAccountData): Promise<BankAccount> => {
+  return await fetchFrom<BankAccountDto>(BankAccountUrl, 'POST', toBankAccountDto(bankAccount)).then(fromBankAccountDto)
+}
+
+export const putBankAccount = async (bankAccount: BankAccountData, id: BankAccount['id']): Promise<BankAccount> => {
+  return await fetchFrom<BankAccountDto>(`${BankAccountUrl}/${id}`, 'PUT', toBankAccountDto(bankAccount)).then(fromBankAccountDto)
+}
+
 // --- PAYMENT ROUTES --- //
 export const getRoutes = async (): Promise<Routes> => {
   return await fetchFrom<RoutesDto>(RouteUrl).then(fromRoutesDto)
@@ -189,13 +205,16 @@ export const putBuyRoute = async (route: BuyRoute): Promise<BuyRoute> => {
   return await fetchFrom<BuyRouteDto>(`${BuyUrl}/${route.id}`, 'PUT', toBuyRouteDto(route)).then(fromBuyRouteDto)
 }
 
-export const getSellRoutes = async (): Promise<SellRoute[]> => {
-  return await fetchFrom<SellRouteDto[]>(SellUrl).then((dtoList) => dtoList.map((dto) => fromSellRouteDto(dto)))
+export const buyWithPaymentInfos = async (payentInfos: GetBuyPaymentInfoDto): Promise<BuyPaymentInfoDto> => {
+  return await fetchFrom<BuyPaymentInfoDto>(`${BuyUrl}/${PaymentInfosUrl}`, 'PUT', payentInfos)//, toBuyRouteDto(route)).then(fromBuyRouteDto)
 }
 
-// TODO: check if @deprecated
-export const postSellRouteOLD = async (route: SellRoute): Promise<SellRoute> => {
-  return await fetchFrom<SellRouteDto>(SellUrl, 'POST', toSellRouteDto(route)).then(fromSellRouteDto)
+export const sellWithPaymentInfos = async (payentInfos: GetSellPaymentInfoDto): Promise<SellPaymentInfoDto> => {
+  return await fetchFrom<SellPaymentInfoDto>(`${SellUrl}/${PaymentInfosUrl}`, 'PUT', payentInfos)//, toBuyRouteDto(route)).then(fromBuyRouteDto)
+}
+
+export const getSellRoutes = async (): Promise<SellRoute[]> => {
+  return await fetchFrom<SellRouteDto[]>(SellUrl).then((dtoList) => dtoList.map((dto) => fromSellRouteDto(dto)))
 }
 
 export const postSellRoute = async (route: SellData): Promise<SellRoute> => {

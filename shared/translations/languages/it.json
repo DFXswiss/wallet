@@ -151,7 +151,7 @@
     "YOUR ADDRESS(ES)": "I TUOI INDIRIZZI",
     "Search results for": "Ricerca i risultati per",
     "Search with label or address": "Ricerca con etichetta o dell'indirizzo",
-    "Search results for “{{input}}”":  "Search results for “{{input}}”",
+    "Search results for “{{input}}”": "Search results for “{{input}}”",
     "FAVOURITE ADDRESS(ES)": "Indirizzi preferiti",
     "Add your preferred / commonly-used address.": "Add your preferred / commonly-used address."
   },
@@ -306,7 +306,7 @@
     "Recovery Words": "Parole di recupero",
     "Recovery words": "Parole di recupero",
     "Are you sure you want to unlink your wallet?": "Sei sicuro di voler scollegare il tuo wallet?",
-    "Once unlinked, you will need to enter your recovery words to restore your wallet.":  "Once unlinked, you will need to enter your recovery words to restore your wallet.",
+    "Once unlinked, you will need to enter your recovery words to restore your wallet.": "Once unlinked, you will need to enter your recovery words to restore your wallet.",
     "You will need to use your recovery words the next time you want to get back to your wallet.": "Dovrai usare le tue parole di recupero la prossima volta che vorrai accedere al tuo wallet.",
     "Cancel": "Cancella",
     "Unlink Wallet": "Scollegare il wallet",
@@ -349,7 +349,7 @@
     "Address Book": "Rubrica",
     "Address book": "Rubrica",
     "GENERAL": "GENERALE",
-    "Server": "Server"  
+    "Server": "Server"
   },
   "screens/AboutScreen": {
     "About": "Informazioni su",
@@ -409,7 +409,7 @@
   },
   "components/LoansFaq": {
     "Loans FAQ": "FAQ prestiti",
-    "About Loans":  "About Loans",
+    "About Loans": "About Loans",
     "Decentralized Loans": "Prestiti decentralizzati",
     "FREQUENTLY ASKED QUESTIONS": "DOMANDE FREQUENTI",
     "The decentralized loan feature allows you to borrow decentralized tokens by using your cryptocurrency holdings as collateral. To start, you must first create a vault and deposit collateral before you can take a loan.": "La funzione di prestito decentralizzato ti permette di prendere in prestito token decentralizzati utilizzando le tue criptovalute come garanzia. Per iniziare, devi prima creare un vault e depositare il collaterale prima di poter prendere un prestito.",
@@ -488,7 +488,8 @@
     "Add to liquidity pool": "Aggiungere al pool di liquidità",
     "Remove liquidity": "Rimuovere la liquidità",
     "Swap token": "Scambiare token",
-    "Sell": "Vendere"
+    "Sell": "Vendere",
+    "Buy": "Compra"
   },
   "screens/TokensVsUtxoScreen": {
     "Learn about UTXOs and Tokens": "Per saperne di più su UTXO e Token",
@@ -910,7 +911,7 @@
     "You are about to switch to {{network}}. Do you want to proceed?": "Stai per passare a {{network}}. Vuoi procedere?"
   },
   "components/RecoveryWordFaq": {
-    "About Recovery Words":  "About Recovery Words",
+    "About Recovery Words": "About Recovery Words",
     "What happens if I lose my recovery words?": "Cosa succede se perdo le parole di recupero?",
     "Once you lose your recovery words, you will not be able to restore your wallet and any funds within it. We encourage you to be responsible with your recovery words.": "Una volta perse le tue parole di recupero, non sarai in grado di ripristinare il tuo wallet e tutti i fondi al suo interno. Ti invitiamo a essere responsabile con le tue parole di recupero.",
     "Can I use the 24-words from xxx that I created from xxx?": "Posso usare le 24 parole di xxx che ho creato da xxx?",
@@ -1613,20 +1614,21 @@
     "VERSION {{number}}": "VERSIONE {{number}}"
   },
   "components/DfxKycInfo": {
-    "Your account needs to get verified once your daily transaction volume exceeds 900 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "L'account deve essere verificato quando il volume delle transazioni giornaliere supera i 900 €.  Se si desidera aumentare il limite di trading giornaliero, si prega di completare il processo KYC (Know-Your-Customer)"
+    "Your account needs to get verified once your daily transaction volume exceeds {{KYC_MAX_AMOUNT}} € per day. If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "L'account deve essere verificato quando il volume delle transazioni giornaliere supera i {{KYC_MAX_AMOUNT}} €.  Se si desidera aumentare il limite di trading giornaliero, si prega di completare il processo KYC (Know-Your-Customer)"
   },
   "screens/SellScreen": {
     "Cash out to my bank account": "Versamento in contanti sul mio conto corrente bancario",
     "Bank account": "Conto corrente bancario",
     "Select a token you want to sell to get started": "Seleziona un token che vuoi vendere per iniziare",
-    "please select": "si prega di selezionare",
     "Enter your desired payout amount": "Entrez le montant souhaité du virement",
     "Available to sell": "Disponibile per la vendita",
     "Transfer to your bank account": "Bonifico sul mio conto bancario",
     "Your Currency": "La tua valuta",
     "Select account to cash out": "Seleziona il conto per incassare",
     "Add account": "Aggiungi account",
-    "Sell": "Vendere"
+    "Sell": "Vendere",
+    "Please select": "Si prega di selezionare",
+    "Optional - Account Designation": "Facoltativo - Designazione dell'account"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "DATI DELL'ORGANIZZAZIONE",
@@ -1671,9 +1673,42 @@
     "Dobby": "Dobby",
     "Sell": "Vendi",
     "Buy & Staking": "Compra & \nStaking",
-    "Deposit Bitcoin": "Deposito di Bitcoin"
+    "Deposit Bitcoin": "Deposito di Bitcoin",
+    "Buy": "Compra",
+    "Staking": "Staking",
+    "more": "Di più"
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "Si noti che tutte le vendite di dTokens (ad esempio dUSD, dCOIN, dTSLA, dSPY...) sono soggette a una commissione di stabilizzazione DEX. Le criptovalute come DFI, dBTC, dETH e le monete stabili come dUSDT/dUSDC non sono interessate. Ulteriori informazioni"
+  },
+  "screens/BuyScreen": {
+    "Buy Asset": "Compra Asset",
+    "Purchase Amount": "Ammontare dell'acquisto",
+    "Choose token to buy": "Scegli il token da comprare ",
+    "Select your account for purchase": "Scegli il tuo conto per l'acquisto",
+    "Select a token you want to buy to get started": " Scegli un token che vuoi comprare per iniziare",
+    "Purchase with bank transfer": "Compra con trasferimento bancario",
+    "Payment account": "Conto di pagamento "
+  },
+  "components/SepaInstantLayover": {
+    "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "Sia DFX che la tua banca supportano i trasferimenti istantenei SEPA. Questo significa che possiamo processare il tuo deposito ancora più velocemente se usi questa opzione. ",
+    "Please note that your bank may charge fees for real-time payments.": "Per favore considera che la tua banca potrebbe applicare delle commissioni per i pagamenti in tempo reale.",
+    "Thanks for the note.": "Grazie per la nota.",
+    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": "Non appena il trasferimento bancario arriva sul nostro conto bancario, compreremo l'asset che desideri. Grazie per usare DFX.swiss. "
+  },
+  "components/SepaInstant": {
+    "SEPA instant available": "SEPA istantaneo disponibile "
+  },
+  "screens/BuyConfirmationScreen": {
+    "BANK TRANSFER COMPLETED": "TRASFERIMENTO BANCARIO COMPLETATO",
+    "PAYMENT INFORMATION": " INFORMAZIONI DI PAGAMENTO",
+    "Please transfer the purchase amount using this information. The payment purpose is important and also that the payment is executed from your stored IBAN!": "Per favore usa questa informazione per il pagamento. È importante specificare la causale di pagamento e che il pagamento sia eseguito dal tuo IBAN salvato in precedenza!",
+    "TRANSACTION DETAILS": "DETTAGLI DELLA TRANSAZIONE",
+    "PURPOSE OF PAYMENT": "CAUSALE DI PAGAMENTO",
+    "BENEFICIARY": "BENEFICIARIO",
+    "You are buying": "Stai comprando ",
+    "Your IBAN": "Il tuo IBAN",
+    "Transaction Fee": "Costi della transazione",
+    "Transfer Details": "Dettagli della transazione"
   }
 }

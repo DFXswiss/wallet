@@ -30,6 +30,22 @@ export interface SellData {
   iban: string
 }
 
+export interface GetSellPaymentInfoDto {
+  iban: string
+  currency: Fiat
+}
+
+export interface SellPaymentInfoDto {
+  fee: number
+  depositAddress: string
+  minDeposits: [
+    {
+      amount: number
+      asset: string
+    }
+  ]
+}
+
 export const fromSellRouteDto = (route: SellRouteDto): SellRoute => ({
   id: route.id,
   fiat: route.fiat,

@@ -62,7 +62,7 @@ export function DfxDexFeeInfo (props: DfxDexFeeInfoProps): JSX.Element {
 
   useEffect(() => {
     returnDexFee()
-  }, [props.token])
+  }, [props.token, dexStabilizationFee])
 
   return (
     <>

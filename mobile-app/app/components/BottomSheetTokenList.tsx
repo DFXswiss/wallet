@@ -29,6 +29,7 @@ interface BottomSheetTokenListProps {
   vault?: LoanVaultActive
   tokenType: TokenType
   isOraclePrice?: boolean
+  simple?: boolean
 }
 
 export interface BottomSheetToken {
@@ -57,7 +58,8 @@ export const BottomSheetTokenList = ({
   tokens,
   vault,
   tokenType,
-  isOraclePrice
+  isOraclePrice,
+  simple = false
 }: BottomSheetTokenListProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const { isLight } = useThemeContext()
   const navigation = useNavigation<NavigationProp<BottomSheetWithNavRouteParam>>()
@@ -81,7 +83,7 @@ export const BottomSheetTokenList = ({
         : getTokenPrice(item.token.symbol, new BigNumber('1'), item.token.isLPS)
         return (
           <ThemedTouchableOpacity
-            disabled={new BigNumber(item.available).lte(0)}
+            disabled={!simple && (new BigNumber(item.available).lte(0))}
             onPress={() => {
               if (onTokenPress !== undefined) {
                 onTokenPress(item)
@@ -127,26 +129,28 @@ export const BottomSheetTokenList = ({
               </View>
             </View>
             <View style={tailwind('flex flex-row items-center')}>
-              <View style={tailwind('flex flex-col items-end mr-2')}>
-                <NumberFormat
-                  value={item.available.toFixed(8)}
-                  thousandSeparator
-                  displayType='text'
-                  renderText={value =>
-                    <ThemedText
-                      light={tailwind('text-gray-700')}
-                      dark={tailwind('text-dfxgray-300')}
-                      testID={`select_${item.token.displaySymbol}_value`}
-                    >
-                      {value}
-                    </ThemedText>}
-                />
-                <ActiveUSDValue
-                  price={new BigNumber(item.available).multipliedBy(activePrice)}
-                  containerStyle={tailwind('justify-end')}
-                  isOraclePrice={isOraclePrice}
-                />
-              </View>
+              {!simple && (
+                <View style={tailwind('flex flex-col items-end mr-2')}>
+                  <NumberFormat
+                    value={item.available.toFixed(8)}
+                    thousandSeparator
+                    displayType='text'
+                    renderText={value =>
+                      <ThemedText
+                        light={tailwind('text-gray-700')}
+                        dark={tailwind('text-dfxgray-300')}
+                        testID={`select_${item.token.displaySymbol}_value`}
+                      >
+                        {value}
+                      </ThemedText>}
+                  />
+                  <ActiveUSDValue
+                    price={new BigNumber(item.available).multipliedBy(activePrice)}
+                    containerStyle={tailwind('justify-end')}
+                    isOraclePrice={isOraclePrice}
+                  />
+                </View>
+              )}
               <ThemedIcon iconType='MaterialIcons' name='chevron-right' size={20} />
             </View>
           </ThemedTouchableOpacity>

@@ -55,6 +55,15 @@ export function WalletAlertErrorApi (apiResponseError: any): void {
   // eslint-disable-next-line no-console
   console.log(apiResponseError)
 
+  // TODO: (thabrad) check why this throws an exeption
+  //   [Unhandled promise rejection: Error: Invalid hook call.Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:]
+  // at shared / contexts / NativeLoggingProvider.tsx: 18: 9 in useLogger
+  // at mobile - app / app / components / WalletAlert.tsx: 57: 17 in WalletAlertErrorApi
+  // -------------------------------
+  // const logger = useLogger()
+  // logger.info(apiResponseError)
+  // -------------------------------
+
   const errorName = safeAnyUsageStringArrayJsonEmtpyString(apiResponseError?.error)
   const errorMsg = safeAnyUsageStringArrayJsonEmtpyString(apiResponseError?.message)
 

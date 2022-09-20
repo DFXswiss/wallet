@@ -288,13 +288,12 @@ export function UserDetailsScreen ({
             navigation.popToTop()
             navigation.navigate('Sell')
           })
-          .catch((error) =>
-            WalletAlertErrorApi(error))
+          .catch(WalletAlertErrorApi)
           .finally(() => {
             setIsLoading(false)
           })
       })
-      .catch((error) => WalletAlertErrorApi(error))
+      .catch(WalletAlertErrorApi)
       .finally(() => setIsLoading(false))
   }
 

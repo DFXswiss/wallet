@@ -11,24 +11,26 @@ import { useThemeContext } from '@shared-contexts/ThemeProvider'
 import { isValidIBAN } from 'ibantools'
 import { Control, Controller, useForm } from 'react-hook-form'
 import { WalletTextInput } from '@components/WalletTextInput'
-import { SellRoute } from '@shared-api/dfx/models/SellRoute'
 import { BottomSheetFiatPicker } from './BottomSheetFiatPicker'
 import { Fiat } from '@shared-api/dfx/models/Fiat'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { getFiats, postSellRoute } from '@shared-api/dfx/ApiService'
+import { getFiats, postBankAccount, putBankAccount } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
+import { BankAccount, BankAccountData } from '@shared-api/dfx/models/BankAccount'
+import { SepaInstantOverlay } from '@screens/AppNavigator/screens/Portfolio/components/SepaInstantLayover'
 
 interface BottomSheetFiatAccountCreateProps {
   headerLabel: string
   onCloseButtonPress: () => void
-  onElementCreatePress: (fiatAccount: SellRoute) => void
-  fiatAccounts: SellRoute[]
+  onElementCreatePress: (fiatAccount: BankAccount, updatedAccounts?: BankAccount[]) => void
+  bankAccounts: BankAccount[]
 }
 
 export const BottomSheetFiatAccountCreate = ({
   headerLabel,
   onCloseButtonPress,
-  onElementCreatePress
+  onElementCreatePress,
+  bankAccounts
 }: BottomSheetFiatAccountCreateProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const { isLight } = useThemeContext()
   const {
@@ -45,11 +47,9 @@ export const BottomSheetFiatAccountCreate = ({
     enable: true
   }
 
-  // from server
-  const [fiats, setFiats] = useState<Fiat[]>()
   // returned from picker
-  const [fiatType, setfiatType] = useState<Fiat>(initialFiat)
-
+  const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
+  const [sepaInstantAccount, setSepaInstantAccount] = useState<BankAccount>()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   // fiat picker modal setup
@@ -79,14 +79,14 @@ export const BottomSheetFiatAccountCreate = ({
   }
 
   // fiat picker modal => open / return
-  const setBottomSheet = useCallback(() => {
+  const setBottomSheet = useCallback((fiats: Fiat[]) => {
     setBottomSheetScreen([
       {
         stackScreenName: 'FiatAccountList',
         component: BottomSheetFiatPicker({
-          onFiatPress: async (fiatType): Promise<void> => {
-            if (fiatType !== undefined) {
-              setfiatType(fiatType)
+          onFiatPress: async (selectedFiat): Promise<void> => {
+            if (selectedFiat !== undefined) {
+              setSelectedFiat(selectedFiat)
             }
             dismissModal()
           },
@@ -97,30 +97,51 @@ export const BottomSheetFiatAccountCreate = ({
           header: () => null
         }
       }])
-  }, [fiats])
+  }, [])
   const ScrollView = Platform.OS === 'web' ? bottomSheetComponents.web : bottomSheetComponents.mobile
 
   const onSubmit = async (): Promise<void> => {
     setIsSubmitting(true)
 
     const iban: string = getValues('iban')
-    const sellData = { iban: iban, fiat: fiatType }
+    const label: string = getValues('label')
 
-    postSellRoute(sellData)
-      .then((sellRoute) => onElementCreatePress(sellRoute))
-      .catch((error) => {
-        WalletAlertErrorApi(error)
-      })
-      .finally(() => setIsSubmitting(false))
+    const createNewBankAccount: BankAccountData = {
+      iban,
+      preferredCurrency: selectedFiat,
+      label
+    }
+
+    // check if account already exists (based on iban) and replace currency and label
+    const matchedAccount = bankAccounts?.find((account: BankAccount) => account.iban.split(' ').join('') === createNewBankAccount.iban.split(' ').join(''))
+    let updatedAccountsList: BankAccount[] | undefined
+    if (matchedAccount != null) {
+      const matchedIndex = bankAccounts?.indexOf(matchedAccount)
+      if (bankAccounts != null && matchedIndex != null && matchedIndex > -1) {
+        bankAccounts[matchedIndex] = { ...matchedAccount, label: createNewBankAccount.label, fiat: createNewBankAccount.preferredCurrency }
+        updatedAccountsList = bankAccounts
+      }
+    }
+
+    if (createNewBankAccount != null) {
+      if (matchedAccount != null) {
+        // if IBAN exists already, edit props
+        putBankAccount(createNewBankAccount, matchedAccount.id)
+          .then((updatedBankAccount) => onElementCreatePress(updatedBankAccount, updatedAccountsList))
+          .catch(WalletAlertErrorApi)
+          .finally(() => setIsSubmitting(false))
+      } else {
+        // create new account and show SEPAinstant popup if qualifying
+        postBankAccount(createNewBankAccount)
+          .then((newBankAccount) => newBankAccount.sepaInstant ? setSepaInstantAccount(newBankAccount) : onElementCreatePress(newBankAccount))
+          .catch(WalletAlertErrorApi)
+          .finally(() => setIsSubmitting(false))
+      }
+    }
   }
 
   return (
-    <ScrollView
-      style={tailwind(['p-4 flex-1', {
-        'bg-white': isLight,
-        'bg-dfxblue-800': !isLight
-      }])}
-    >
+    <>
       <ThemedView
         light={tailwind('bg-white border-gray-200')}
         dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
@@ -136,71 +157,93 @@ export const BottomSheetFiatAccountCreate = ({
         </TouchableOpacity>
       </ThemedView>
 
-      <View style={tailwind('px-4')}>
+      <ScrollView
+        style={tailwind(['flex-1', {
+          'bg-white': isLight,
+          'bg-dfxblue-800': !isLight
+        }])}
+      >
+        <View style={tailwind('px-4 mt-4')}>
 
-        <FiatPickerRow
-          selectedFiat={fiatType.name}
-          onPress={() => {
-            setBottomSheet()
-            expandModal()
-          }}
-          loadedFiats={(fiats) => {
-            setFiats(fiats)
-          }}
-        />
-
-        <IbanInput
-          control={control}
-          onAmountChange={async (iban) => {
-            setValue('iban', iban, { shouldDirty: true })
-            await trigger('iban')
-          }}
-          onClearButtonPress={async () => {
-            setValue('iban', '')
-            await trigger('iban')
-          }}
-        />
-
-        <View style={tailwind('my-6')}>
-          <SubmitButtonGroup
-            isDisabled={!formState.isValid}
-            label={translate('components/Button', 'CONTINUE')}
-            processingLabel={translate('components/Button', 'CONTINUE')}
-            onSubmit={onSubmit}
-            title='sell_continue'
-            isProcessing={isSubmitting}
-            displayCancelBtn={false}
-          />
-        </View>
-
-        {Platform.OS === 'web' && (
-          <BottomSheetWebWithNav
-            modalRef={containerRef}
-            screenList={bottomSheetScreen}
-            isModalDisplayed={isModalDisplayed}
-            modalStyle={{
-              position: 'absolute',
-              height: '350px',
-              width: '375px',
-              zIndex: 50,
-              bottom: '0'
+          <IbanInput
+            control={control}
+            onTextChange={async (iban) => {
+              setValue('iban', iban, { shouldDirty: false })
+              await trigger('iban')
+            }}
+            onClearButtonPress={async () => {
+              setValue('iban', '')
+              await trigger('iban')
             }}
           />
-        )}
 
-        {Platform.OS !== 'web' && (
-          <BottomSheetWithNav
-            modalRef={bottomSheetRef}
-            screenList={bottomSheetScreen}
+          <FiatPickerRow
+            fiat={selectedFiat}
+            openFiatBottomSheet={(fiats) => {
+              setBottomSheet(fiats)
+              expandModal()
+            }}
+            invertedColor
           />
-        )}
-      </View>
-    </ScrollView>
+
+          <LabelRow
+            control={control}
+            onTextChange={async (label) => {
+              setValue('label', label, { shouldDirty: false })
+              await trigger('label')
+            }}
+            onClearButtonPress={async () => {
+              setValue('iban', '')
+              await trigger('label')
+            }}
+          />
+
+          <View style={tailwind('my-6')}>
+            <SubmitButtonGroup
+              isDisabled={!formState.isValid}
+              label={translate('components/Button', 'CONTINUE')}
+              processingLabel={translate('components/Button', 'CONTINUE')}
+              onSubmit={onSubmit}
+              title='sell_continue'
+              isProcessing={isSubmitting}
+              displayCancelBtn={false}
+            />
+          </View>
+
+          {(sepaInstantAccount?.sepaInstant === true) &&
+            <SepaInstantOverlay onDismiss={() => onElementCreatePress(sepaInstantAccount)} />}
+
+          {Platform.OS === 'web' && (
+            <BottomSheetWebWithNav
+              modalRef={containerRef}
+              screenList={bottomSheetScreen}
+              isModalDisplayed={isModalDisplayed}
+              modalStyle={{
+                position: 'absolute',
+                height: '350px',
+                width: '375px',
+                zIndex: 50,
+                bottom: '0'
+              }}
+            />
+          )}
+
+          {Platform.OS !== 'web' && (
+            <BottomSheetWithNav
+              modalRef={bottomSheetRef}
+              screenList={bottomSheetScreen}
+            />
+          )}
+        </View>
+      </ScrollView>
+    </>
   )
 })
 
-function FiatPickerRow (props: { selectedFiat: Fiat['name'], loadedFiats: (selected: Fiat[]) => void, onPress: () => void}): JSX.Element {
+export function FiatPickerRow (props: { fiat: Fiat, openFiatBottomSheet: (fiats: Fiat[]) => void, invertedColor?: boolean}): JSX.Element {
   const [isLoading, setIsLoading] = useState(false)
+  // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
+  const [fiats, setFiats] = useState<Fiat[]>({} as Fiat[])
   const logger = useLogger()
 
   useEffect(() => {
@@ -208,7 +251,7 @@ function FiatPickerRow (props: { selectedFiat: Fiat['name'], loadedFiats: (selec
 
     getFiats()
       .then((fiats) => {
-        props.loadedFiats(fiats)
+        setFiats(fiats)
       })
       .catch(logger.error)
       .finally(() => setIsLoading(false))
@@ -220,18 +263,18 @@ function FiatPickerRow (props: { selectedFiat: Fiat['name'], loadedFiats: (selec
         testID='transaction_details_info_text'
         light={tailwind('text-gray-600')}
         dark={tailwind('text-dfxgray-300')}
-        style={tailwind('flex-grow mt-4')}
+        style={tailwind('flex-grow mt-4 mb-2')}
       >
         {translate('screens/SellScreen', 'Your Currency')}
       </ThemedText>
 
       {isLoading
         ? (
-          <ThemedActivityIndicator style={tailwind('mb-4')} />)
+          <ThemedActivityIndicator />)
         : (
           <ThemedTouchableOpacity
-            onPress={props.onPress}
-            dark={tailwind('bg-dfxblue-900 border-dfxblue-900')}
+            onPress={() => props.openFiatBottomSheet(fiats)}
+            dark={tailwind((props.invertedColor ?? false) ? 'bg-dfxblue-900 border-dfxblue-900' : 'bg-dfxblue-800 border-dfxblue-800')}
             light={tailwind('border-gray-300 bg-white')}
             style={tailwind('border rounded w-full flex flex-row justify-between h-12 items-center px-2 mb-4')}
             testID='select_fiatAccount_input'
@@ -241,7 +284,7 @@ function FiatPickerRow (props: { selectedFiat: Fiat['name'], loadedFiats: (selec
                 style={tailwind('ml-2 font-medium')}
                 testID='selected_fiatAccount'
               >
-                {props.selectedFiat}
+                {props.fiat?.name ?? ''}
               </ThemedText>
             </View>
             <ThemedIcon
@@ -260,13 +303,13 @@ function FiatPickerRow (props: { selectedFiat: Fiat['name'], loadedFiats: (selec
 
 interface IbanForm {
   control: Control
-  onAmountChange: (iban: string) => void
+  onTextChange: (iban: string) => void
   onClearButtonPress: () => void
 }
 
 function IbanInput ({
   control,
-  onAmountChange,
+  onTextChange,
   onClearButtonPress
 }: IbanForm): JSX.Element {
   // TODO: (thabrad) activate if needed (-> if keyboard bug comes back 🤷‍♂️)
@@ -309,9 +352,9 @@ function IbanInput ({
             //   }
             // }}
             onChange={onChange}
-            onChangeText={onAmountChange}
+            onChangeText={onTextChange}
             placeholder='IBAN: XX 0000 0000 0000 00'
-            style={tailwind('flex-grow w-2/5')}
+            style={tailwind('flex-grow w-2/5  h-8')}
             testID='iban_input'
             value={value}
             maxLength={34}
@@ -338,6 +381,50 @@ function IbanInput ({
           }
         }
       }}
+    />
+  )
+}
+
+interface LabelForm {
+  control: Control
+  onTextChange: (iban: string) => void
+  onClearButtonPress: () => void
+}
+
+function LabelRow ({
+  control,
+  onTextChange,
+  onClearButtonPress
+}: LabelForm): JSX.Element {
+  return (
+    <Controller
+      control={control}
+      name='label'
+      render={({
+        field: { onChange, value }, fieldState: { error }
+      }) => (
+        <ThemedView
+          dark={tailwind('bg-transparent')}
+          light={tailwind('bg-transparent')}
+          style={tailwind('flex-row w-full')}
+        >
+          <WalletTextInput
+            autoCapitalize='none'
+            onChange={onChange}
+            onChangeText={onTextChange}
+            placeholder='e.g.: Deutsche Bank'
+            style={tailwind('flex-grow w-2/5 h-8')}
+            testID='iban_input'
+            value={value}
+            displayClearButton={value !== ''}
+            onClearButtonPress={onClearButtonPress}
+            title={translate('screens/SellScreen', 'Optional - Account Designation')}
+            titleTestID='title_send'
+            inputType='default'
+            hasBottomSheet
+          />
+        </ThemedView>
+      )}
     />
   )
 }

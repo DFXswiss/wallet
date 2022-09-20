@@ -1,11 +1,12 @@
 import { tailwind } from '@tailwind'
 import { ThemedText, ThemedView } from '@components/themed'
 import { translate } from '@translations'
-import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 import { TouchableOpacity } from 'react-native'
+import { useNavigation, NavigationProp } from '@react-navigation/native'
+import { PortfolioParamList } from '../PortfolioNavigator'
 
 export function DfxEmptyWallet (): JSX.Element {
-    const { openDfxServices } = useDFXAPIContext()
+    const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
 
     return (
       <ThemedView
@@ -16,7 +17,7 @@ export function DfxEmptyWallet (): JSX.Element {
         <ThemedText testID='empty_tokens_note' style={tailwind('font-normal text-sm text-center')}>
           {translate('components/DfxEmptyWallet', 'Add your DFI and other dTokens to get started or')}
         </ThemedText>
-        <TouchableOpacity onPress={openDfxServices}>
+        <TouchableOpacity onPress={() => navigation.navigate('Buy')}>
           <ThemedText
             light={tailwind('text-primary-500')}
             dark={tailwind('text-dfxred-500')}
