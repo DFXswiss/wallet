@@ -41,7 +41,6 @@ import { Asset } from '@shared-api/dfx/models/Asset'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { SepaInstantComponent } from '../components/SepaInstantComponent'
 import { TokenInput } from './SellScreen'
-import { useSwappableTokens } from '../../Dex/hook/SwappableTokens'
 
 type Props = StackScreenProps<PortfolioParamList, 'BuyScreen'>
 
@@ -50,9 +49,10 @@ export function BuyScreen ({
   navigation
 }: Props): JSX.Element {
   const logger = useLogger()
-  const {
-    fromTokens
-  } = useSwappableTokens(undefined)
+  // const {
+  //   fromTokens
+  // } = useSwappableTokens(undefined)
+  const [assets, setAssets] = useState<Asset[]>([])
   const [token, setToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedbankAccount] = useState<BankAccount>()
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
@@ -128,7 +128,14 @@ export function BuyScreen ({
   useEffect(() => {
     setIsLoadingData(true)
 
-    getBankAccounts()
+    const prom1 = getAssets()
+      .then((assets) => {
+        assets = assets.filter(asset => asset.buyable)
+        setAssets(assets)
+      })
+      .catch(logger.error)
+
+    const prom2 = getBankAccounts()
       .then((bankAccounts) => {
         if (bankAccounts === undefined || bankAccounts.length < 1) {
           // checkUserProfile()
@@ -139,7 +146,8 @@ export function BuyScreen ({
         }
       })
       .catch(logger.error)
-      .finally(() => setIsLoadingData(false))
+
+    Promise.all([prom1, prom2]).finally(() => setIsLoadingData(false))
   }, [])
 
   useEffect(() => {
@@ -159,23 +167,23 @@ export function BuyScreen ({
         stackScreenName: 'TokenList',
         component: BottomSheetTokenList({
           simple: true,
-          tokens: getBottomSheetToken(fromTokens),
+          tokens: getBottomSheetToken(assets),
           tokenType: TokenType.BottomSheetToken,
           headerLabel: translate('screens/BuyScreen', 'Choose token to buy'),
           onCloseButtonPress: () => dismissModal(),
           onTokenPress: async (item): Promise<void> => {
-            const _token = fromTokens.find(t => t.tokenId === item.tokenId)
+            const _token = assets.find(t => t.id.toString() === item.tokenId)
             if (_token !== undefined) {
               const walletToken: WalletToken = {
-                avatarSymbol: _token.token.symbol,
-                id: _token.tokenId,
+                avatarSymbol: _token.name,
+                id: _token.id.toString(),
                 amount: '1',
-                symbol: _token.token.symbol,
-                displaySymbol: _token.token.displaySymbol,
+                symbol: _token.name,
+                displaySymbol: _token.name,
                 symbolKey: '',
-                name: _token.token.name,
-                isDAT: false,
-                isLPS: _token.token.isLPS ?? false,
+                name: _token.name,
+                isDAT: _token.type === 'DAT',
+                isLPS: false,
                 isLoanToken: false
               }
 
@@ -190,7 +198,7 @@ export function BuyScreen ({
           header: () => null
         }
       }])
-  }, [fromTokens])
+  }, [assets])
 
   const setFiatAccountListBottomSheet = useCallback((accounts: BankAccount[]) => {
     setBottomSheetScreen([
@@ -280,7 +288,6 @@ export function BuyScreen ({
     if (formState.isValid) {
       setIsSubmitting(true)
 
-      const assets = await getAssets()
       const matchedAsset = assets.find((asset) => asset.name === token.displaySymbol)
 
       const paymentInfos: GetBuyPaymentInfoDto = {
@@ -311,6 +318,7 @@ export function BuyScreen ({
             setTokenListBottomSheet()
             expandModal()
           }}
+          isDisabled={isLoadingData}
         />
 
         {token === undefined
@@ -539,8 +547,18 @@ function AmountRow ({
   )
 }
 
-function getBottomSheetToken (tokens: BottomSheetToken[]): BottomSheetToken[] {
-  return tokens.map((token) => {
-    return { ...token, available: new BigNumber(1) }
+function getBottomSheetToken (assets: Asset[]): BottomSheetToken[] {
+  const bottomSheetTokens: BottomSheetToken[] = assets.map(asset => {
+    return {
+      tokenId: asset.id.toString(),
+      available: new BigNumber(1),
+      token: {
+        name: asset.name,
+        displaySymbol: asset.name,
+        symbol: asset.name,
+        isLPS: undefined
+      }
+    }
   })
+  return bottomSheetTokens
 }
