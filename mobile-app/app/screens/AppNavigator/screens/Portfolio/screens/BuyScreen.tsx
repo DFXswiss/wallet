@@ -51,9 +51,6 @@ export function BuyScreen ({
   navigation
 }: Props): JSX.Element {
   const logger = useLogger()
-  // const {
-  //   fromTokens
-  // } = useSwappableTokens(undefined)
   const [assets, setAssets] = useState<Asset[]>([])
   const [token, setToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedbankAccount] = useState<BankAccount>()
@@ -228,7 +225,6 @@ export function BuyScreen ({
       {
         stackScreenName: 'FiatAccountCreate',
         component: BottomSheetFiatAccountCreate({
-          // fiatAccounts: accounts,
           bankAccounts: accounts,
           headerLabel: translate('screens/SellScreen', 'Add account'),
           onCloseButtonPress: () => dismissModal(),

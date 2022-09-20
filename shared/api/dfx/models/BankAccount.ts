@@ -1,7 +1,6 @@
 import { Fiat } from './Fiat'
 
 export interface BankAccountDto {
-  readonly name: 'BankAccount' // TODO: (thabrad) remove once dependencies migrated
   id: string
   iban: string
   preferredCurrency: Fiat | null
@@ -10,7 +9,6 @@ export interface BankAccountDto {
 }
 
 export interface BankAccount {
-  readonly name: 'BankAccount'
   id: string
   iban: string
   fiat: Fiat | null
@@ -25,7 +23,6 @@ export interface BankAccountData {
 }
 
 export const fromBankAccountDto = (route: BankAccountDto): BankAccount => ({
-  name: route.name,
   id: route.id,
   iban: route.iban.replace(/(.{4})/g, '$1 '),
   fiat: route.preferredCurrency,

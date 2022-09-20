@@ -108,7 +108,6 @@ export const BottomSheetFiatAccountList = ({
                 <ThemedText
                   testID={`token_symbol_${item.iban}`}
                 >
-                  {/* {`${item?.label ?? (item?.fiat?.name ? item.fiat.name + ' / ' : ' ')}${item.iban}`} */}
                   {`${item?.label ?? item?.fiat?.name ?? '-'} / ${item.iban}`}
                 </ThemedText>
               </View>
