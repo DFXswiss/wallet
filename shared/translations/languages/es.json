@@ -1620,7 +1620,7 @@
     "VERSION {{number}}": "VERSIÓN {{number}}"
   },
   "components/DfxKycInfo": {
-    "Your account needs to get verified once your daily transaction volume exceeds 1000 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Tu cuenta necesitará ser verificada si tus transacciones diarias exceden el volumen de 1000 € al día. Si quieres incrementar el límite de comercio diario, por favor completa nuestro proceso de verificación (KYC o Conoce a Tu Cliente por la siglas en inglés). "
+    "Your account needs to get verified once your daily transaction volume exceeds {{KYC_MAX_AMOUNT}} € per day. If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Tu cuenta necesitará ser verificada si tus transacciones diarias exceden el volumen de {{KYC_MAX_AMOUNT}} € al día. Si quieres incrementar el límite de comercio diario, por favor completa nuestro proceso de verificación (KYC o Conoce a Tu Cliente por la siglas en inglés). "
   },
   "screens/SellScreen": {
     "Cash out to my bank account": "Ingresar en mi cuenta bancaria",

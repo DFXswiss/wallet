@@ -1016,7 +1016,7 @@
     "Send Liquidity Pool tokens only to DeFiChain compatible wallets. Otherwise, sending to other exchanges (except DFX) may result in irreversible loss of funds.": "Sende Liquiditätspool-Token nur an DeFiChain-kompatible Wallets. Andernfalls kann der Versand an andere Tauschbörsen (bis auf DFX) zu einem irreversiblen Verlust von Einlagen führen."
   },
   "components/DfxKycInfo": {
-    "Your account needs to get verified once your daily transaction volume exceeds 1000 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Ab einem Transaktionsvolumen von mehr als 1000 € pro Tag muss dein Account verifiziert sein. Möchtest du dieses Limit erhöhen, dann schließe bitte den KYC-Prozess (Know-Your-Customer) ab."
+    "Your account needs to get verified once your daily transaction volume exceeds {{KYC_MAX_AMOUNT}} € per day. If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Ab einem Transaktionsvolumen von mehr als {{KYC_MAX_AMOUNT}} € pro Tag muss dein Account verifiziert sein. Möchtest du dieses Limit erhöhen, dann schließe bitte den KYC-Prozess (Know-Your-Customer) ab."
   },
   "components/ConversionTag": {
     "Conversion required": "Konvertierung erforderlich"

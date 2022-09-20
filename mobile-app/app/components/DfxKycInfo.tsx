@@ -37,7 +37,7 @@ export function DfxKycInfo (props: DfxKycInfoProps): JSX.Element {
         >
           <InfoText
             testID='dfx_kyc_info'
-            text={translate('components/DfxKycInfo', 'Your account needs to get verified once your daily transaction volume exceeds 1000 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.')}
+            text={translate('components/DfxKycInfo', 'Your account needs to get verified once your daily transaction volume exceeds {{KYC_MAX_AMOUNT}} € per day. If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.', { KYC_MAX_AMOUNT })}
             style={props.style}
           />
           {(isLoadingKyc) && <ThemedActivityIndicator size='large' color='#65728a' style={tailwind('absolute inset-0 items-center justify-center')} />}

@@ -1698,5 +1698,6 @@
     "Your IBAN": "您的IBAN",
     "Transaction Fee": "交易费用 ",
     "Transfer Details": "转让详情 "
-  }
+  },
+  "components/DfxKycInfo": {}
 }
