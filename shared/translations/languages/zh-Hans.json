@@ -484,7 +484,8 @@
     "Add to liquidity pool": "加入流动性池",
     "Remove liquidity": "撒出 流动性池",
     "Swap token": "兑换代币",
-    "Sell": "卖"
+    "Sell": "卖",
+    "Buy": "购买 "
   },
   "screens/TokensVsUtxoScreen": {
     "Learn about UTXOs and Tokens": "了解UTXO和代币区别",

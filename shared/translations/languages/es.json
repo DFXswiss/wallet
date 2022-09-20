@@ -473,7 +473,8 @@
     "Add to liquidity pool": "Añadir a la piscina de liquidez",
     "Remove liquidity": "Eliminar liquidez",
     "Swap token": "Intercambia de token",
-    "Sell": "Vender"
+    "Sell": "Vender",
+    "Buy": "Compra"
   },
   "screens/TokensVsUtxoScreen": {
     "Learn about UTXOs and Tokens": "Aprende sobre UTXOs y Tokens",
