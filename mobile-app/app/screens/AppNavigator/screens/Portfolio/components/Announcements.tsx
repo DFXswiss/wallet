@@ -60,6 +60,7 @@ export function Announcements ({ channel }: { channel?: AnnouncementChannel }): 
   const blockchainIsDownAnnouncement = findDisplayedAnnouncementForVersion('0.0.0', language, hiddenAnnouncements, blockchainStatusAnnouncement)
   const oceanIsDownAnnouncement = findDisplayedAnnouncementForVersion('0.0.0', language, hiddenAnnouncements, oceanStatusAnnouncement)
   const announcement = findDisplayedAnnouncementForVersion(nativeApplicationVersion ?? '0.0.0', language, hiddenAnnouncements, announcements)
+  const channelAnnouncement = findDisplayedAnnouncementForVersion(nativeApplicationVersion ?? '0.0.0', language, hiddenAnnouncements, announcements, channel)
 
   /*
     Display priority:
@@ -86,14 +87,15 @@ export function Announcements ({ channel }: { channel?: AnnouncementChannel }): 
     return <></>
   }
 
-  if (channel != null && announcement?.channel === channel) {
+  if (channelAnnouncement != null) {
     return (
       <AnnouncementBanner
-        announcement={announcement} hideAnnouncement={hideAnnouncement}
+        announcement={channelAnnouncement} hideAnnouncement={hideAnnouncement}
         testID='announcements_banner'
       />
     )
-  } else if (channel != null && announcement?.channel !== channel) {
+  }
+  if (channel != null || channelAnnouncement != null) {
     return <></>
   }
 
@@ -206,25 +208,37 @@ export interface Announcement {
   channel?: AnnouncementChannel
 }
 
-export function findDisplayedAnnouncementForVersion (version: string, language: string, hiddenAnnouncements: string[], announcements?: AnnouncementData[]): Announcement | undefined {
+export function findDisplayedAnnouncementForVersion (version: string, language: string, hiddenAnnouncements: string[], announcements?: AnnouncementData[], channel?: AnnouncementChannel): Announcement | undefined {
   if (announcements === undefined || announcements.length === 0) {
     return
   }
 
+  const activeAnnouncements = []
   for (const announcement of announcements) {
     const lang: any = announcement.lang
     const platformUrl: any = announcement.url
 
     if (((Platform.OS !== 'ios' && Platform.OS !== 'android') ||
       satisfies(version, announcement.version)) && getDisplayAnnouncement(hiddenAnnouncements, announcement)) {
-      return {
+      activeAnnouncements.push({
         content: lang[language] ?? lang.en,
         url: platformUrl !== undefined ? platformUrl[Platform.OS] : undefined,
         id: announcement.id,
         type: announcement.type,
         channel: announcement.channel
-      }
+      })
     }
+  }
+  if (activeAnnouncements.length < 1) {
+    return undefined
+  }
+
+  if (channel != null) {
+    // return first active corresponding channel announcement
+    return activeAnnouncements.find(announcement => announcement.channel === channel)
+  } else {
+    // return first active general announcement
+    return activeAnnouncements.find(announcement => announcement.channel === undefined)
   }
 }
 
