@@ -166,7 +166,10 @@ module.exports = {
         dfxdfi: {
           500: '#D748A7'
         },
-        'brand-v2': { // TODO: (thabrad) check if LW uses correct syntax
+        lock: {
+          500: '#57755A'
+        },
+        'brand-v2': {
           500: '#FF008C'
         },
         'mono-dark-v2': {

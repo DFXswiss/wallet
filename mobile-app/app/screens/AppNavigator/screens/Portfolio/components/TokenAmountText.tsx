@@ -11,6 +11,7 @@ interface TokenAmountTextProps {
   usdAmount: BigNumber
   tokenAmount: string
   denominationCurrency: string
+  decimalScale?: number
 }
 
 export function TokenAmountText ({
@@ -18,12 +19,13 @@ export function TokenAmountText ({
   isBalancesDisplayed,
   usdAmount,
   tokenAmount,
-  denominationCurrency
+  denominationCurrency,
+  decimalScale = 8
 }: TokenAmountTextProps): JSX.Element {
   return (
     <View style={tailwind('flex-row')}>
       <NumberFormat
-        decimalScale={8}
+        decimalScale={decimalScale}
         displayType='text'
         renderText={(value) =>
           <>
