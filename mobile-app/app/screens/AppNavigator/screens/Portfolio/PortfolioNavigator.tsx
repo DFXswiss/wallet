@@ -50,10 +50,12 @@ import { VMTransaction } from '@screens/AppNavigator/screens/Transactions/screen
 import { HeaderNetworkStatus } from '@components/HeaderNetworkStatus'
 import { useNavigatorScreenOptions } from '@hooks/useNavigatorScreenOptions'
 import { LockScreen } from './LOCK/LockScreen'
+import { LockDashboardScreen } from './LOCK/LockDashboardScreen'
 
 export interface PortfolioParamList {
   PortfolioScreen: undefined
   LockScreen: undefined
+  LockDashboardScreen: undefined
   ReceiveScreen: undefined
   ReceiveDTokenScreen: { crypto?: CryptoButtonGroupTabKey, fromReceiveScreen?: boolean }
   SellScreen: { token?: WalletToken }
@@ -208,6 +210,20 @@ export function PortfolioNavigator (): JSX.Element {
           headerTitle: () => (
             <HeaderTitle
               text={translate('LOCK/LockScreen', 'LOCK Staking')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false
+        }}
+      />
+
+      <PortfolioStack.Screen
+        component={LockDashboardScreen}
+        name='LockDashboardScreen'
+        options={{
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('LOCK/LockDashboardScreen', 'LOCK Dashboard')}
               containerTestID={headerContainerTestId}
             />
           ),

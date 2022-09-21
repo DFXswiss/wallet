@@ -18,9 +18,7 @@ import { translate } from '@translations'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { PortfolioParamList } from '../PortfolioNavigator'
 
-export function LockStaking (/* {
-  onPress
-}: { onPress: () => void denominationCurrency: string } */): JSX.Element {
+export function LockStakingCard (): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false)
 

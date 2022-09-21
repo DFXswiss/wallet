@@ -45,7 +45,7 @@ import { useDebounce } from '@hooks/useDebounce'
 import { from, defer } from 'rxjs'
 import { delay, map, retryWhen } from 'rxjs/operators'
 import { useNetworkContext } from '@shared-contexts/NetworkContext'
-import { LockStaking } from './LOCK/LockStaking'
+import { LockStakingCard } from './LOCK/LockStakingCard'
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>
 
@@ -543,7 +543,7 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
           denominationCurrency={denominationCurrency}
         />
         <BalanceActionSection navigation={navigation} isZeroBalance={isZeroBalance} />
-        <LockStaking />
+        <LockStakingCard />
         {hasPendingFutureSwap && <FutureSwapCta navigation={navigation} />}
         {/* to show bottom sheet for asset sort */}
         <AssetSortRow
