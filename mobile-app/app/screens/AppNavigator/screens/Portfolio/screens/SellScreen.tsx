@@ -620,9 +620,9 @@ function AmountRow ({
   const onAmountChangeCAPPED = (amount: string): void => {
     const base = new BigNumber(amount)
     const max = new BigNumber(maxAmount)
-    base.isGreaterThan(max)
+    const capped = base.isGreaterThan(max)
 
-    return onAmountChange(new BigNumber(amount).isGreaterThan(new BigNumber(maxAmount)) ? maxAmount : amount)
+    return onAmountChange(base.isNaN() ? '' : capped ? maxAmount : amount)
   }
 
   const defaultValue = ''

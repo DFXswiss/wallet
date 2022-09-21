@@ -14,6 +14,7 @@ interface SetAmountButtonProps {
   onPress: (amount: string) => void
   amount: BigNumber
   customText?: string
+  lock?: boolean
 }
 
 export function SetAmountButton (props: SetAmountButtonProps): JSX.Element {
@@ -21,7 +22,7 @@ export function SetAmountButton (props: SetAmountButtonProps): JSX.Element {
   const text = props.customText !== undefined ? props.customText : translate('components/max', props.type)
   return (
     <ThemedTouchableOpacity
-      dark={tailwind('border border-dfxblue-900')}
+      dark={tailwind(props.lock === true ? 'bg-lock-200' : 'border border-dfxblue-900')}
       light={tailwind('border border-dfxgray-300')}
       onPress={() => {
         props.onPress(props.type === AmountButtonTypes.half ? props.amount.div(2).toFixed(decimalPlace) : props.amount.toFixed(decimalPlace))
@@ -33,7 +34,7 @@ export function SetAmountButton (props: SetAmountButtonProps): JSX.Element {
       testID={`${props.type}_amount_button`}
     >
       <ThemedText
-        dark={tailwind('text-dfxred-500')}
+        dark={tailwind(props.lock === true ? 'text-lock-800' : 'text-dfxred-500')}
         light={tailwind('text-primary-500')}
         style={tailwind('text-center font-medium')}
       >
