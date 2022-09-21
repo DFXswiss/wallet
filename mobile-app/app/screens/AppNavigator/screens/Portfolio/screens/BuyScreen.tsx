@@ -297,7 +297,7 @@ export function BuyScreen ({
 
       buyWithPaymentInfos(paymentInfos)
         .then((buyPaymentInfo) => {
-          const transactionDetails = { token: token.displaySymbol, iban: paymentInfos.iban }
+          const transactionDetails = { token: token.displaySymbol, iban: paymentInfos.iban, sepaInstant: selectedBankAccount.sepaInstant }
           navigation.navigate('BuyConfirmationScreen', { buyPaymentInfo, transactionDetails })
         })
         .catch(WalletAlertErrorApi)

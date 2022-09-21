@@ -69,7 +69,7 @@ export function BuyConfirmationScreen ({ route, navigation }: Props): JSX.Elemen
           text={translate('screens/SendScreen', 'TRANSACTION DETAILS')}
         />
         <ThemedView dark={tailwind('rounded-md border-2 border-dfxblue-800')}>
-          <List list={transactionDetailList} />
+          <List list={transactionDetailList} sepaInstant={route.params.transactionDetails.sepaInstant} />
         </ThemedView>
 
         <Button
@@ -93,12 +93,13 @@ export function BuyConfirmationScreen ({ route, navigation }: Props): JSX.Elemen
 interface ListProps {
   list: ListItemProps[]
   copyIcon?: boolean
+  sepaInstant?: boolean
 }
-function List ({ list, copyIcon }: ListProps): JSX.Element {
+function List ({ list, copyIcon, sepaInstant }: ListProps): JSX.Element {
   return (
     <FlatList
       data={list}
-      renderItem={({ item }) => <ListItem title={item.title} detail={item.detail} copyIcon={copyIcon} />}
+      renderItem={({ item }) => <ListItem title={item.title} detail={item.detail} copyIcon={copyIcon} sepaInstant={sepaInstant} />}
       scrollEnabled={false}
     />
   )
@@ -108,8 +109,9 @@ interface ListItemProps {
   title?: string
   detail: string
   copyIcon?: boolean
+  sepaInstant?: boolean
 }
-function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
+function ListItem ({ title, detail, copyIcon, sepaInstant = false }: ListItemProps): JSX.Element {
   const [showToast, setShowToast] = useState(false)
   const toast = useToast()
   const TOAST_DURATION = 2000
@@ -144,7 +146,7 @@ function ListItem ({ title, detail, copyIcon }: ListItemProps): JSX.Element {
             {translate('screens/BuyConfirmationScreen', title)}
           </ThemedText>
 
-          {title === 'Your IBAN' && (
+          {title === 'Your IBAN' && sepaInstant && (
             <SepaInstantComponent widget />
           )}
         </View>

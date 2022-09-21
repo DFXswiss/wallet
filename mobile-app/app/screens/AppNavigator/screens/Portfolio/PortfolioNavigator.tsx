@@ -57,7 +57,7 @@ export interface PortfolioParamList {
   ReceiveScreen: undefined
   ReceiveDTokenScreen: { crypto?: CryptoButtonGroupTabKey, fromReceiveScreen?: boolean }
   BuyScreen: { token?: WalletToken }
-  BuyConfirmationScreen: { buyPaymentInfo: BuyPaymentInfoDto, transactionDetails: {token: string, iban: string}}
+  BuyConfirmationScreen: { buyPaymentInfo: BuyPaymentInfoDto, transactionDetails: { token: string, iban: string, sepaInstant?: boolean } }
   SellScreen: { token?: WalletToken }
   SellConfirmationScreen: undefined
   UserDetailsScreen: undefined
