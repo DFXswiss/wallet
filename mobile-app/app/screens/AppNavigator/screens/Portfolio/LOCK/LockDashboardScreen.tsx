@@ -1,15 +1,18 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { StackScreenProps } from '@react-navigation/stack'
 import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { TouchableOpacity, Text, Linking } from 'react-native'
+import { TouchableOpacity, Text, Linking, Platform } from 'react-native'
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import { PortfolioParamList } from '../PortfolioNavigator'
 import { Button } from '@components/Button'
 import { View } from '@components'
-import React from 'react'
+import React, { useCallback, useRef, useState } from 'react'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 import { ScrollView } from 'react-native-gesture-handler'
+import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
+import { BottomSheetModal } from '@gorhom/bottom-sheet'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockDashboardScreen'>
 
@@ -37,6 +40,48 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
       share: 25
     }
   ]
+
+  // Bottom sheet
+  const [isModalDisplayed, setIsModalDisplayed] = useState(false)
+  const [bottomSheetScreen, setBottomSheetScreen] = useState<BottomSheetNavScreen[]>([])
+  const containerRef = useRef(null)
+  const bottomSheetRef = useRef<BottomSheetModal>(null)
+  const expandModal = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setIsModalDisplayed(true)
+    } else {
+      bottomSheetRef.current?.present()
+    }
+  }, [])
+  const dismissModal = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setIsModalDisplayed(false)
+    } else {
+      bottomSheetRef.current?.close()
+    }
+  }, [])
+
+  // const setStakingBottomSheet = useCallback((accounts: SellRoute[]) => { // TODO: remove accounts?
+  //   setBottomSheetScreen([
+  //     {
+  //       stackScreenName: 'FiatAccountCreate',
+  //       component: BottomSheetFiatAccountCreate({
+  //         fiatAccounts: accounts,
+  //         headerLabel: translate('screens/SellScreen', 'Add account'),
+  //         onCloseButtonPress: () => dismissModal(),
+  //         onElementCreatePress: async (item): Promise<void> => {
+  //           if (item.iban !== undefined) {
+  //             fiatAccounts.push(item)
+  //             setAccount(item)
+  //           }
+  //           dismissModal()
+  //         }
+  //       }),
+  //       option: {
+  //         header: () => null
+  //       }
+  //     }])
+  // }, [fiatAccounts])
 
   return (
     <ScrollView style={tailwind('flex-col bg-gray-200 border-t border-dfxgray-500 h-full text-lg')}>
@@ -133,6 +178,28 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           </Text>
         </TouchableOpacity>
       </View>
+
+      {Platform.OS === 'web' && (
+        <BottomSheetWebWithNav
+          modalRef={containerRef}
+          screenList={bottomSheetScreen}
+          isModalDisplayed={isModalDisplayed}
+          modalStyle={{
+            position: 'absolute',
+            height: '350px',
+            width: '375px',
+            zIndex: 50,
+            bottom: '0'
+          }}
+        />
+      )}
+
+      {Platform.OS !== 'web' && (
+        <BottomSheetWithNav
+          modalRef={bottomSheetRef}
+          screenList={bottomSheetScreen}
+        />
+      )}
 
     </ScrollView>
   )
