@@ -20,7 +20,7 @@ export function LockScreen ({ route }: Props): JSX.Element {
     <View style={tailwind('flex-col p-8 bg-gray-200 border-t border-dfxgray-500 h-full text-lg')}>
 
       <View style={tailwind('bg-white rounded-md p-2')}>
-        <View style={tailwind('flex-row mb-4 border-b border-gray-200')}>
+        <View style={tailwind('flex-row pb-2 mb-4 border-b border-gray-200')}>
           <Checkbox
             value={acknowledged}
             onValueChange={toggleSwitch}
@@ -31,7 +31,7 @@ export function LockScreen ({ route }: Props): JSX.Element {
             <Text style={tailwind('text-lg font-bold')}>
               {translate('LOCK/LockScreen', 'KYC Handover')}
             </Text>
-            <Text style={tailwind('flex self-center text-base')}>
+            <Text style={tailwind('flex self-center text-base mr-8')}>
               {translate('LOCK/LockScreen', 'Transfer your KYC (Know-your-customer) data from DFX.swiss to LOCK and start staking right away.')}
             </Text>
           </View>
@@ -43,10 +43,10 @@ export function LockScreen ({ route }: Props): JSX.Element {
       </View>
 
       <TouchableOpacity disabled style={tailwind('bg-white rounded-md py-4 px-8 mt-8')}>
-        <Text style={tailwind('text-lg font-bold')}>
+        <Text style={tailwind('ml-6 text-lg font-bold', !acknowledged ? 'text-gray-300' : '')}>
           {translate('LOCK/LockScreen', 'New KYC Process - tbd.')}
         </Text>
-        <Text style={tailwind('flex self-center text-base')}>
+        <Text style={tailwind('ml-6 text-base', !acknowledged ? 'text-gray-300' : '')}>
           {translate('LOCK/LockScreen', 'New KYC (Know-your-customer) verification via LOCK.')}
         </Text>
       </TouchableOpacity>
@@ -59,6 +59,7 @@ export function LockScreen ({ route }: Props): JSX.Element {
         margin=''
         onPress={() => navigation.dispatch(StackActions.popToTop())}
         style={tailwind('flex')}
+        color='secondary'
         disabled={!acknowledged}
       />
     </View>
