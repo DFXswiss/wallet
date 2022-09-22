@@ -17,6 +17,7 @@ interface SubmitButtonGroupItems {
   processingLabel?: string
   onSubmit: () => Promise<void>
   onCancel?: () => void
+  lock?: boolean
 }
 
 export function SubmitButtonGroup ({
@@ -28,7 +29,8 @@ export function SubmitButtonGroup ({
   isProcessing,
   processingLabel,
   onSubmit,
-  onCancel
+  onCancel,
+  lock
 }: SubmitButtonGroupItems): JSX.Element {
   const error = useSelector((state: RootState) => state.transactionQueue.err)
   const [intervalId, setIntervalId] = useState<ReturnType<typeof setInterval> | null>(null)
@@ -98,6 +100,7 @@ export function SubmitButtonGroup ({
             testID={`button_try_again_${title}`}
             title={translate('screens/common', 'TRY AGAIN')}
             disabled={isDisabled}
+            lock={lock}
           />
         )
         : (<Button
@@ -108,6 +111,7 @@ export function SubmitButtonGroup ({
             title={title}
             isSubmitting={isProcessing}
             submittingLabel={getSubmittingLabel()}
+            lock={lock}
            />
         )}
 
@@ -120,6 +124,7 @@ export function SubmitButtonGroup ({
           onPress={onCancel}
           testID={`button_cancel_${title}`}
           title='cancel'
+          lock={lock}
         />}
     </View>
   )

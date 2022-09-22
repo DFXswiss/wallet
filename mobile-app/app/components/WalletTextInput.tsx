@@ -1,5 +1,5 @@
 import React, { forwardRef, useCallback, useState } from 'react'
-import { Platform, TextInput, TextInputProps, TouchableOpacity } from 'react-native'
+import { Platform, TextInputProps, TouchableOpacity } from 'react-native'
 import { useBottomSheetInternal } from '@gorhom/bottom-sheet'
 import {
   ThemedView,
@@ -66,7 +66,7 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
     ios: TextInputIOS,
     default: TextInputDefault
   }
-  const TextInputBS = Platform.OS === 'ios' && hasBottomSheet === true ? textInputComponents.ios : textInputComponents.default
+  const TextInput = Platform.OS === 'ios' && hasBottomSheet === true ? textInputComponents.ios : textInputComponents.default
 
   const hasClearButton = (): boolean => {
     return (displayClearButton) && (onClearButtonPress !== undefined)
@@ -115,37 +115,20 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
           dark={tailwind('bg-transparent')}
           style={[tailwind('flex-row items-center p-2 justify-between'), props.multiline === true && { minHeight: 54 }]}
         >
-          {lock
-          ? (
-            <TextInput
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => {
-                if (onBlur !== undefined) {
-                  onBlur()
-                }
+          <TextInput
+            onFocus={() => setIsFocus(true)}
+            onBlur={() => {
+              if (onBlur !== undefined) {
+                onBlur()
+              }
 
-                setIsFocus(false)
-              }}
-              ref={ref}
-              editable={editable}
-              {...otherProps}
-            />
-          )
-          : (
-            <TextInputBS
-              onFocus={() => setIsFocus(true)}
-              onBlur={() => {
-                if (onBlur !== undefined) {
-                  onBlur()
-                }
-
-                setIsFocus(false)
-              }}
-              ref={ref}
-              editable={editable}
-              {...otherProps}
-            />
-          )}
+              setIsFocus(false)
+            }}
+            ref={ref}
+            editable={editable}
+            {...otherProps}
+            lock
+          />
           {displayTickIcon === true &&
             <ThemedIcon
               size={18}
@@ -221,7 +204,7 @@ export function ClearButton (props: {onPress?: () => void, testID?: string, icon
   )
 }
 
-const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>) => {
+const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>, lock?: boolean) => {
   const {
     inputType,
     ...otherProps
@@ -235,7 +218,7 @@ const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref
   )
 })
 
-const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>) => {
+const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>, lock?: boolean) => {
   const {
     inputType,
     onBlur,
@@ -271,6 +254,7 @@ const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any
       onBlur={handleOnBlur}
       onFocus={handleOnFocus}
       {...otherProps}
+      lock
     />
   )
 })

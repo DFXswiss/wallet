@@ -105,131 +105,133 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   }, [dfi])
 
   return (
-    <ScrollView style={tailwind('flex-col bg-gray-200 border-t border-dfxgray-500 h-full text-lg')}>
+    <View style={tailwind('h-full bg-gray-200 border-t border-dfxgray-500')}>
+      <ScrollView contentContainerStyle={tailwind('flex-col')}>
 
-      <View style={tailwind('h-40 bg-lock-800')}>
-        <View style={tailwind('self-center mt-4')}>
-          <View style={tailwind('flex-row self-center')}>
-            <LOCKunlockedIcon height={48} width={48} style={tailwind('mr-2')} />
-            <Text style={tailwind('text-5xl text-white font-extrabold self-center')}>
-              LOCK
+        <View style={tailwind('h-40 bg-lock-800')}>
+          <View style={tailwind('self-center mt-4')}>
+            <View style={tailwind('flex-row self-center')}>
+              <LOCKunlockedIcon height={48} width={48} style={tailwind('mr-2')} />
+              <Text style={tailwind('text-5xl text-white font-extrabold self-center')}>
+                LOCK
+              </Text>
+            </View>
+            <Text style={tailwind('mt-6 text-lg text-white self-center')}>
+              {translate('LOCK/LockDashboardScreen', '$DFI Staking by Lock')}
+            </Text>
+            <Text style={tailwind('text-xl text-white font-bold mb-6 self-center')}>
+              {translate('LOCK/LockDashboardScreen', 'APY 35%  APR 31%')}
             </Text>
           </View>
-          <Text style={tailwind('mt-6 text-lg text-white self-center')}>
-            {translate('LOCK/LockDashboardScreen', '$DFI Staking by Lock')}
-          </Text>
-          <Text style={tailwind('text-xl text-white font-bold mb-6 self-center')}>
-            {translate('LOCK/LockDashboardScreen', 'APY 35%  APR 31%')}
-          </Text>
-        </View>
-      </View>
-
-      <View style={tailwind('bg-white rounded-md m-8')}>
-        <View style={tailwind('flex-row p-4 justify-between border-b border-gray-200')}>
-          <Text style={tailwind('text-xl font-bold ')}>
-            {translate('LOCK/LockDashboardScreen', 'DFI Staking')}
-          </Text>
-          <Text style={tailwind('text-xl font-medium ')}>
-            {translate('LOCK/LockDashboardScreen', '1,000 DFI')}
-          </Text>
         </View>
 
-        <View style={tailwind('p-4')}>
-          <Text style={tailwind('text-xl font-bold mb-2')}>
-            {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
-          </Text>
+        <View style={tailwind('bg-white rounded-md m-8')}>
+          <View style={tailwind('flex-row p-4 justify-between border-b border-gray-200')}>
+            <Text style={tailwind('text-xl font-bold ')}>
+              {translate('LOCK/LockDashboardScreen', 'DFI Staking')}
+            </Text>
+            <Text style={tailwind('text-xl font-medium ')}>
+              {translate('LOCK/LockDashboardScreen', '1,000 DFI')}
+            </Text>
+          </View>
 
-          <ListItem pair={{ asset: 'Reinvest', share: 100 }} style='text-xl font-medium' />
-          <ListItem pair={{ asset: 'Pay out to the wallet', share: 'tbd.' }} style='text-xl font-normal' isDisabled />
+          <View style={tailwind('p-4')}>
+            <Text style={tailwind('text-xl font-bold mb-2')}>
+              {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
+            </Text>
 
-          {assetList.map((pair, i) => {
-            return (
-              <ListItem key={`al-${i}`} pair={pair} isDisabled />
-            )
-          })}
+            <ListItem pair={{ asset: 'Reinvest', share: 100 }} style='text-xl font-medium' />
+            <ListItem pair={{ asset: 'Pay out to the wallet', share: 'tbd.' }} style='text-xl font-normal' isDisabled />
 
-          <ListItem pair={{ asset: 'Pay out to bank account', share: 'tbd.' }} style='text-xl font-normal' isDisabled />
+            {assetList.map((pair, i) => {
+              return (
+                <ListItem key={`al-${i}`} pair={pair} isDisabled />
+              )
+            })}
 
+            <ListItem pair={{ asset: 'Pay out to bank account', share: 'tbd.' }} style='text-xl font-normal' isDisabled />
+
+          </View>
+          <View style={tailwind('flex-row bg-lock-200 rounded-b-md justify-between')}>
+            <Button
+              fill='fill'
+              label={translate('LOCK/LockDashboardScreen', 'STAKE')}
+              margin='m-3 '
+              padding='p-1'
+              extraStyle='flex-grow'
+              onPress={() => {
+                setStakingBottomSheet(dfi)
+                expandModal()
+              }}
+              lock
+              disabled={dfi === undefined || new BigNumber(dfi.amount).isLessThanOrEqualTo(0)}
+              style={tailwind('h-8')}
+            />
+            <Button
+              fill='fill'
+              label={translate('LOCK/LockDashboardScreen', 'UNSTAKE')}
+              margin='my-3 mr-3'
+              padding='p-1'
+              extraStyle='flex-grow'
+              onPress={() => {
+                setStakingBottomSheet(dfi)
+                expandModal()
+              }}
+              lock
+              style={tailwind('h-4')}
+            />
+          </View>
         </View>
-        <View style={tailwind('flex-row bg-lock-200 rounded-b-md justify-between')}>
-          <Button
-            fill='fill'
-            label={translate('LOCK/LockDashboardScreen', 'STAKE')}
-            margin='m-3 '
-            padding='p-1'
-            extraStyle='flex-grow'
-            onPress={() => {
-              setStakingBottomSheet(dfi)
-              expandModal()
+
+        <View style={tailwind('flex-row self-center mb-20')}>
+          <TouchableOpacity style={tailwind('flex-row mx-2')} onPress={async () => await Linking.openURL('mailto:' + email)}>
+            <MaterialCommunityIcons
+              style={tailwind('mr-2 text-lock-800 self-center')}
+              iconType='MaterialIcons'
+              name='email-outline'
+              size={12}
+            />
+            <Text style={tailwind('text-xs font-medium self-center')}>
+              {translate('LOCK/LockDashboardScreen', email)}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={tailwind('flex-row mx-2')} onPress={async () => await Linking.openURL('https://lock.space/terms')}>
+            <MaterialCommunityIcons
+              style={tailwind('mr-2 text-lock-800 self-center')}
+              iconType='MaterialCommunityIcons'
+              name='open-in-new'
+              size={12}
+            />
+            <Text style={tailwind('text-xs font-medium self-center')}>
+              {translate('LOCK/LockDashboardScreen', 'Terms & Conditions')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {Platform.OS === 'web' && (
+          <BottomSheetWebWithNav
+            modalRef={containerRef}
+            screenList={bottomSheetScreen}
+            isModalDisplayed={isModalDisplayed}
+            modalStyle={{
+              position: 'absolute',
+              height: '350px',
+              width: '375px',
+              zIndex: 50,
+              bottom: '0'
             }}
-            lock
-            disabled={dfi === undefined || new BigNumber(dfi.amount).isLessThanOrEqualTo(0)}
-            style={tailwind('h-8')}
           />
-          <Button
-            fill='fill'
-            label={translate('LOCK/LockDashboardScreen', 'UNSTAKE')}
-            margin='my-3 mr-3'
-            padding='p-1'
-            extraStyle='flex-grow'
-            onPress={() => {
-              setStakingBottomSheet(dfi)
-              expandModal()
-            }}
-            lock
-            style={tailwind('h-4')}
+        )}
+
+        {Platform.OS !== 'web' && (
+          <BottomSheetWithNav
+            modalRef={bottomSheetRef}
+            screenList={bottomSheetScreen}
           />
-        </View>
-      </View>
+        )}
 
-      <View style={tailwind('flex-row self-center mb-20')}>
-        <TouchableOpacity style={tailwind('flex-row mx-2')} onPress={async () => await Linking.openURL('mailto:' + email)}>
-          <MaterialCommunityIcons
-            style={tailwind('mr-2 text-lock-800 self-center')}
-            iconType='MaterialIcons'
-            name='email-outline'
-            size={12}
-          />
-          <Text style={tailwind('text-xs font-medium self-center')}>
-            {translate('LOCK/LockDashboardScreen', email)}
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={tailwind('flex-row mx-2')} onPress={async () => await Linking.openURL('https://lock.space/terms')}>
-          <MaterialCommunityIcons
-            style={tailwind('mr-2 text-lock-800 self-center')}
-            iconType='MaterialCommunityIcons'
-            name='open-in-new'
-            size={12}
-          />
-          <Text style={tailwind('text-xs font-medium self-center')}>
-            {translate('LOCK/LockDashboardScreen', 'Terms & Conditions')}
-          </Text>
-        </TouchableOpacity>
-      </View>
-
-      {Platform.OS === 'web' && (
-        <BottomSheetWebWithNav
-          modalRef={containerRef}
-          screenList={bottomSheetScreen}
-          isModalDisplayed={isModalDisplayed}
-          modalStyle={{
-            position: 'absolute',
-            height: '350px',
-            width: '375px',
-            zIndex: 50,
-            bottom: '0'
-          }}
-        />
-      )}
-
-      {Platform.OS !== 'web' && (
-        <BottomSheetWithNav
-          modalRef={bottomSheetRef}
-          screenList={bottomSheetScreen}
-        />
-      )}
-
-    </ScrollView>
+      </ScrollView>
+    </View>
   )
 }
 
@@ -254,6 +256,10 @@ function ListItem ({ pair, isDisabled, style }: ListItemProp): JSX.Element {
     </View>
   )
 }
+
+// --------------------------------------------------------------
+// --------------export const BottomSheetStaking-----------------
+// --------------------------------------------------------------
 
 interface BottomSheetStakingProps {
   headerLabel: string
@@ -333,7 +339,7 @@ export const BottomSheetStaking = ({
       style={tailwind('flex-1 bg-gray-200')}
     >
       <View
-        style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b', { 'py-3.5 border-t -mb-px': Platform.OS === 'android' })} // border top on android to handle 1px of horizontal transparent line when scroll past header
+        style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b border-gray-300', { 'py-3.5 border-t -mb-px': Platform.OS === 'android' })} // border top on android to handle 1px of horizontal transparent line when scroll past header
       >
         <Text
           style={tailwind('text-lg font-medium')}
@@ -369,6 +375,7 @@ export const BottomSheetStaking = ({
             title='sell_continue'
             isProcessing={isSubmitting}
             displayCancelBtn={false}
+            lock
           />
         </View>
       </View>
