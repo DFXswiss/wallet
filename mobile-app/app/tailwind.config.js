@@ -222,7 +222,8 @@ module.exports = {
         '2xl-v2': 20
       },
       padding: {
-        4.5: 18
+        4.5: 18,
+        0.5: 2
       },
       margin: {
         0.75: 3

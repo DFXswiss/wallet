@@ -442,6 +442,7 @@ function AmountRow ({
               displayClearButton={value !== defaultValue}
               onClearButtonPress={onClearButtonPress}
               inputType='numeric'
+              hasBottomSheet
               lock
             >
               <View

@@ -143,7 +143,7 @@
     "YOUR ADDRESS(ES)": "您的地址",
     "Search results for": "搜索結果",
     "Search with label or address": "使用標籤或地址搜索",
-    "Search results for “{{input}}”":  "Search results for “{{input}}”",
+    "Search results for “{{input}}”": "Search results for “{{input}}”",
     "FAVOURITE ADDRESS(ES)": "收藏地址",
     "Add your preferred / commonly-used address.": "Add your preferred / commonly-used address."
   },
@@ -484,7 +484,8 @@
     "Add to liquidity pool": "加入流動性池",
     "Remove liquidity": "撒出 流動性池",
     "Swap token": "兌換代幣",
-    "Sell": "賣"
+    "Sell": "賣",
+    "Buy": "购买 "
   },
   "screens/TokensVsUtxoScreen": {
     "Learn about UTXOs and Tokens": "了解UTXO和代幣區別",
@@ -1613,7 +1614,8 @@
     "Your Currency": "您的貨幣",
     "Select account to cash out": "選擇要提現的賬戶",
     "Add account": "新增帳戶",
-    "Sell": "賣"
+    "Sell": "賣",
+    "Optional - Account Designation": "可選 - 帳戶指定"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "組織數據",
@@ -1656,14 +1658,47 @@
     "Please click here to finish the KYC process to receive your bitcoin address": "请点击这里完成KYC程序，以获得你的比特币地址。"
   },
   "screens/DfxButtons": {
+    "Buy": "购买 ",
     "DFI.Tax": "DFI.tax",
-    "Defichain Income": "Defichain \nIncome",
-    "Dobby": "Dobby",
-    "Sell": "Sell",
-    "Buy & Staking": "Buy &\nStaking",
-    "Deposit Bitcoin": "Deposit Bitcoin"
+    "Defichain Income": "德菲凯恩 \n收入",
+    "Deposit Bitcoin": "存入比特币",
+    "Dobby": "多比",
+    "Sell": "出售",
+    "Staking": "钉子",
+    "more": "更多"
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "请注意，所有dTokens（如dUSD、dCOIN、dTSLA、dSPY...）的销售都需要支付DEX稳定费。加密代币如DFI、dBTC、dETH和稳定币如dUSDT/dUSDC不受影响。更多信息"
-  }
+  },
+  "screens/BuyScreen": {
+    "Purchase Amount": "购买金额",
+    "Choose token to buy": "选择购买代币",
+    "Select your account for purchase": "选择你的账户进行购买 ",
+    "Select a token you want to buy to get started": "选择一个你想购买的代币，就可以开始了 ",
+    "Purchase with bank transfer": "用银行转账购买 ",
+    "Payment account": "支付账户 ",
+    "Buy Asset": "购买资产"
+  },
+  "components/SepaInstantLayover": {
+    "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "DFX和您的银行都支持SEPA即时转账。这意味着，如果你使用这个选项，我们可以更快处理你的存款。",
+    "Please note that your bank may charge fees for real-time payments.": "请注意，你的银行可能会对实时付款收取费用。",
+    "Thanks for the note.": "谢谢你的说明。",
+    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": "一旦银行汇款到达我们的银行账户，我们将立即预订您所需的资产。感谢你使用DFX.swiss。"
+  },
+  "components/SepaInstant": {
+    "SEPA instant available": "可立即使用SEPA"
+  },
+  "screens/BuyConfirmationScreen": {
+    "BANK TRANSFER COMPLETED": "完成银行转账 ",
+    "PAYMENT INFORMATION": "支付信息 ",
+    "Please transfer the purchase amount using this information. The payment purpose is important and also that the payment is executed from your stored IBAN!": "请使用该信息转出购买金额。付款目的是很重要的，而且付款是由你存储的IBAN执行的! ",
+    "TRANSACTION DETAILS": "交易细节",
+    "PURPOSE OF PAYMENT": "支付的目的 ",
+    "BENEFICIARY": "受益人 ",
+    "You are buying": "你正在购买",
+    "Your IBAN": "您的IBAN",
+    "Transaction Fee": "交易费用 ",
+    "Transfer Details": "转让详情 "
+  },
+  "components/DfxKycInfo": {}
 }

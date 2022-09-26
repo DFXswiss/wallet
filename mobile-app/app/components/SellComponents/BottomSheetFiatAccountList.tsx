@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
 import { memo, useState } from 'react'
 import * as React from 'react'
 import { tailwind } from '@tailwind'
@@ -11,19 +12,21 @@ import { translate } from '@translations'
 import { BottomSheetFiatAccountCreate } from './BottomSheetFiatAccountCreate'
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { random } from 'lodash'
+import { BankAccount } from '@shared-api/dfx/models/BankAccount'
+import { SepaInstantComponent } from '@screens/AppNavigator/screens/Portfolio/components/SepaInstantComponent'
 
 interface BottomSheetFiatAccountListProps {
   headerLabel: string
   onCloseButtonPress: () => void
-  onFiatAccountPress?: (sellRoute: SellRoute) => void
-  fiatAccounts: SellRoute[]
+  onFiatAccountPress: (sellRoute: BankAccount) => void
+  bankAccounts: BankAccount[]
 }
 
 export const BottomSheetFiatAccountList = ({
   headerLabel,
   onCloseButtonPress,
   onFiatAccountPress,
-  fiatAccounts
+  bankAccounts
 }: BottomSheetFiatAccountListProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const { isLight } = useThemeContext()
   const flatListComponents = {
@@ -52,28 +55,25 @@ export const BottomSheetFiatAccountList = ({
     }
   }, [])
 
-  const filterEnabled = (sellRouteList: SellRoute[]): SellRoute[] => {
-    return sellRouteList?.filter((item) => {
-      return item.active
-    })
-  }
-
-  const filteredList = filterEnabled(fiatAccounts)
-  const [accountList, setAccountList] = useState(filteredList)
+  const [accountList, setAccountList] = useState(bankAccounts)
   const [trigger, setTrigger] = useState('')
 
-  const setFiatAccountCreateBottomSheet = React.useCallback((accounts: SellRoute[]) => { // TODO: remove accounts?
+  const setFiatAccountCreateBottomSheet = React.useCallback((accounts: SellRoute[] | BankAccount[]) => { // TODO: remove accounts?
     setBottomSheetScreen([
       {
         stackScreenName: 'FiatAccountCreate',
         component: BottomSheetFiatAccountCreate({
-          fiatAccounts: accounts,
+          bankAccounts: (bankAccounts != null && accounts) as BankAccount[],
           headerLabel: translate('screens/SellScreen', 'Add account'),
           onCloseButtonPress: () => dismissModal(),
-          onElementCreatePress: async (item): Promise<void> => {
+          onElementCreatePress: async (item, newAccountsList): Promise<void> => {
             if (item.iban !== undefined) {
-              filteredList.push(item)
-              setAccountList(filteredList)
+              if (newAccountsList != null) {
+                bankAccounts = newAccountsList
+              } else {
+                bankAccounts.push(item)
+              }
+              setAccountList(bankAccounts)
               setTrigger(random().toString())
             }
             dismissModal()
@@ -83,32 +83,33 @@ export const BottomSheetFiatAccountList = ({
           header: () => null
         }
       }])
-  }, [fiatAccounts])
+  }, [bankAccounts])
 
   return (
     <>
       <FlatList
-        data={accountList}
+        data={accountList as any}
         extraData={trigger}
-        renderItem={({ item }: { item: SellRoute }): JSX.Element => {
+        renderItem={({ item }: { item: BankAccount }): JSX.Element => {
           return (
             <ThemedTouchableOpacity
               onPress={() => {
-                if (onFiatAccountPress !== undefined) {
-                  onFiatAccountPress(item)
-                }
+                onFiatAccountPress?.(item)
               }}
               style={tailwind('px-4 py-3 flex flex-row items-center justify-between')}
               testID={`select_${item.iban}`}
             >
-              <View style={tailwind('flex flex-row items-center')}>
-                <View style={tailwind('ml-2')}>
-                  <ThemedText
-                    testID={`token_symbol_${item.iban}`}
-                  >
-                    {`${item.fiat.name} / ${item.iban}`}
-                  </ThemedText>
-                </View>
+              <View style={tailwind('ml-2')}>
+                {item.sepaInstant && (
+                  <View style={tailwind('flex-shrink flex-row')}>
+                    <SepaInstantComponent red invertedColor />
+                  </View>
+                )}
+                <ThemedText
+                  testID={`token_symbol_${item.iban}`}
+                >
+                  {`${item?.label ?? item?.fiat?.name ?? '-'} / ${item.iban}`}
+                </ThemedText>
               </View>
               <View style={tailwind('flex flex-row items-center')}>
                 <ThemedIcon iconType='MaterialIcons' name='chevron-right' size={20} />
@@ -144,7 +145,7 @@ export const BottomSheetFiatAccountList = ({
         <ActionButton
           name='add'
           onPress={() => {
-            setFiatAccountCreateBottomSheet(fiatAccounts)
+            setFiatAccountCreateBottomSheet(accountList)
             expandModal()
           }}
           pair={' '}

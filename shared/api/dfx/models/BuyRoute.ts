@@ -1,4 +1,5 @@
 import { Asset } from './Asset'
+import { Fiat } from './Fiat'
 import { StakingRoute } from './StakingRoute'
 
 export enum BuyType {
@@ -32,6 +33,33 @@ export interface BuyRoute {
   active: boolean
   fee: number
   refBonus: number
+}
+
+export interface GetBuyPaymentInfoDto {
+  iban: string
+  asset: Asset
+  amount: number
+  currency: Fiat
+}
+
+export interface BuyPaymentInfoDto {
+  name: string
+  street: string
+  number: string
+  zip: string
+  city: string
+  country: string
+  iban: string
+  bic: string
+  fee: number
+  refBonus: number
+  remittanceInfo: string
+  minDeposits: [
+    {
+      amount: number
+      asset: string
+    }
+  ]
 }
 
 export const fromBuyRouteDto = (route: BuyRouteDto): BuyRoute => ({

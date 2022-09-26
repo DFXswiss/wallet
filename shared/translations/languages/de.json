@@ -494,7 +494,8 @@
     "Add to liquidity pool": "Zu Liquiditätspool hinzufügen",
     "Remove liquidity": "Liquidität entfernen",
     "Swap token": "Token tauschen",
-    "Sell": "Verkaufen"
+    "Sell": "Verkaufen",
+    "Buy": "Kaufen"
   },
   "screens/TokensVsUtxoScreen": {
     "Learn about UTXOs and Tokens": "Erfahre mehr über UTXOs und Token",
@@ -1016,7 +1017,7 @@
     "Send Liquidity Pool tokens only to DeFiChain compatible wallets. Otherwise, sending to other exchanges (except DFX) may result in irreversible loss of funds.": "Sende Liquiditätspool-Token nur an DeFiChain-kompatible Wallets. Andernfalls kann der Versand an andere Tauschbörsen (bis auf DFX) zu einem irreversiblen Verlust von Einlagen führen."
   },
   "components/DfxKycInfo": {
-    "Your account needs to get verified once your daily transaction volume exceeds 900 € per day.  If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Ab einem Transaktionsvolumen von mehr als 900 € pro Tag muss dein Account verifiziert sein. Möchtest du dieses Limit erhöhen, dann schließe bitte den KYC-Prozess (Know-Your-Customer) ab."
+    "Your account needs to get verified once your daily transaction volume exceeds {{KYC_MAX_AMOUNT}} € per day. If you want to increase daily trading limit, please complete our KYC (Know-Your-Customer) process.": "Ab einem Transaktionsvolumen von mehr als {{KYC_MAX_AMOUNT}} € pro Tag muss dein Account verifiziert sein. Möchtest du dieses Limit erhöhen, dann schließe bitte den KYC-Prozess (Know-Your-Customer) ab."
   },
   "components/ConversionTag": {
     "Conversion required": "Konvertierung erforderlich"
@@ -1647,14 +1648,15 @@
     "Cash out to my bank account": "Auf mein Bankkonto auszahlen",
     "Bank account": "Auszahlungskonto",
     "Select a token you want to sell to get started": "Wähle einen Token, den du verkaufen möchtest, um loszulegen",
-    "please select": "bitte auswählen",
     "Enter your desired payout amount": "Gebe deinen gewünschten Auszahlungsbetrag an",
     "Available to sell": "Zum Verkauf verfügbar",
     "Transfer to your bank account": "Auf dein Bankkonto auszahlen",
     "Your Currency": "Deine Währung",
     "Select account to cash out": "Konto für Auszahlung auswählen",
     "Add account": "Konto hinzufügen",
-    "Sell": "Verkaufen"
+    "Sell": "Verkaufen",
+    "Please select": "Bitte auswählen",
+    "Optional - Account Designation": "Optional - Kontobezeichnung"
   },
   "screens/UserDetails": {
     "ORGANIZATION DATA": "ORGANISATIONSDATEN",
@@ -1702,9 +1704,42 @@
     "Defichain Income": "Defichain \nIncome",
     "Deposit Bitcoin": "Bitcoin einzahlen",
     "Dobby": "Dobby",
-    "Sell": "Verkaufen"
+    "Sell": "Verkaufen",
+    "Buy": "Kauf",
+    "Staking": "Staking",
+    "more": "mehr"
   },
   "components/DfxDexFeeInfo": {
     "Please note that all sales of dTokens (e.g.dUSD, dCOIN, dTSLA, dSPY..) are subject to a DEX stabilization fee. The crypto tokens such as DFI, dBTC, dETH and stablecoins such as dUSDT / dUSDC are not affected. Further information": "Bitte beachte, dass das bei allen Verkäufen von dToken (z.B. dUSD, dCOIN, dTSLA, dSPY..) eine DEX Stabilisationsgebühr anfällt. Die Cryptotoken wie z.B. DFI, dBTC, dETH und Stablecoins wie dUSDT/dUSDC sind davon nicht betroffen. Weitere Informationen"
+  },
+  "screens/BuyScreen": {
+    "Buy Asset": "Asset Kaufen",
+    "Purchase Amount": "Kaufbetrag",
+    "Choose token to buy": "Token zum Kauf auswählen",
+    "Select your account for purchase": "Wähle dein Bankkonto für den Kauf",
+    "Select a token you want to buy to get started": "Wähle einen Token, den du kaufen möchtest, um loszulegen",
+    "Purchase with bank transfer": "Mit Banküberweisung kaufen",
+    "Payment account": "Zahlungskonto"
+  },
+  "components/SepaInstantLayover": {
+    "Both DFX and your bank support SEPA instant transfers. This means that we can process your deposit even faster if you use this option.": "DFX und deine Bank unterstützen SEPA instant. Das bedeutet, dass wir deine Einzahlung noch schneller bearbeiten können, wenn du diese Option nutzt.",
+    "Please note that your bank may charge fees for real-time payments.": "Beachte, dass deine Bank möglicherweise Gebühren für Echtzeitzahlungen erhebt. ",
+    "Thanks for the note.": "Danke für die Info.",
+    "As soon as the bank transfer arrives on our bank account we will book your desired asset. Thank you for using DFX.swiss.": "Sobald die Überweisung auf unserem Konto eintrifft, kaufen wir das gewünschte Asset. Vielen Dank, dass du DFX.swiss nutzt."
+  },
+  "components/SepaInstant": {
+    "SEPA instant available": "Sepa instant verfügbar"
+  },
+  "screens/BuyConfirmationScreen": {
+    "BANK TRANSFER COMPLETED": "BANKÜBERWEISUNG ABGESCHLOSSEN ",
+    "PAYMENT INFORMATION": "ZAHLUNGSINFORMATIONEN",
+    "Please transfer the purchase amount using this information. The payment purpose is important and also that the payment is executed from your stored IBAN!": "Bitte tätige die Überweisung mit deiner hinterlegten IBAN und unter Angabe des Verwendungszwecks!",
+    "TRANSACTION DETAILS": "TRANSAKTIONSDETAILS",
+    "PURPOSE OF PAYMENT": "VERWENDUNGSZWECK",
+    "BENEFICIARY": "EMPFÄNGER",
+    "You are buying": "Du kaufst",
+    "Your IBAN": "Deine IBAN",
+    "Transaction Fee": "Transaktionsgebühr",
+    "Transfer Details": "Transferdetails"
   }
 }

@@ -204,7 +204,7 @@ export function ClearButton (props: {onPress?: () => void, testID?: string, icon
   )
 }
 
-const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>, lock?: boolean) => {
+const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>) => {
   const {
     inputType,
     ...otherProps
@@ -218,7 +218,7 @@ const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref
   )
 })
 
-const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>, lock?: boolean) => {
+const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>) => {
   const {
     inputType,
     onBlur,

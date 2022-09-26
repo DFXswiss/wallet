@@ -1,5 +1,4 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/jsx-indent */
 import { NavigationProp, useNavigation } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { WalletToken } from '@store/wallet'
@@ -51,6 +50,9 @@ import { HeaderNetworkStatus } from '@components/HeaderNetworkStatus'
 import { useNavigatorScreenOptions } from '@hooks/useNavigatorScreenOptions'
 import { LockScreen } from './LOCK/LockScreen'
 import { LockDashboardScreen } from './LOCK/LockDashboardScreen'
+import { BuyScreen } from './screens/BuyScreen'
+import { BuyConfirmationScreen } from './screens/BuyConfirmationScreen'
+import { BuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
 
 export interface PortfolioParamList {
   PortfolioScreen: undefined
@@ -58,6 +60,8 @@ export interface PortfolioParamList {
   LockDashboardScreen: undefined
   ReceiveScreen: undefined
   ReceiveDTokenScreen: { crypto?: CryptoButtonGroupTabKey, fromReceiveScreen?: boolean }
+  BuyScreen: { token?: WalletToken }
+  BuyConfirmationScreen: { buyPaymentInfo: BuyPaymentInfoDto, transactionDetails: { token: string, iban: string, sepaInstant?: boolean } }
   SellScreen: { token?: WalletToken }
   SellConfirmationScreen: undefined
   UserDetailsScreen: undefined
@@ -321,6 +325,34 @@ export function PortfolioNavigator (): JSX.Element {
           headerTitle: () => (
             <HeaderTitle
               text={translate('screens/SendConfirmationScreen', 'Confirm Send')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false
+        }}
+      />
+
+      <PortfolioStack.Screen
+        component={BuyScreen}
+        name='Buy'
+        options={{
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('screens/BuyScreen', 'Purchase with bank transfer')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false
+        }}
+      />
+
+      <PortfolioStack.Screen
+        component={BuyConfirmationScreen}
+        name='BuyConfirmationScreen'
+        options={{
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('screens/BuyConfirmationScreen', 'Transfer Details')}
               containerTestID={headerContainerTestId}
             />
           ),
