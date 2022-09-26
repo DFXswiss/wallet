@@ -32,6 +32,7 @@ import { HistoryType } from './models/HistoryType'
 import { CryptoRoute } from './models/CryptoRoute'
 import * as Updates from 'expo-updates'
 import { BankAccount, BankAccountData, BankAccountDto, fromBankAccountDto, toBankAccountDto } from './models/BankAccount'
+import { noop } from 'lodash'
 
 const BaseUrl = getEnvironment(Updates.releaseChannel).dfxApiUrl
 const AuthUrl = 'auth'
@@ -90,6 +91,12 @@ export const updateRefFee = async (fee: number): Promise<void> => {
 }
 
 // --- KYC --- //
+export const transferKyc = async (id: number): Promise<void> => {
+  // lock wallet provider => id: 7
+  const wallet = { id }
+  return await fetchFrom(`${KycUrl}/transfer`, 'PUT', { wallet })
+}
+
 export const putKycData = async (data: KycData, code?: string): Promise<KycInfo> => {
   if (code === undefined) {
     return await putKycDataOLD(data) as unknown as KycInfo
@@ -310,7 +317,7 @@ const fetchFrom = async <T>(
       .then(async (init) => await fetch(`${BaseUrl}/${url}`, init))
       .then(async (response) => {
         if (response.ok) {
-          return await response.json()
+          return await response.json().then().catch(() => noop())
         }
         return await response.json().then((body) => {
           throw body

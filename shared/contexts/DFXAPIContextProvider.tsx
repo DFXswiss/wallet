@@ -33,6 +33,7 @@ interface DFXAPIContextI {
   clearDfxTokens: () => Promise<void>
   listFiatAccounts: () => Promise<SellRoute[]>
   listCountries: () => Promise<Country[]>
+  signMessage: (message: string) => void
 }
 
 const DFXAPIContext = createContext<DFXAPIContextI>(undefined as any)
@@ -155,29 +156,36 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
     return session.isExpired
   }
 
+  function signMessage (message: string): void {
+    createSignature(debouncedAddress, message).then()
+  }
+
   // start signing process and return signature
-  const createSignature = async (address: string): Promise<void> => {
+  const createSignature = async (address: string, message?: string): Promise<void> => {
     /**
      * Signing message callback
      * @param provider
      * @returns Promise<Buffer>
      */
-    const signMessage = async (provider: WalletHdNodeProvider<MnemonicHdNode>): Promise<Buffer> => {
+    const signMessage = async (provider: WalletHdNodeProvider<MnemonicHdNode>, altMessage?: string): Promise<Buffer> => {
       const activeIndex = await WalletAddressIndexPersistence.getActive()
       const account = initJellyfishWallet(provider, network, whaleApiClient).get(activeIndex)
       const privKey = await account.privateKey()
       const messagePrefix = getJellyfishNetwork(network).messagePrefix
-      const message = `By signing this message, you confirm that you are the sole owner of the provided DeFiChain address and are in possession of its private key. Your ID: ${address}`
+      const message = altMessage ?? `By signing this message, you confirm that you are the sole owner of the provided DeFiChain address and are in possession of its private key. Your ID: ${address}`
       .split(' ')
       .join('_')
       const signMessage = await getSignMessage(address)
       // signMessage: login with AltCoins possible || message: -> fallback
-      return await signAsync(signMessage ?? message, privKey, true, messagePrefix)
+      return await signAsync((altMessage != null) ? message : signMessage ?? message, privKey, true, messagePrefix)
     }
 
     // message signed callback
-    const onMessageSigned = async (sigBuffer: Buffer): Promise<void> => {
+    const onMessageSigned = async (sigBuffer: Buffer, message?: string): Promise<void> => {
       const sig = sigBuffer.toString('base64')
+      if (message != null) {
+        // console.log('sig: ', sig)
+      }
       await DFXPersistence.setPair({
         network: networkName,
         addr: address,
@@ -189,8 +197,8 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
     // show authentication Prompt
     if (providerData.type === WalletType.MNEMONIC_UNPROTECTED) {
       const provider = MnemonicUnprotected.initProvider(providerData, network)
-      const sigBuffer = await signMessage(provider)
-      await onMessageSigned(sigBuffer)
+      const sigBuffer = await signMessage(provider, message)
+      await onMessageSigned(sigBuffer, message)
     } else if (providerData.type === WalletType.MNEMONIC_ENCRYPTED) {
       const pin = await DFXPersistence.getWalletPin()
       if (pin.length === 0) {
@@ -198,10 +206,10 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
           const auth: Authentication<Buffer> = {
             consume: async passphrase => {
               const provider = MnemonicEncrypted.initProvider(providerData, network, { prompt: async () => passphrase })
-              return await signMessage(provider)
+              return await signMessage(provider, message)
             },
             onAuthenticated: async (buffer) => {
-              await onMessageSigned(buffer)
+              await onMessageSigned(buffer, message)
               resolve()
             },
             onError: e => reject(e),
@@ -213,8 +221,8 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
         })
       } else {
         const provider = MnemonicEncrypted.initProvider(providerData, network, { prompt: async () => pin })
-        const sigBuffer = await signMessage(provider)
-        await onMessageSigned(sigBuffer)
+        const sigBuffer = await signMessage(provider, message)
+        await onMessageSigned(sigBuffer, message)
       }
     } else {
       throw new Error('Missing wallet provider data handler')
@@ -293,7 +301,8 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
     openKycLink: openKycLink,
     clearDfxTokens: clearDfxTokens,
     listFiatAccounts: listFiatAccounts,
-    listCountries: listCountries
+    listCountries: listCountries,
+    signMessage: signMessage
   }
 
   function redoLoginForCurrentNetworkAndAddress (): void {

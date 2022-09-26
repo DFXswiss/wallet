@@ -11,13 +11,32 @@ import React, { useState } from 'react'
 import Checkbox from 'expo-checkbox'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Rabbit from '@assets/LOCK/Rabbit.svg'
+import { transferKyc } from '@shared-api/dfx/ApiService'
+import { WalletAlertErrorApi } from '@components/WalletAlert'
+// import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockScreen'>
 
+const LOCKwalletIdProvider = 7
+
 export function LockScreen ({ route }: Props): JSX.Element {
+  // const { signMessage } = useDFXAPIContext()
+
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
   const [acknowledged, setAcknowledged] = useState(false)
   const toggleSwitch = (): void => setAcknowledged(previousState => !previousState)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const submit = (): void => {
+    setIsSubmitting(true)
+    // signMessage('By_signing_this_message,_you_confirm_to_LOCK_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_tf1qdrdxuwhxfaru3ddtcrz76tmfdnycat3j5mkhq7')
+    // setIsSubmitting(false)
+    // return
+    transferKyc(LOCKwalletIdProvider)
+      .then(() => navigation.navigate('LockDashboardScreen'))
+      .catch(WalletAlertErrorApi)
+      .finally(() => setIsSubmitting(false))
+  }
 
   return (
     <View style={tailwind('h-full bg-gray-200 border-t border-dfxgray-500')}>
@@ -72,10 +91,21 @@ export function LockScreen ({ route }: Props): JSX.Element {
           fill='fill'
           label={translate('LOCK/LockScreen', 'SUBMIT KYC DATA')}
           margin=''
-          onPress={() => navigation.navigate('LockDashboardScreen')}
+          onPress={submit}
           lock
+          isSubmitting={isSubmitting}
           disabled={!acknowledged}
         />
+        {/* <SubmitButtonGroup
+          isDisabled={!formState.isValid}
+          label={translate('LOCK/LockDashboardScreen', 'CONTINUE')}
+          // processingLabel={translate('components/Button', 'CONTINUE')}
+          onSubmit={onSubmit}
+          title='sell_continue'
+          isProcessing={isSubmitting}
+          displayCancelBtn={false}
+          lock
+        /> */}
       </ScrollView>
     </View>
   )
