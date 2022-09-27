@@ -127,7 +127,7 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
             ref={ref}
             editable={editable}
             {...otherProps}
-            lock
+            lock={props.lock}
           />
           {displayTickIcon === true &&
             <ThemedIcon
@@ -214,6 +214,7 @@ const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref
       keyboardType={inputType}
       ref={ref}
       {...otherProps}
+      lock={props.lock}
     />
   )
 })
@@ -254,7 +255,7 @@ const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any
       onBlur={handleOnBlur}
       onFocus={handleOnFocus}
       {...otherProps}
-      lock
+      lock={props.lock}
     />
   )
 })
