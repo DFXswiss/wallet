@@ -313,7 +313,7 @@ const fetchFrom = async <T>(
   url += (queryParams != null) ? `?${new URLSearchParams(queryParams).toString()}` : ''
 
   return (
-    await AuthService.Session.then((session) => buildInit(method, session, data, noJson))
+    await AuthService.Session().then((session) => buildInit(method, session, data, noJson))
       .then(async (init) => await fetch(`${BaseUrl}/${url}`, init))
       .then(async (response) => {
         if (response.ok) {

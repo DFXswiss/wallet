@@ -152,7 +152,7 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
 
   // check if Web session is expired
   const isSessionExpired = async (): Promise<boolean> => {
-    const session = await AuthService.Session
+    const session = await AuthService.Session()
     return session.isExpired
   }
 

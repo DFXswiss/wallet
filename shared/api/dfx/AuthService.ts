@@ -1,9 +1,13 @@
 import jwtDecode from 'jwt-decode'
-import { Observable, ReplaySubject } from 'rxjs'
+import { ReplaySubject } from 'rxjs'
 import { UserRole } from './models/User'
 import { StorageService } from './StorageService'
 
 const SessionKey = 'session'
+
+export enum ApiDomain {
+  LOCK = 'LOCK'
+}
 
 export interface Credentials {
   address?: string
@@ -51,24 +55,29 @@ export class Session implements ISession {
 }
 
 class AuthServiceClass {
+  // TODO: (thabrad) check if able to remove!
   private readonly session$ = new ReplaySubject<Session>()
 
   constructor () {
-    this.Session
+    this.Session()
       .then((session) => this.session$.next(session))
       .catch(() => this.session$.next(new Session()))
   }
 
-  public get Session$ (): Observable<Session> {
-    return this.session$
+  // was unused, so commented out for for, check replay subject use
+  // public get Session$ (): Observable<Session> {
+  //   return this.session$
+  // }
+  private static SessionKey (forApiDomain?: ApiDomain): string {
+    return SessionKey.concat(forApiDomain != null ? ('-' + forApiDomain) : '')
   }
 
-  public get Session (): Promise<Session> {
-    return StorageService.getValue<ISession>(SessionKey).then((session) => new Session(session))
+  public async Session (forApiDomain?: ApiDomain): Promise<Session> {
+    return await StorageService.getValue<ISession>(AuthServiceClass.SessionKey(forApiDomain)).then((session) => new Session(session))
   }
 
-  public async updateSession (session: ISession): Promise<void> {
-    return await StorageService.storeValue(SessionKey, session).then(() => this.session$.next(new Session(session)))
+  public async updateSession (session: ISession, forApiDomain?: ApiDomain): Promise<void> {
+    return await StorageService.storeValue(AuthServiceClass.SessionKey(forApiDomain), session).then(() => this.session$.next(new Session(session)))
   }
 
   public async deleteSession (): Promise<void> {
