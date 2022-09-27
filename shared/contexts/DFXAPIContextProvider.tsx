@@ -297,12 +297,12 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
 
   // public context API
   const context: DFXAPIContextI = {
-    openDfxServices: openDfxServices,
-    openKycLink: openKycLink,
-    clearDfxTokens: clearDfxTokens,
-    listFiatAccounts: listFiatAccounts,
-    listCountries: listCountries,
-    signMessage: signMessage
+    openDfxServices,
+    openKycLink,
+    clearDfxTokens,
+    listFiatAccounts,
+    listCountries,
+    signMessage
   }
 
   function redoLoginForCurrentNetworkAndAddress (): void {
