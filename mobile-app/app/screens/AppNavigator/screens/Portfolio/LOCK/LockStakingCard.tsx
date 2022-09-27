@@ -21,7 +21,7 @@ export function LockStakingCard (): JSX.Element {
   const [isloading, setIsloading] = useState(true)
   const [isLockVerified, setIsLockVerified] = useState(false)
 
-  const stakingAmount = isloading ? 0 : 1000
+  const stakingAmount = !isLockVerified ? 0 : 1000
   const { apr, apy } = { apr: 37, apy: 30 }
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export function LockStakingCard (): JSX.Element {
           <TokenNameText displaySymbol='DFI Staking by LOCK' name={`${apr}% APY / ${apy}% APR`} testID='' />
           <TokenAmountText
             tokenAmount={stakingAmount.toString()}
-            usdAmount={new BigNumber(stakingAmount * 2 - 0.7654)}
+            usdAmount={new BigNumber((stakingAmount === 0) ? 0 : stakingAmount * 2 - 0.7654)}
             testID=''
             isBalancesDisplayed
             denominationCurrency={PortfolioButtonGroupTabKey.USDT}
