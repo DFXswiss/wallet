@@ -1,6 +1,6 @@
 /* eslint-disable no-constant-condition */
 import { StackScreenProps } from '@react-navigation/stack'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
+import { NavigationProp, StackActions, useNavigation } from '@react-navigation/native'
 import { TouchableOpacity, Text, Linking, ScrollView } from 'react-native'
 import { getColor, tailwind } from '@tailwind'
 import { translate } from '@translations'
@@ -11,31 +11,36 @@ import React, { useState } from 'react'
 import Checkbox from 'expo-checkbox'
 import { MaterialCommunityIcons } from '@expo/vector-icons'
 import Rabbit from '@assets/LOCK/Rabbit.svg'
-import { transferKyc } from '@shared-api/dfx/ApiService'
+import { LOCKpostKyc, transferKyc } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
-// import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
+import { useLockKycComplete } from './LockKycComplete'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockScreen'>
 
-const LOCKwalletIdProvider = 7
+const LOCKwalletName = 'LOCK.space'
 
 export function LockScreen ({ route }: Props): JSX.Element {
-  // const { signMessage } = useDFXAPIContext()
-
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
   const [acknowledged, setAcknowledged] = useState(false)
   const toggleSwitch = (): void => setAcknowledged(previousState => !previousState)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
+  const { setKycComplete } = useLockKycComplete()
+
   const submit = (): void => {
     setIsSubmitting(true)
-    // signMessage('By_signing_this_message,_you_confirm_to_LOCK_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_tf1qdrdxuwhxfaru3ddtcrz76tmfdnycat3j5mkhq7')
-    // setIsSubmitting(false)
-    // return
-    transferKyc(LOCKwalletIdProvider)
-      .then(() => navigation.navigate('LockDashboardScreen'))
-      .catch(WalletAlertErrorApi)
-      .finally(() => setIsSubmitting(false))
+
+    LOCKpostKyc()
+      .finally(() => {
+        transferKyc(LOCKwalletName)
+          .then(() => {
+            setKycComplete()
+            navigation.dispatch(StackActions.popToTop())
+            navigation.navigate('LockDashboardScreen')
+          })
+          .catch(WalletAlertErrorApi)
+          .finally(() => setIsSubmitting(false))
+      })
   }
 
   return (

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { WalletHdNodeProvider } from '@defichain/jellyfish-wallet'
 import { MnemonicHdNode } from '@defichain/jellyfish-wallet-mnemonic'
 import { WalletAddressIndexPersistence } from '@api/wallet/address_index'
@@ -8,8 +9,8 @@ import { DFXAddrSignature, DFXPersistence } from '@api/persistence/dfx_storage'
 import { WalletType } from '@shared-contexts/WalletPersistenceContext'
 import { authentication, Authentication } from '@store/authentication'
 import { translate } from '@translations'
-import { getSellRoutes, signIn, signUp, getCountries, getSignMessage, getUser } from '@shared-api/dfx/ApiService'
-import { AuthService } from '@shared-api/dfx/AuthService'
+import { getSellRoutes, signIn, signUp, getCountries, getSignMessage, getUser, LOCKgetSignMessage, LOCKsignUp, LOCKsignIn } from '@shared-api/dfx/ApiService'
+import { ApiDomain, AuthService, Session } from '@shared-api/dfx/AuthService'
 import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { useWalletNodeContext } from '@shared-contexts/WalletNodeProvider'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
@@ -17,23 +18,27 @@ import { useWhaleApiClient } from '@shared-contexts/WhaleContext'
 import { useWalletContext } from '@shared-contexts/WalletContext'
 import { useDispatch } from 'react-redux'
 import * as React from 'react'
-import { createContext, PropsWithChildren, useContext, useEffect } from 'react'
+import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react'
 import { Linking } from 'react-native'
 import { getEnvironment } from '@environment'
 import * as Updates from 'expo-updates'
 import { useDebounce } from '@hooks/useDebounce'
 import { SellRoute } from '@shared-api/dfx/models/SellRoute'
 import { Country } from '@shared-api/dfx/models/Country'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 // import fetchIntercept from 'fetch-intercept'
 
-interface DFXAPIContextI {
+export interface DFXAPIContextI {
   openDfxServices: () => Promise<void>
   openKycLink: () => Promise<void>
   clearDfxTokens: () => Promise<void>
   listFiatAccounts: () => Promise<SellRoute[]>
   listCountries: () => Promise<Country[]>
-  signMessage: (message: string) => void
+  signMessage: (message: string) => Promise<string>
+  getActiveWebToken: () => Promise<string>
+  LOCKcreateWebToken: () => Promise<string>
+  checkStorage: () => Promise<void>
 }
 
 const DFXAPIContext = createContext<DFXAPIContextI>(undefined as any)
@@ -82,6 +87,32 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
   //     return Promise.reject(error)
   //   }
   // })
+
+  async function checkStorage (): Promise<void> {
+    // // AuthService.test()
+    // // return
+
+    // // await DFXPersistence.setToken(debouncedAddress, undefined)
+    // // AuthService.updateSession(new Session({ accessToken: undefined }))
+
+    // AsyncStorage.getAllKeys().then((keys) => {
+    //   console.log('ALL KEYS \n\n ---- \n\n', keys)
+
+    //   AsyncStorage.multiGet(keys).then(pairs => {
+    //     // console.log('\n\n', pairs)
+
+    //     const filteredPairList = pairs.filter(pair => pair[0].includes('sess') || (pair[0].includes('DFX') && !pair[0].includes('userInfoCompleted') && !pair[0].includes('userInfoCompletet')))
+    //     console.log('\n\n', filteredPairList)
+
+    //     const x = pairs.filter((p) => p[0].includes('DFXWALLET.address_list'))
+    //     console.log('------------')
+    //     console.log('address_list ', JSON.parse(x.pop()?.[1] ?? ''))
+    //     console.log('------------')
+    //   })
+    // })
+    // // AuthService.updateSession({ accessToken: undefined })
+  }
+
   const openKycLink = async (): Promise<void> => {
     const user = await getUser()
 
@@ -156,12 +187,12 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
     return session.isExpired
   }
 
-  function signMessage (message: string): void {
-    createSignature(debouncedAddress, message).then()
+  async function signMessageNoPersistence (message: string): Promise<string> {
+    return await createSignature(debouncedAddress, message)
   }
 
   // start signing process and return signature
-  const createSignature = async (address: string, message?: string): Promise<void> => {
+  const createSignature = async (address: string, message?: string): Promise<string> => {
     /**
      * Signing message callback
      * @param provider
@@ -181,10 +212,11 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
     }
 
     // message signed callback
-    const onMessageSigned = async (sigBuffer: Buffer, message?: string): Promise<void> => {
+    const onMessageSigned = async (sigBuffer: Buffer, message?: string): Promise<string> => {
       const sig = sigBuffer.toString('base64')
       if (message != null) {
         // console.log('sig: ', sig)
+        return sig
       }
       await DFXPersistence.setPair({
         network: networkName,
@@ -192,28 +224,29 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
         signature: sig
       })
       await DFXPersistence.resetPin()
+      return sig
     }
 
     // show authentication Prompt
     if (providerData.type === WalletType.MNEMONIC_UNPROTECTED) {
       const provider = MnemonicUnprotected.initProvider(providerData, network)
       const sigBuffer = await signMessage(provider, message)
-      await onMessageSigned(sigBuffer, message)
+      return await onMessageSigned(sigBuffer, message)
     } else if (providerData.type === WalletType.MNEMONIC_ENCRYPTED) {
       const pin = await DFXPersistence.getWalletPin()
       if (pin.length === 0) {
-        await new Promise<void>((resolve, reject) => {
+        return await new Promise<string>((resolve, reject) => {
           const auth: Authentication<Buffer> = {
             consume: async passphrase => {
               const provider = MnemonicEncrypted.initProvider(providerData, network, { prompt: async () => passphrase })
               return await signMessage(provider, message)
             },
             onAuthenticated: async (buffer) => {
-              await onMessageSigned(buffer, message)
-              resolve()
+              const signedMessage = await onMessageSigned(buffer, message)
+              resolve(signedMessage)
             },
             onError: e => reject(e),
-            message: translate('screens/UnlockWallet', 'To access DFX Services, we need you to enter your passcode.'),
+            message: translate('screens/UnlockWallet', (message != null) ? 'To access LOCK Services, we need you to enter your passcode.' : 'To access DFX Services, we need you to enter your passcode.'),
             loading: translate('screens/TransactionAuthorization', 'Verifying access')
           }
 
@@ -222,7 +255,7 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
       } else {
         const provider = MnemonicEncrypted.initProvider(providerData, network, { prompt: async () => pin })
         const sigBuffer = await signMessage(provider, message)
-        await onMessageSigned(sigBuffer, message)
+        return await onMessageSigned(sigBuffer, message)
       }
     } else {
       throw new Error('Missing wallet provider data handler')
@@ -271,6 +304,46 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
         })
   }
 
+  // start sign in/up process and set web token to pair
+  const LOCKcreateWebToken = async (): Promise<string> => {
+    const address = debouncedAddress
+    const message = `By_signing_this_message,_you_confirm_to_LOCK_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_${address}`
+    const signMessage = await LOCKgetSignMessage(address)
+    const loginSignature = await signMessageNoPersistence(signMessage.message ?? message)
+
+    await AuthService.deleteSession()
+
+    return await LOCKsignIn({ address: address, signature: loginSignature })
+      .then(async accessToken => {
+        await AuthService.updateSession({ accessToken }, ApiDomain.LOCK)
+        return accessToken
+      })
+      .catch(async resp => {
+        AuthService.deleteSession(ApiDomain.LOCK)
+
+        if (resp.statusCode !== undefined && resp.statusCode === 401) {
+          // Invalid credentials
+          // -> fetch signature
+          // await createSignature(pair.addr)
+          logger.error('Invalid credentials')
+          return ''
+        }
+
+        // try sign up
+        return await LOCKsignUp({ address: address, signature: loginSignature, blockchain: 'DeFiChain', walletName: 'DFX' })
+          .then(async accessToken => {
+            await AuthService.updateSession({ accessToken }, ApiDomain.LOCK)
+            return accessToken
+          })
+          .catch(async resp => {
+            if (resp.message !== undefined) {
+              throw new Error(resp.message)
+            }
+            throw new Error(resp)
+          })
+      })
+  }
+
   // create/update DFX addr signature pair
   const activePairHandler = async (pair: DFXAddrSignature): Promise<void> => {
     // - do we have a signature?
@@ -302,7 +375,10 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
     clearDfxTokens,
     listFiatAccounts,
     listCountries,
-    signMessage
+    signMessage: signMessageNoPersistence,
+    getActiveWebToken,
+    LOCKcreateWebToken,
+    checkStorage
   }
 
   function redoLoginForCurrentNetworkAndAddress (): void {
@@ -329,12 +405,14 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
   }, [debouncedNetworkName])
 
   useEffect(() => {
-    getActiveWebToken()
-
     setTimeout(() => {
       getActiveWebToken()
     }, 5000)
   }, [])
+
+  AuthService.setHookAccessor(context)
+
+  // ---------------------------------------------------------------
 
   return (
     <DFXAPIContext.Provider value={context}>

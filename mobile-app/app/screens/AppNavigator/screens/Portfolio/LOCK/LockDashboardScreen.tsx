@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { View, TouchableOpacity, Text, Linking, Platform, ScrollView } from 'react-native'
+import { View, TouchableOpacity, Text, Linking, Platform, ScrollView, AlertButton, RefreshControl } from 'react-native'
 import { MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons'
 import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 
@@ -19,8 +19,8 @@ import {
 } from '@components/themed'
 import { onTransactionBroadcast } from '@api/transaction/transaction_commands'
 import { RootState } from '@store'
-import { hasTxQueued as hasBroadcastQueued } from '@store/ocean'
-import { hasTxQueued } from '@store/transaction_queue'
+import { firstTransactionSelector, hasTxQueued as hasBroadcastQueued, OceanTransaction } from '@store/ocean'
+import { hasTxQueued, transactionQueue } from '@store/transaction_queue'
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import { PortfolioParamList } from '../PortfolioNavigator'
@@ -33,13 +33,23 @@ import { useAppDispatch } from '@hooks/useAppDispatch'
 
 import { send } from '@screens/AppNavigator/screens/Portfolio/screens/SendConfirmationScreen'
 import { Button } from '@components/Button'
+import { LOCKdeposit, LOCKgetStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingOutputDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
+import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
+import { NetworkName } from '@defichain/jellyfish-network'
+import { Announcements } from '../components/Announcements'
+import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
+import { noop } from 'lodash'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockDashboardScreen'>
+type StakingAction = 'STAKE' | 'UNSTAKE'
 
 export function LockDashboardScreen ({ route }: Props): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
   const logger = useLogger()
+
+  const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
+  const [isLoading, setIsloading] = useState(true)
 
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const dfi = tokens.find((t) => t.displaySymbol === 'DFI')
@@ -85,7 +95,9 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
     }
   }, [])
 
-  const setStakingBottomSheet = useCallback((dfi) => { // TODO: remove accounts?
+  const { signMessage } = useDFXAPIContext()
+
+  const setStakingBottomSheet = useCallback((dfi, action: StakingAction) => { // TODO: remove accounts?
     setBottomSheetScreen([
       {
         stackScreenName: 'BottomSheetStaking',
@@ -96,17 +108,53 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           onStaked: async (staked): Promise<void> => {
             logger.info(staked.toString())
             dismissModal()
-          }
+          },
+          stakingInfo: stakingInfo as StakingOutputDto,
+          action,
+          signMessage
         }),
         option: {
           header: () => null
         }
       }])
-  }, [dfi])
+  }, [dfi, stakingInfo])
+
+  const fetchStakingInfo = async (): Promise<void> => {
+    return await LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
+      .then(setStakingInfo)
+      // .catch(WalletAlertErrorApi)
+      .finally(() => setIsloading(false))
+  }
+
+  useEffect(() => {
+    fetchStakingInfo()
+  }, [])
+
+  const [refreshing, setRefreshing] = useState(false)
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    fetchStakingInfo()
+    setRefreshing(false)
+  }, [])
 
   return (
     <View style={tailwind('h-full bg-gray-200 border-t border-dfxgray-500')}>
-      <ScrollView contentContainerStyle={tailwind('flex-col')}>
+      <ScrollView
+        contentContainerStyle={tailwind('flex-col')}
+        refreshControl={
+          <RefreshControl
+            onRefresh={onRefresh}
+            refreshing={refreshing}
+          />
+        }
+      >
+
+        {/* <Announcements channel=''></Announcements>
+        BALANCE
+        APY APR
+
+        Expert Mode */}
 
         <View style={tailwind('h-40 bg-lock-800')}>
           <View style={tailwind('self-center mt-4')}>
@@ -131,7 +179,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
               {translate('LOCK/LockDashboardScreen', 'DFI Staking')}
             </Text>
             <Text style={tailwind('text-xl font-medium ')}>
-              {translate('LOCK/LockDashboardScreen', '1,000 DFI')}
+              {translate('LOCK/LockDashboardScreen', `${stakingInfo?.balance ?? 0} DFI`)}
             </Text>
           </View>
 
@@ -160,11 +208,12 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
               padding='p-1'
               extraStyle='flex-grow'
               onPress={() => {
-                setStakingBottomSheet(dfi)
+                setStakingBottomSheet(dfi, 'STAKE')
                 expandModal()
               }}
               lock
-              disabled={dfi === undefined || new BigNumber(dfi.amount).isLessThanOrEqualTo(0)}
+              disabled={isLoading || dfi === undefined || new BigNumber(dfi.amount).isLessThanOrEqualTo(0)}
+              isSubmitting={isLoading}
               style={tailwind('h-8')}
             />
             <Button
@@ -174,10 +223,12 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
               padding='p-1'
               extraStyle='flex-grow'
               onPress={() => {
-                setStakingBottomSheet(dfi)
+                setStakingBottomSheet(dfi, 'UNSTAKE')
                 expandModal()
               }}
               lock
+              disabled={isLoading || (stakingInfo != null && stakingInfo.balance <= 0)}
+              isSubmitting={isLoading}
               style={tailwind('h-4')}
             />
           </View>
@@ -266,13 +317,19 @@ interface BottomSheetStakingProps {
   onCloseButtonPress: () => void
   onStaked: (staked: BigNumber) => void
   dfi: WalletToken
+  stakingInfo: StakingOutputDto
+  action: StakingAction
+  signMessage: (message: string) => Promise<string>
 }
 
 export const BottomSheetStaking = ({
   headerLabel,
   onCloseButtonPress,
   onStaked,
-  dfi
+  dfi,
+  stakingInfo,
+  action,
+  signMessage
 }: BottomSheetStakingProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const network = useNetworkContext()
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -288,12 +345,23 @@ export const BottomSheetStaking = ({
   const { address } = watch()
   const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
   const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
+  const transaction = useSelector((state: RootState) => firstTransactionSelector(state.ocean))
   const logger = useLogger()
 
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
 
   const [hasBalance, setHasBalance] = useState(false)
   const [isOnPage, setIsOnPage] = useState<boolean>(true)
+
+  interface TransactionCache {
+    amount: number
+    depositAddress: string
+    token: WalletToken
+    network: NetworkName
+    transaction?: OceanTransaction
+  }
+
+  const [transactionCache, setTransactionCache] = useState<TransactionCache>()
 
   // modal scrollView setup
   const bottomSheetComponents = {
@@ -316,23 +384,106 @@ export const BottomSheetStaking = ({
 
     setIsSubmitting(true)
 
-    // ------------------------------------------
-    const depositAddress = ''
-    // ------------------------------------------
+    const amount = new BigNumber(getValues('amount'))
+
+    if (action === 'STAKE') {
+      stake(amount)
+    } else {
+      unstake(amount)
+    }
+  }
+
+  async function stake (amount: BigNumber): Promise<void> {
+    const depositAddress = stakingInfo?.depositAddress ?? ''
+    setTransactionCache({ depositAddress, token: dfi, amount: amount.toNumber(), network: network.networkName })
 
     if (formState.isValid && (depositAddress.length > 0)) {
       setIsSubmitting(true)
       await send({
         address: depositAddress,
         token: dfi,
-        amount: new BigNumber(getValues('amount')),
+        amount: amount,
         networkName: network.networkName
       }, dispatch, () => {
-        onTransactionBroadcast(isOnPage, navigation.dispatch, 0, 'SellConfirmationScreen')
+        onTransactionBroadcast(isOnPage, navigation.dispatch, 0)
+        onCloseButtonPress()
       }, logger)
       setIsSubmitting(false)
     }
   }
+
+  async function unstake (amount: BigNumber): Promise<void> {
+    LOCKwithdrawal(2, amount.toNumber())
+      .then(async (withdrawal) => {
+        setIsSubmitting(true)
+        signWithdrawal(withdrawal)
+      })
+      .catch((error) => {
+        if (error.message === 'Existing withdrawal have to be finished first') {
+          const alertButtons: AlertButton[] = [
+            {
+              text: 'Cancel',
+              onPress: () => setIsSubmitting(false),
+              style: 'destructive'
+            },
+            {
+              text: 'Confirm',
+              onPress: signPreviousWithdrawal,
+              style: 'default'// | 'destructive'
+            }
+          ]
+          const alert: CustomAlertOption = {
+            title: 'You have unfinished withdrawals. Please confirm previous withdrawal draft',
+            message: 'Confirm previous?',
+            buttons: alertButtons
+          }
+          WalletAlert(alert)
+        } else {
+          WalletAlertErrorApi(error)
+        }
+      })
+      .finally(() => setIsSubmitting(false))
+  }
+
+  async function signPreviousWithdrawal (): Promise<void> {
+    setIsSubmitting(true)
+    LOCKwithdrawalDrafts(stakingInfo?.id ?? 2)
+      .then(async (withdrawals) => {
+        setIsSubmitting(true)
+        const firstWithdawal = withdrawals?.[0]
+        return await signWithdrawal(firstWithdawal)
+      })
+      .catch(WalletAlertErrorApi)
+      .finally(() => setIsSubmitting(false))
+  }
+
+  async function signWithdrawal (withdrawal: WithdrawalDraftOutputDto): Promise<void> {
+    const signed = await signMessage(withdrawal.signMessage)
+
+    // TODO: return updated state
+    return await LOCKwithdrawalSign(stakingInfo?.id ?? 2, { id: withdrawal.id, signMessage: signed })
+      .then((signed) => noop(signed)) // TODO: (thabrad) should we give user some info?
+      .catch(WalletAlertErrorApi)
+      .finally(() => setIsSubmitting(false))
+  }
+
+  // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
+  useEffect(() => {
+    // console.log('------useEffect------')
+    if (transaction?.tx?.txId != null && transactionCache != null) {
+      // console.log('------if-1------')
+      // console.log('transaction?.tx?.txId: ', transaction?.tx?.txId)
+      // console.log('transactionCache: ', transactionCache)
+      // console.log('------if-1------')
+      // only proceed when there's a valid txId (that hasn't been sent to LOCK Api before) and connect to previously sent transaction (details) ==> possible SIDE EFFECT -> [POST] LOCKdeposit <- on failed transaction with txId
+      if (transactionCache.transaction?.tx.txId !== transaction.tx.txId) {
+        // only POST on "fresh" transaction and invalidate with storing txId
+        setTransactionCache({ ...transactionCache, transaction })
+        // console.log('------LOCKdeposit-----')
+        LOCKdeposit(stakingInfo?.id ?? 2, { amount: transactionCache.amount, txId: transaction.tx.txId }).catch(WalletAlertErrorApi)
+      }
+    }
+  }, [transaction, transactionCache])
 
   return (
     <ScrollView
@@ -364,6 +515,8 @@ export const BottomSheetStaking = ({
             await trigger('amount')
           }}
           token={dfi}
+          action={action}
+          staking={stakingInfo}
         />
 
         <View style={tailwind('my-6')}>
@@ -389,13 +542,17 @@ interface AmountForm {
   onAmountChange: (amount: string) => void
   onClearButtonPress: () => void
   conversionAmount?: BigNumber
+  action: StakingAction
+  staking: StakingOutputDto
 }
 
 function AmountRow ({
   token,
   control,
   onAmountChange,
-  onClearButtonPress
+  onClearButtonPress,
+  action,
+  staking
 }: AmountForm): JSX.Element {
   const reservedDFI = 0.1
   // TODO (thabrad) use only max UTXO amount
@@ -403,15 +560,17 @@ function AmountRow ({
 
   // TODO (thabrad) maybe add in-place conversion element for token type conversion
   let maxAmount = token.symbol === 'DFI' ? new BigNumber(DFIUtxo.amount).minus(reservedDFI)/* .minus(conversionAmount) */.toFixed(8) : token.amount
-  maxAmount = BigNumber.max(maxAmount, 0).toFixed(8)
+  maxAmount = action === 'UNSTAKE' ? (staking.balance - staking.pendingWithdrawals).toString() : BigNumber.max(maxAmount, 0).toFixed(8)
 
   // cap amount with maxAmount before setting the setValue('amount', amount) field
   const onAmountChangeCAPPED = (amount: string): void => {
     const base = new BigNumber(amount)
     const max = new BigNumber(maxAmount)
-    const capped = base.isGreaterThan(max)
+    base.isGreaterThan(max) && (amount = maxAmount)
+    const min = new BigNumber(staking.minimalStake)
+    base.isLessThan(min) && (amount = min.toString())
 
-    return onAmountChange(base.isNaN() ? '' : capped ? maxAmount : amount)
+    return onAmountChange(base.isNaN() ? '' : amount)
   }
 
   const defaultValue = ''
@@ -477,8 +636,8 @@ function AmountRow ({
 
       <InputHelperText
         testID='max_value'
-        label={`${translate('LOCK/LockDashboardScreen', 'Available to stake')}: `}
-        content={maxAmount}
+        label={`${translate('LOCK/LockDashboardScreen', 'Available to {{action}}', { action })}: `}
+        content={action === 'STAKE' ? maxAmount : staking?.balance.toString() ?? ''}
         suffix={` ${token.displaySymbol}`}
         lock
       />

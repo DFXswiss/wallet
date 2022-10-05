@@ -1,7 +1,7 @@
 // import { Logging } from '@api'
 import { Alert, AlertButton, AlertOptions, Platform } from 'react-native'
 
-interface CustomAlertOption {
+export interface CustomAlertOption {
   title: string
   message?: string
   buttons?: AlertButton[]

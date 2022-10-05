@@ -7,32 +7,79 @@ import { TouchableOpacity, View, Text } from 'react-native'
 import { TokenNameText } from '../components/TokenNameText'
 import { TokenAmountText } from '../components/TokenAmountText'
 import { PortfolioButtonGroupTabKey } from '../components/TotalPortfolio'
-import { ThemedIcon, ThemedTextBasic } from '@components/themed'
+import { ThemedIcon, ThemedText, ThemedTextBasic } from '@components/themed'
 import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 import { translate } from '@translations'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { PortfolioParamList } from '../PortfolioNavigator'
-import { getUserDetail } from '@shared-api/dfx/ApiService'
+import { getUserDetail, LOCKgetStaking, LOCKgetUser, LockUserDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
+import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
+import { useLockKycComplete } from './LockKycComplete'
 
 export function LockStakingCard (): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
+  const { LOCKcreateWebToken } = useDFXAPIContext()
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false)
-  const [isloading, setIsloading] = useState(true)
-  const [isLockVerified, setIsLockVerified] = useState(false)
+  const [isLoading, setIsloading] = useState(true)
 
-  const stakingAmount = !isLockVerified ? 0 : 1000
+  const [loggedIn, setLoggedIn] = useState(false)
+
+  const [lockUser, setLockUser] = useState<LockUserDto>()
+  const { isKycComplete } = useLockKycComplete(lockUser)
+
+  const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
+  const stakingAmount = ((stakingInfo?.balance) != null) ? stakingInfo.balance : !isKycComplete ? 0 : 1000
   const { apr, apy } = { apr: 37, apy: 30 }
 
   useEffect(() => {
-    getUserDetail()
-    .then((userDetail) => setIsLockVerified(userDetail.linkedAddresses.length >= 2))
-    .catch(WalletAlertErrorApi)
-    .finally(() => setIsloading(false))
-  }, [])
+    // console.log('------------------------------------')
+    // console.log('-----isKycComplete useEffect------')
+    // console.log('isKycComplete: ', isKycComplete)
+    // console.log('------------------------------------')
+  }, [isKycComplete])
+
+  const enterLOCK = (): void => {
+    LOCKcreateWebToken()
+      .then(() => {
+        setLoggedIn(true)
+
+        if (!isKycComplete) {
+          LOCKgetUser()
+            .then((user) => {
+              setLockUser(user)
+              // setisKycComplete(user.kycStatus === 'Full')
+            })
+            .catch(WalletAlertErrorApi)
+            .finally(() => setIsloading(false))
+
+          LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
+            .then(setStakingInfo)
+            // .catch(WalletAlertErrorApi)
+            // .finally(() => setIsloading(false))
+        }
+      })
+      .catch(WalletAlertErrorApi)
+  }
 
   const navigateToLock = (): void => {
-    isLockVerified ? navigation.navigate('LockDashboardScreen') : navigation.navigate('LockScreen')
+    isKycComplete ? navigation.navigate('LockDashboardScreen') : navigation.navigate('LockScreen')
+  }
+
+  if (!loggedIn) {
+    return (
+      <View
+        style={tailwind('m-4 px-4 py-4 bg-lock-500 rounded-lg')}
+      >
+        <TouchableOpacity onPress={() => enterLOCK()}>
+          <Text
+            style={tailwind('text-lg text-white self-center font-medium')}
+          >
+            enter LOCK
+          </Text>
+        </TouchableOpacity>
+      </View>
+    )
   }
 
   return (
@@ -41,7 +88,7 @@ export function LockStakingCard (): JSX.Element {
     >
       <TouchableOpacity
         onPress={navigateToLock}
-        disabled={isloading}
+        disabled={isLoading}
         style={tailwind('border-0')}
       >
         <View style={tailwind('flex-row items-center')}>

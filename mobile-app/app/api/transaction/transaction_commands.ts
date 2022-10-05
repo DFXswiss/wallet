@@ -1,4 +1,5 @@
 import { NavigationProp, StackActions, CommonActions } from '@react-navigation/native'
+import { noop } from 'lodash'
 
 /**
  * @description callback when a transaction is broadcasted
@@ -12,6 +13,8 @@ export const onTransactionBroadcast = (isPageMounted: boolean, dispatch: Dispatc
       dispatch(StackActions.pop(numberOfPop))
     } else if (navigateToScreen != null && navigateToScreen !== '') {
       dispatch(CommonActions.navigate(navigateToScreen))
+    } else if (numberOfPop === 0) {
+      noop()
     } else {
       dispatch(StackActions.popToTop())
     }

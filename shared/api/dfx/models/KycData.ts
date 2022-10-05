@@ -1,6 +1,10 @@
 import { Country } from './Country'
 import { AccountType } from './User'
 
+export interface KycDataTransferDto {
+  walletName: string
+}
+
 export interface KycData {
   accountType: AccountType
   firstName: string

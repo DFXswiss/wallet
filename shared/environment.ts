@@ -20,6 +20,7 @@ interface Environment {
   networks: EnvironmentNetwork[]
   dfxApiUrl: string
   dfxPaymentUrl: string
+  lockApiUrl: string
 }
 
 export const environments: Record<EnvironmentName, Environment> = {
@@ -32,7 +33,8 @@ export const environments: Record<EnvironmentName, Environment> = {
       EnvironmentNetwork.RemotePlayground
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
-    dfxPaymentUrl: 'https://payment.dfx.swiss'
+    dfxPaymentUrl: 'https://payment.dfx.swiss',
+    lockApiUrl: 'https://api.lock.space/v1'
   },
   Preview: {
     name: EnvironmentName.Preview,
@@ -43,7 +45,8 @@ export const environments: Record<EnvironmentName, Environment> = {
       EnvironmentNetwork.MainNet
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
-    dfxPaymentUrl: 'https://payment.dfx.swiss'
+    dfxPaymentUrl: 'https://payment.dfx.swiss',
+    lockApiUrl: 'https://api.lock.space/v1'
   },
   Development: {
     name: EnvironmentName.Development,
@@ -55,7 +58,8 @@ export const environments: Record<EnvironmentName, Environment> = {
       EnvironmentNetwork.MainNet
     ],
     dfxApiUrl: 'https://dev.api.dfx.swiss/v1',
-    dfxPaymentUrl: 'https://dev.payment.dfx.swiss'
+    dfxPaymentUrl: 'https://dev.payment.dfx.swiss',
+    lockApiUrl: 'https://dev.api.lock.space/v1'
   }
 }
 

@@ -512,6 +512,17 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
     ]
   }, [address, isLight])
 
+  const [lockWithAddress, setLockWithAddress] = useState<string | undefined>(address)
+
+  useEffect(() => {
+    if (lockWithAddress !== address) {
+      setLockWithAddress(undefined)
+      setTimeout(() => {
+        setLockWithAddress(address)
+      }, 50)
+    }
+  }, [address])
+
   return (
     <View ref={containerRef} style={tailwind('flex-1')}>
       <ThemedScrollView
@@ -543,7 +554,7 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
           denominationCurrency={denominationCurrency}
         />
         <BalanceActionSection navigation={navigation} isZeroBalance={isZeroBalance} />
-        <LockStakingCard />
+        {(lockWithAddress != null) && <LockStakingCard />}
         {hasPendingFutureSwap && <FutureSwapCta navigation={navigation} />}
         {/* to show bottom sheet for asset sort */}
         <AssetSortRow

@@ -143,10 +143,10 @@ export interface UserDetail extends User {
 export interface LinkedAddresses {
   address: string
   isSwitchable: boolean
-  blockchains: Blockchains
+  blockchains: Blockchain
 }
 
-export type Blockchains = 'DeFiChain' | 'Bitcoin' | 'Ethereum'
+export type Blockchain = 'DeFiChain' | 'Bitcoin' | 'Ethereum'
 
 export interface UserDetailRequestDto {
   mail: string
