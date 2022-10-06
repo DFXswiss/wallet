@@ -31,6 +31,7 @@ export function LockScreen ({ route }: Props): JSX.Element {
     setIsSubmitting(true)
 
     LOCKpostKyc()
+      // .catch(WalletAlertErrorApi)
       .finally(() => {
         transferKyc(LOCKwalletName)
           .then(() => {
