@@ -59,6 +59,7 @@ const SettingUrl = 'setting/frontend'
 // -----------------LOCK - API---------------------------
 // ------------------------------------------------------
 const LockBaseUrl = getEnvironment(Updates.releaseChannel).lockApiUrl
+const LOCKanalytics = 'analytics/staking'
 const LOCKKycUrl = 'kyc'
 const LOCKStakingUrl = 'staking'
 
@@ -72,6 +73,12 @@ export interface NewLockUser {
   signature: string
   blockchain: Blockchain
   walletName: 'DFX'
+}
+
+export interface StakingAnalyticsOutputDto {
+  updated: Date
+  apy: number
+  apr: number
 }
 
 export interface LockKYC {
@@ -133,6 +140,11 @@ export const LOCKsignUp = async (user: NewLockUser): Promise<string> => {
 
 export const LOCKgetSignMessage = async (address: string): Promise<LockSignMessageResponse> => {
   return await fetchFromLOCK<LockSignMessageResponse>(`${AuthUrl}/sign-message`, 'GET', undefined, { withoutJWT: true, queryParams: { address } })
+}
+
+// --- GENERAL --- //
+export const LOCKgetAnalytics = async (): Promise<StakingAnalyticsOutputDto> => {
+  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics)
 }
 
 // --- KYC --- //

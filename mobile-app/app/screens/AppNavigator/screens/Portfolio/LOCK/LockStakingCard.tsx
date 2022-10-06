@@ -9,7 +9,7 @@ import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 import { translate } from '@translations'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { PortfolioParamList } from '../PortfolioNavigator'
-import { LOCKgetStaking, LOCKgetUser, LockUserDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
+import { LOCKgetAnalytics, LOCKgetStaking, LOCKgetUser, LockUserDto, StakingAnalyticsOutputDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 import { useLockKycComplete } from './LockKycComplete'
@@ -36,7 +36,8 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
 
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
   const stakingAmount = ((stakingInfo?.balance) != null) ? stakingInfo.balance : !isKycComplete ? 0 : 1000
-  const { apr, apy } = { apr: 37, apy: 30 }
+  const [analytics, setAnalytics] = useState<StakingAnalyticsOutputDto>()
+  const { apy, apr } = analytics ?? { apy: 0, apr: 0 }
 
   const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet))
   const { getTokenPrice } = useTokenPrice(denominationCurrency)
@@ -61,16 +62,19 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
 
   const fetchLockData = (): void => {
     setIsloading(true)
-    const prom1 = LOCKgetUser()
+    const getUser = LOCKgetUser()
       .then((user) => {
         setLockUser(user)
       })
       .catch(WalletAlertErrorApi)
 
-    const prom2 = LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
+    const getStakingInfo = LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
       .then(setStakingInfo)
 
-    Promise.all([prom1, prom2]).finally(() => setIsloading(false))
+    const getAnalytics = LOCKgetAnalytics()
+      .then(setAnalytics)
+
+    Promise.all([getUser, getStakingInfo, getAnalytics]).finally(() => setIsloading(false))
   }
 
   useEffect(() => {
@@ -111,7 +115,7 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
         >
           <View style={tailwind('flex-row items-center')}>
             <LOCKunlockedIcon height={48} width={48} />
-            <TokenNameText displaySymbol='DFI Staking by LOCK' name={`${apr}% APY / ${apy}% APR`} testID='' />
+            <TokenNameText displaySymbol='DFI Staking by LOCK' name={`${apy}% APY / ${apr}% APR`} testID='' />
             <TokenAmountText
               tokenAmount={stakingAmount.toString()}
               usdAmount={usdAmount}

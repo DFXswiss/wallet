@@ -33,7 +33,7 @@ import { useAppDispatch } from '@hooks/useAppDispatch'
 
 import { send } from '@screens/AppNavigator/screens/Portfolio/screens/SendConfirmationScreen'
 import { Button } from '@components/Button'
-import { LOCKdeposit, LOCKgetStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingOutputDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
+import { LOCKdeposit, LOCKgetAnalytics, LOCKgetStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
 import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { Announcements } from '../components/Announcements'
@@ -58,6 +58,9 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
 
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
   const [isLoading, setIsloading] = useState(true)
+
+  const [analytics, setAnalytics] = useState<StakingAnalyticsOutputDto>()
+  const { apr, apy } = analytics ?? { apr: 0, apy: 0 }
 
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const dfi = tokens.find((t) => t.displaySymbol === 'DFI')
@@ -121,10 +124,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           },
           onUnstaked: async (newStakingInfo): Promise<void> => {
             setStakingInfo(newStakingInfo)
-            console.log('------------')
-            console.log('dismisssssssss --> ?? \n\n', newStakingInfo)
-            console.log('------------')
-            dismissModal()
+            dismissModal() // TODO: this is somehow not triggering 🤷‍♂️
           },
           stakingInfo: stakingInfo as StakingOutputDto,
           action,
@@ -137,10 +137,15 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   }, [stakingInfo])
 
   const fetchStakingInfo = async (): Promise<void> => {
-    return await LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
+    setIsloading(true)
+    const getStakingInfo = LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
       .then(setStakingInfo)
-      // .catch(WalletAlertErrorApi)
-      .finally(() => setIsloading(false))
+      .catch(WalletAlertErrorApi)
+
+    const getAnalytics = LOCKgetAnalytics()
+      .then(setAnalytics)
+
+    Promise.all([getStakingInfo, getAnalytics]).finally(() => setIsloading(false))
   }
 
   const [refreshing, setRefreshing] = useState(false)
@@ -158,17 +163,11 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
   // TODO: check for possible refactor to dispatch / component lifecycle-independence
   useEffect(() => {
-    console.log('------useEffect------')
     if (transaction?.tx?.txId != null && transactionCache != null) {
-      console.log('------if-1------')
-      console.log('transaction?.tx?.txId: ', transaction?.tx?.txId)
-      console.log('transactionCache: ', transactionCache)
-      console.log('------if-1------')
       // only proceed when there's a valid txId (that hasn't been sent to LOCK Api before) and connect to previously sent transaction (details) ==> possible SIDE EFFECT -> [POST] LOCKdeposit <- on failed transaction with txId
       if (transactionCache.transaction?.tx.txId !== transaction.tx.txId) {
         // only POST on "fresh" transaction and invalidate with storing txId
         setTransactionCache({ ...transactionCache, transaction })
-        console.log('------LOCKdeposit-----')
         LOCKdeposit(stakingInfo?.id ?? 2, { amount: transactionCache.amount, txId: transaction.tx.txId }).catch(WalletAlertErrorApi)
       }
     }
@@ -187,8 +186,6 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
       >
 
         {/* <Announcements channel=''></Announcements>
-        APY APR
-
         Expert Mode */}
 
         <View style={tailwind('h-40 bg-lock-800')}>
@@ -203,7 +200,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
               {translate('LOCK/LockDashboardScreen', '$DFI Staking by Lock')}
             </Text>
             <Text style={tailwind('text-xl text-white font-bold mb-6 self-center')}>
-              {translate('LOCK/LockDashboardScreen', 'APY 35%  APR 31%')}
+              {translate('LOCK/LockDashboardScreen', `APY ${apy}%  APR ${apr}%`)}
             </Text>
           </View>
         </View>
@@ -223,7 +220,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
 
           {stakingInfo != null && stakingInfo.pendingDeposits > 0 && (
             <ListItem
-              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits'), share: `+${stakingInfo?.pendingWithdrawals} DFI` }}
+              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits'), share: `+${stakingInfo?.pendingDeposits} DFI` }}
               style='px-4 pb-2'
               fieldStyle='text-xl font-normal'
               isDisabled
@@ -590,7 +587,6 @@ function AmountRow ({
 
   // TODO (thabrad) maybe add in-place conversion element for token type conversion
   let maxAmount = token.symbol === 'DFI' ? new BigNumber(DFIUtxo.amount).minus(reservedDFI)/* .minus(conversionAmount) */.toFixed(8) : token.amount
-  console.log('staking: ', staking)
 
   maxAmount = action === 'UNSTAKE' ? (staking.balance - staking.pendingWithdrawals).toString() : BigNumber.max(maxAmount, 0).toFixed(8)
 
