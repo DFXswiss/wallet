@@ -202,13 +202,6 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
     }))
   }, [blockCount, denominationCurrency])
 
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true)
-    fetchPortfolioData()
-    fetchDfxStakingBalance()
-    setRefreshing(false)
-  }, [address, client, dispatch])
-
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const {
     totalAvailableValue,
@@ -512,8 +505,8 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
     ]
   }, [address, isLight])
 
+  // Helper to reset LockStakingCard state
   const [lockWithAddress, setLockWithAddress] = useState<string | undefined>(address)
-
   useEffect(() => {
     if (lockWithAddress !== address) {
       setLockWithAddress(undefined)
@@ -522,6 +515,16 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
       }, 50)
     }
   }, [address])
+  // Triggers data refetch for LockStakingCard
+  const [lockRefetchTrigger, setLockRefetchTrigger] = useState(false)
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    fetchPortfolioData()
+    fetchDfxStakingBalance()
+    setLockRefetchTrigger((value) => !value)
+    setRefreshing(false)
+  }, [address, client, dispatch])
 
   return (
     <View ref={containerRef} style={tailwind('flex-1')}>
@@ -554,7 +557,7 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
           denominationCurrency={denominationCurrency}
         />
         <BalanceActionSection navigation={navigation} isZeroBalance={isZeroBalance} />
-        {(lockWithAddress != null) && <LockStakingCard />}
+        {(lockWithAddress != null) && <LockStakingCard denominationCurrency={denominationCurrency} refreshTrigger={lockRefetchTrigger} />}
         {hasPendingFutureSwap && <FutureSwapCta navigation={navigation} />}
         {/* to show bottom sheet for asset sort */}
         <AssetSortRow
