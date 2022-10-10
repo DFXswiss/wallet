@@ -1747,5 +1747,18 @@
     "Your IBAN": "Votre IBAN",
     "Transaction Fee": "Frais de transaction",
     "Transfer Details": "Détails du virement"
+  },
+  "screens/DfxExpertModeScreen": {
+    "Loans": "Prêts",
+    "Browse loan tokens provided by DeFiChain": "Parcourir les tokens de prêt fournis par DeFiChain",
+    "Browse auctions provided by DeFiChain": "Parcourir les enchères fournies par DeFiChain",
+    "Continue": "Suivant",
+    "Cancel": "Annuler",
+    "Feature is still in Beta. Use at your own risk.": "Fonction d'expert. À utiliser à vos risques et périls.",
+    "Allows the usage of custom server provider url": "Permet l'utilisation d'une url d'un fournisseur de serveur personnalisée.",
+    "Expert Mode": "Mode Expert",
+    "The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.": "Le mode expert de DFX Wallet requiert une connaissance approfondie de DeFiChain et de ses fonctionnalités. Une prudence particulière est requise lors de son utilisation. DFX n'assume aucune responsabilité pour toute perte.",
+    "Expert feature. Do you want to continue?": "Fonction d'expert. Voulez-vous continuer ?",
+    "Enable {{feature}} (Expert)": "Activer {{feature}} (Expert)"
   }
 }

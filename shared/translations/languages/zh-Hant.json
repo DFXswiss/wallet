@@ -1700,5 +1700,18 @@
     "Transaction Fee": "交易费用 ",
     "Transfer Details": "转让详情 "
   },
-  "components/DfxKycInfo": {}
+  "components/DfxKycInfo": {},
+  "screens/DfxExpertModeScreen": {
+    "Loans": "貸款",
+    "Browse loan tokens provided by DeFiChain": "瀏覽遞飛鏈DeFiChain提供的貸款代幣",
+    "Browse auctions provided by DeFiChain": "瀏覽 DeFiChain 提供的拍賣",
+    "Continue": "繼續",
+    "Cancel": "取消",
+    "Feature is still in Beta. Use at your own risk.": "专家特色。使用时风险自负。",
+    "Allows the usage of custom server provider url": "Allows the usage of custom server provider url",
+    "Expert Mode": "专家模式",
+    "The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.": "DFX钱包的专家模式需要大量关于DeFiChain及其功能的知识。使用时需要特别小心。DFX不承担任何损失的责任。",
+    "Expert feature. Do you want to continue?": "专家功能。你想继续吗？",
+    "Enable {{feature}} (Expert)": "啟用Expert測試版 {{feature}}"
+  }
 }

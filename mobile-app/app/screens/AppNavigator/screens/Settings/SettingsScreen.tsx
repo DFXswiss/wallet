@@ -170,7 +170,7 @@ export function SettingsScreen ({ navigation }: Props): JSX.Element {
       />
       <NavigateItemRow
         testID='setting_navigate_ExpertMode'
-        label='Expert Mode'
+        label={translate('screens/DfxExpertModeScreen', 'Expert Mode')}
         onPress={() => navigation.navigate('DfxExpertModeScreen')}
       />
       <RowExitWalletItem />

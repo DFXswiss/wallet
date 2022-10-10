@@ -40,16 +40,16 @@ export function DfxExpertModeScreen (): JSX.Element {
     const flags: FEATURE_FLAG_ID[] = value ? [...enabledFeatures, feature.id] : enabledFeatures.filter(e => e !== feature.id)
     if (value) {
       WalletAlert({
-        title: translate('screens/FeatureFlagScreen', 'Enable {{feature}} (Beta)', { feature: translate('screens/Settings', feature.name) }),
+        title: translate('screens/DfxExpertModeScreen', 'Enable {{feature}} (Expert)', { feature: translate('screens/Settings', feature.name) }),
         message: translate(
-          'screens/FeatureFlagScreen', 'This feature is still in Beta, upon activation you will be expose to some risks. Do you want to continue?'),
+          'screens/DfxExpertModeScreen', 'Expert feature. Do you want to continue?'),
         buttons: [
           {
-            text: translate('screens/FeatureFlagScreen', 'Cancel'),
+            text: translate('screens/DfxExpertModeScreen', 'Cancel'),
             style: 'cancel'
           },
           {
-            text: translate('screens/FeatureFlagScreen', 'Continue'),
+            text: translate('screens/DfxExpertModeScreen', 'Continue'),
             style: 'destructive',
             onPress: async () => {
               setBetaFeatures(getBetaFeature(flags))
@@ -70,7 +70,7 @@ export function DfxExpertModeScreen (): JSX.Element {
         <ThemedText
           style={tailwind('text-base font-semibold')}
         >
-          {translate('screens/FeatureFlagScreen', 'Beta Features')}
+          {translate('screens/DfxExpertModeScreen', 'Beta Features')}
         </ThemedText>
 
         <ThemedText
@@ -78,7 +78,7 @@ export function DfxExpertModeScreen (): JSX.Element {
           light={tailwind('text-dfxgray-500')}
           style={tailwind('text-sm font-normal')}
         >
-          {translate('screens/FeatureFlagScreen', 'Light Wallet beta features are in the user acceptance testing phase. Using beta feature(s) is encouraged, but caution is advised when using your assets.')}
+          {translate('screens/DfxExpertModeScreen', 'The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.')}
         </ThemedText>
       </View>
       {betaFeatures.map((item: BetaFeaturesI) => (
@@ -113,7 +113,7 @@ export function FeatureFlagItem ({
           light={tailwind('text-mono-light-v2-900')}
           style={tailwind('font-medium')}
         >
-          {translate('screens/FeatureFlagScreen', item.name)}
+          {translate('screens/DfxExpertModeScreen', item.name)}
         </ThemedText>
 
         <View style={tailwind('flex-row items-center')}>
@@ -131,7 +131,7 @@ export function FeatureFlagItem ({
         light={tailwind('text-mono-light-v2-500')}
         style={tailwind('px-4 py-2 mb-2 text-sm font-normal')}
       >
-        {translate('screens/FeatureFlagScreen', item.description)}
+        {translate('screens/DfxExpertModeScreen', item.description)}
       </ThemedText>
     </View>
   )
