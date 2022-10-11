@@ -12,6 +12,8 @@ import { LoansNavigator } from './screens/Loans/LoansNavigator'
 import { useFeatureFlagContext } from '@contexts/FeatureFlagContext'
 import { useSelector } from 'react-redux'
 import { RootState } from '@store'
+import React from 'react'
+import { LockContextProvider } from './screens/Portfolio/LOCK/LockContextProvider'
 
 export interface BottomTabParamList {
   Portfolio: undefined
@@ -35,96 +37,98 @@ export function BottomTabNavigator (): JSX.Element {
       <OceanInterface />
 
       <DFXAPIContextProvider>
+        <LockContextProvider>
 
-        <BottomTab.Navigator
-          initialRouteName='Portfolio'
-          screenOptions={{
-            headerShown: false,
-            tabBarLabelPosition: 'below-icon',
-            tabBarLabelStyle: tailwind('font-medium text-xs')
-          }}
-        >
-
-          <BottomTab.Screen
-            component={PortfolioNavigator}
-            name={translate('BottomTabNavigator', 'Portfolio')}
-            options={{
-              tabBarLabel: translate('BottomTabNavigator', 'Portfolio'),
-              tabBarTestID: 'bottom_tab_portfolio',
-              tabBarIcon: ({ color }) => (
-                <MaterialIcons
-                  color={color}
-                  name='account-balance-wallet'
-                  size={24}
-                />
-              )
+          <BottomTab.Navigator
+            initialRouteName='Portfolio'
+            screenOptions={{
+              headerShown: false,
+              tabBarLabelPosition: 'below-icon',
+              tabBarLabelStyle: tailwind('font-medium text-xs')
             }}
-          />
+          >
 
-          <BottomTab.Screen
-            component={DexNavigator}
-            name={translate('BottomTabNavigator', 'DEX')}
-            options={{
-              tabBarTestID: 'bottom_tab_dex',
-              tabBarIcon: ({ color }) => (
-                <MaterialIcons
-                  color={color}
-                  name='swap-horiz'
-                  size={24}
-                />
-              )
-            }}
-          />
-
-          {(isFeatureAvailable('loan') || (vaults?.length > 0)) && (
             <BottomTab.Screen
-              component={LoansNavigator}
-              name={translate('BottomTabNavigator', 'Loans')}
+              component={PortfolioNavigator}
+              name={translate('BottomTabNavigator', 'Portfolio')}
               options={{
-              tabBarTestID: 'bottom_tab_loans',
-              tabBarIcon: ({ color }) => (
-                <MaterialIcons
-                  color={color}
-                  name='credit-card'
-                  size={24}
-                />
-              )
-            }}
+                tabBarLabel: translate('BottomTabNavigator', 'Portfolio'),
+                tabBarTestID: 'bottom_tab_portfolio',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons
+                    color={color}
+                    name='account-balance-wallet'
+                    size={24}
+                  />
+                )
+              }}
             />
-          )}
 
-          {isFeatureAvailable('auction') && (
             <BottomTab.Screen
-              component={AuctionsNavigator}
-              name={translate('BottomTabNavigator', 'Auctions')}
+              component={DexNavigator}
+              name={translate('BottomTabNavigator', 'DEX')}
               options={{
-              tabBarTestID: 'bottom_tab_auctions',
-              tabBarIcon: ({ color }) => (
-                <MaterialIcons
-                  color={color}
-                  name='gavel'
-                  size={24}
-                />
-              )
-            }}
+                tabBarTestID: 'bottom_tab_dex',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons
+                    color={color}
+                    name='swap-horiz'
+                    size={24}
+                  />
+                )
+              }}
             />
-          )}
 
-          <BottomTab.Screen
-            component={TransactionsNavigator}
-            name={translate('BottomTabNavigator', 'Transactions')}
-            options={{
-              tabBarTestID: 'bottom_tab_transactions',
-              tabBarIcon: ({ color }) => (
-                <MaterialIcons
-                  color={color}
-                  name='history'
-                  size={24}
-                />
-              )
-            }}
-          />
-        </BottomTab.Navigator>
+            {(isFeatureAvailable('loan') || (vaults?.length > 0)) && (
+              <BottomTab.Screen
+                component={LoansNavigator}
+                name={translate('BottomTabNavigator', 'Loans')}
+                options={{
+                tabBarTestID: 'bottom_tab_loans',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons
+                    color={color}
+                    name='credit-card'
+                    size={24}
+                  />
+                )
+              }}
+              />
+            )}
+
+            {isFeatureAvailable('auction') && (
+              <BottomTab.Screen
+                component={AuctionsNavigator}
+                name={translate('BottomTabNavigator', 'Auctions')}
+                options={{
+                tabBarTestID: 'bottom_tab_auctions',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons
+                    color={color}
+                    name='gavel'
+                    size={24}
+                  />
+                )
+              }}
+              />
+            )}
+
+            <BottomTab.Screen
+              component={TransactionsNavigator}
+              name={translate('BottomTabNavigator', 'Transactions')}
+              options={{
+                tabBarTestID: 'bottom_tab_transactions',
+                tabBarIcon: ({ color }) => (
+                  <MaterialIcons
+                    color={color}
+                    name='history'
+                    size={24}
+                  />
+                )
+              }}
+            />
+          </BottomTab.Navigator>
+        </LockContextProvider>
       </DFXAPIContextProvider>
     </>
   )

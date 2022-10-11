@@ -48,7 +48,7 @@ import { TransactionDetailScreen } from '@screens/AppNavigator/screens/Transacti
 import { VMTransaction } from '@screens/AppNavigator/screens/Transactions/screens/stateProcessor'
 import { HeaderNetworkStatus } from '@components/HeaderNetworkStatus'
 import { useNavigatorScreenOptions } from '@hooks/useNavigatorScreenOptions'
-import { LockScreen } from './LOCK/LockScreen'
+import { LockKycScreen } from './LOCK/LockKycScreen'
 import { LockDashboardScreen } from './LOCK/LockDashboardScreen'
 import { BuyScreen } from './screens/BuyScreen'
 import { BuyConfirmationScreen } from './screens/BuyConfirmationScreen'
@@ -56,7 +56,7 @@ import { BuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
 
 export interface PortfolioParamList {
   PortfolioScreen: undefined
-  LockScreen: undefined
+  LockKycScreen: undefined
   LockDashboardScreen: undefined
   ReceiveScreen: undefined
   ReceiveDTokenScreen: { crypto?: CryptoButtonGroupTabKey, fromReceiveScreen?: boolean }
@@ -208,12 +208,12 @@ export function PortfolioNavigator (): JSX.Element {
       />
 
       <PortfolioStack.Screen
-        component={LockScreen}
-        name='LockScreen'
+        component={LockKycScreen}
+        name='LockKycScreen'
         options={{
           headerTitle: () => (
             <HeaderTitle
-              text={translate('LOCK/LockScreen', 'LOCK Staking')}
+              text={translate('LOCK/LockKycScreen', 'LOCK Staking')}
               containerTestID={headerContainerTestId}
             />
           ),

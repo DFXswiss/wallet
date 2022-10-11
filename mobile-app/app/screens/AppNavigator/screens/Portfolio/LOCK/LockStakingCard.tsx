@@ -1,7 +1,7 @@
 import { tailwind } from '@tailwind'
 import BigNumber from 'bignumber.js'
 import React, { useEffect, useState } from 'react'
-import { TouchableOpacity, View, Text } from 'react-native'
+import { TouchableOpacity, View } from 'react-native'
 import { TokenNameText } from '../components/TokenNameText'
 import { TokenAmountText } from '../components/TokenAmountText'
 import { ThemedActivityIndicator, ThemedIcon, ThemedTextBasic } from '@components/themed'
@@ -9,10 +9,10 @@ import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 import { translate } from '@translations'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { PortfolioParamList } from '../PortfolioNavigator'
-import { LOCKgetAnalytics, LOCKgetStaking, LOCKgetUser, LockUserDto, StakingAnalyticsOutputDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
+import { LOCKgetAnalytics, LOCKgetStaking, LOCKgetUser, StakingAnalyticsOutputDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
-import { useLockKycComplete } from './LockKycComplete'
+import { useLock } from './LockContextProvider'
 import { useTokenPrice } from '../hooks/TokenPrice'
 import { DFITokenSelector } from '@store/wallet'
 import { useSelector } from 'react-redux'
@@ -28,27 +28,19 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
   const { LOCKcreateWebToken } = useDFXAPIContext()
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false)
   // data loading logic
-  const [isLoading, setIsloading] = useState(true)
+  const [isLoading, setIsloading] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
   // checks if there's a LOCK user
-  const [lockUser, setLockUser] = useState<LockUserDto>()
-  const { isKycComplete } = useLockKycComplete(lockUser)
+  const { isKycComplete, setKycComplete, getProviderStakingInfo, setProviderStakingInfo } = useLock()
 
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
-  const stakingAmount = ((stakingInfo?.balance) != null) ? stakingInfo.balance : !isKycComplete ? 0 : 1000
+  const stakingAmount = !loggedIn ? '' : ((stakingInfo?.balance) != null) ? stakingInfo.balance : !isKycComplete ? 0 : getProviderStakingInfo?.balance ?? 0
   const [analytics, setAnalytics] = useState<StakingAnalyticsOutputDto>()
   const { apy, apr } = analytics ?? { apy: 0, apr: 0 }
 
   const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet))
   const { getTokenPrice } = useTokenPrice(denominationCurrency)
   const usdAmount = getTokenPrice(DFIToken.symbol, new BigNumber(stakingAmount))
-
-  useEffect(() => {
-    // console.log('------------------------------------')
-    // console.log('-----isKycComplete useEffect------')
-    // console.log('isKycComplete: ', isKycComplete)
-    // console.log('------------------------------------')
-  }, [isKycComplete])
 
   const enterLOCK = (): void => {
     LOCKcreateWebToken()
@@ -64,12 +56,15 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
     setIsloading(true)
     const getUser = LOCKgetUser()
       .then((user) => {
-        setLockUser(user)
+        setKycComplete(user)
       })
       .catch(WalletAlertErrorApi)
 
     const getStakingInfo = LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
-      .then(setStakingInfo)
+      .then(staking => {
+        setStakingInfo(staking)
+        setProviderStakingInfo(staking)
+      })
 
     const getAnalytics = LOCKgetAnalytics()
       .then(setAnalytics)
@@ -84,24 +79,24 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
   }, [refreshTrigger])
 
   const navigateToLock = (): void => {
-    isKycComplete ? navigation.navigate('LockDashboardScreen') : navigation.navigate('LockScreen')
+    isKycComplete ? navigation.navigate('LockDashboardScreen') : navigation.navigate('LockKycScreen')
   }
 
-  if (!loggedIn) {
-    return (
-      <View
-        style={tailwind('m-4 px-4 py-4 bg-lock-500 rounded-lg')}
-      >
-        <TouchableOpacity onPress={() => enterLOCK()}>
-          <Text
-            style={tailwind('text-lg text-white self-center font-medium')}
-          >
-            enter LOCK
-          </Text>
-        </TouchableOpacity>
-      </View>
-    )
-  }
+  // if (!loggedIn) {
+  //   return (
+  //     <View
+  //       style={tailwind('m-4 px-4 py-4 bg-lock-500 rounded-lg')}
+  //     >
+  //       <TouchableOpacity onPress={() => enterLOCK()}>
+  //         <Text
+  //           style={tailwind('text-lg text-white self-center font-medium')}
+  //         >
+  //           enter LOCK
+  //         </Text>
+  //       </TouchableOpacity>
+  //     </View>
+  //   )
+  // }
 
   return (
     <>
@@ -109,7 +104,7 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
         style={tailwind('m-4 px-4 pt-4 pb-2 bg-lock-500 rounded-lg')}
       >
         <TouchableOpacity
-          onPress={navigateToLock}
+          onPress={loggedIn ? navigateToLock : enterLOCK}
           disabled={isLoading}
           style={tailwind('border-0')}
         >

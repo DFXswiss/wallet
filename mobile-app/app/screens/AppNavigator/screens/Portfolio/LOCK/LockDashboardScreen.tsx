@@ -39,6 +39,7 @@ import { NetworkName } from '@defichain/jellyfish-network'
 import { Announcements } from '../components/Announcements'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
+import { useLock } from './LockContextProvider'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockDashboardScreen'>
 type StakingAction = 'STAKE' | 'UNSTAKE'
@@ -56,6 +57,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
   const transaction = useSelector((state: RootState) => firstTransactionSelector(state.ocean))
   const logger = useLogger()
+  const { setProviderStakingInfo } = useLock()
 
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
   const [isLoading, setIsloading] = useState(true)
@@ -140,7 +142,10 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   const fetchStakingInfo = async (): Promise<void> => {
     setIsloading(true)
     const getStakingInfo = LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
-      .then(setStakingInfo)
+      .then(staking => {
+        setStakingInfo(staking)
+        setProviderStakingInfo(staking)
+      })
       .catch(WalletAlertErrorApi)
 
     const getAnalytics = LOCKgetAnalytics()
