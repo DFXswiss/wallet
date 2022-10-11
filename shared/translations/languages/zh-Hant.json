@@ -1712,6 +1712,7 @@
     "Expert Mode": "专家模式",
     "The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.": "DFX钱包的专家模式需要大量关于DeFiChain及其功能的知识。使用时需要特别小心。DFX不承担任何损失的责任。",
     "Expert feature. Do you want to continue?": "专家功能。你想继续吗？",
-    "Enable {{feature}} (Expert)": "啟用Expert測試版 {{feature}}"
+    "Enable {{feature}} (Expert)": "啟用Expert測試版 {{feature}}",
+    "Expert Features": "专家功能"
   }
 }

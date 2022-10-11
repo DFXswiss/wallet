@@ -8,7 +8,7 @@ import { FeatureFlag, FEATURE_FLAG_ID } from '@shared-types/website'
 import { useFeatureFlagContext } from '@contexts/FeatureFlagContext'
 import { WalletAlert } from '@components/WalletAlert'
 
-export interface BetaFeaturesI extends FeatureFlag {
+export interface ExpertFeaturesI extends FeatureFlag {
   value: boolean
 }
 
@@ -18,11 +18,11 @@ export function DfxExpertModeScreen (): JSX.Element {
     enabledFeatures,
     updateEnabledFeatures
   } = useFeatureFlagContext()
-  const [betaFeatures, setBetaFeatures] = useState<BetaFeaturesI []>([])
+  const [expertFeatures, setExpertFeatures] = useState<ExpertFeaturesI []>([])
 
-  const getBetaFeature = (flags: FEATURE_FLAG_ID[]): BetaFeaturesI[] => {
-    return featureFlags.reduce((features: BetaFeaturesI[], item: FeatureFlag) => {
-      if (item.stage === 'beta') {
+  const getExpertFeature = (flags: FEATURE_FLAG_ID[]): ExpertFeaturesI[] => {
+    return featureFlags.reduce((features: ExpertFeaturesI[], item: FeatureFlag) => {
+      if (item.stage === 'expert') {
         features.push({
           ...item,
           value: flags.includes(item.id)
@@ -33,7 +33,7 @@ export function DfxExpertModeScreen (): JSX.Element {
   }
 
   useEffect(() => {
-    setBetaFeatures(getBetaFeature(enabledFeatures))
+    setExpertFeatures(getExpertFeature(enabledFeatures))
   }, [])
 
   const onFeatureChange = async (feature: FeatureFlag, value: boolean): Promise<void> => {
@@ -52,14 +52,14 @@ export function DfxExpertModeScreen (): JSX.Element {
             text: translate('screens/DfxExpertModeScreen', 'Continue'),
             style: 'destructive',
             onPress: async () => {
-              setBetaFeatures(getBetaFeature(flags))
+              setExpertFeatures(getExpertFeature(flags))
               await updateEnabledFeatures(flags)
             }
           }
         ]
       })
     } else {
-      setBetaFeatures(getBetaFeature(flags))
+      setExpertFeatures(getExpertFeature(flags))
       await updateEnabledFeatures(flags)
     }
   }
@@ -70,7 +70,7 @@ export function DfxExpertModeScreen (): JSX.Element {
         <ThemedText
           style={tailwind('text-base font-semibold')}
         >
-          {translate('screens/DfxExpertModeScreen', 'Beta Features')}
+          {translate('screens/DfxExpertModeScreen', 'Expert Features')}
         </ThemedText>
 
         <ThemedText
@@ -81,7 +81,7 @@ export function DfxExpertModeScreen (): JSX.Element {
           {translate('screens/DfxExpertModeScreen', 'The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.')}
         </ThemedText>
       </View>
-      {betaFeatures.map((item: BetaFeaturesI) => (
+      {expertFeatures.map((item: ExpertFeaturesI) => (
         <FeatureFlagItem
           key={item.id}
           item={item}
@@ -93,7 +93,7 @@ export function DfxExpertModeScreen (): JSX.Element {
 }
 
 interface FeatureFlagItemProps {
-  item: BetaFeaturesI
+  item: ExpertFeaturesI
   onChange: (feature: FeatureFlag, value: boolean) => void
 }
 

@@ -138,4 +138,4 @@ export type FEATURE_FLAG_ID =
   | 'setting_v2'
   | 'lock'
 
-export type FEATURE_FLAG_STAGE = 'alpha' | 'beta' | 'public'
+export type FEATURE_FLAG_STAGE = 'alpha' | 'beta' | 'public' | 'expert'

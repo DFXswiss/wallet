@@ -1759,6 +1759,7 @@
     "Expert Mode": "Mode Expert",
     "The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.": "Le mode expert de DFX Wallet requiert une connaissance approfondie de DeFiChain et de ses fonctionnalités. Une prudence particulière est requise lors de son utilisation. DFX n'assume aucune responsabilité pour toute perte.",
     "Expert feature. Do you want to continue?": "Fonction d'expert. Voulez-vous continuer ?",
-    "Enable {{feature}} (Expert)": "Activer {{feature}} (Expert)"
+    "Enable {{feature}} (Expert)": "Activer {{feature}} (Expert)",
+    "Expert Features": "Fonctions d'expert"
   }
 }
