@@ -38,6 +38,7 @@ import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components
 import { NetworkName } from '@defichain/jellyfish-network'
 import { Announcements } from '../components/Announcements'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
+import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockDashboardScreen'>
 type StakingAction = 'STAKE' | 'UNSTAKE'
@@ -173,6 +174,13 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
     }
   }, [transaction, transactionCache])
 
+  const [announcementDelayFinished, setAnnouncementDelayFinished] = useState(false)
+  useEffect(() => {
+    setTimeout(() => {
+      setAnnouncementDelayFinished(true)
+    }, ANNOUNCEMENTCHANNELDELAY)
+  }, [])
+
   return (
     <View style={tailwind('h-full bg-gray-200 border-t border-dfxgray-500')}>
       <ScrollView
@@ -185,8 +193,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
         }
       >
 
-        {/* <Announcements channel=''></Announcements>
-        Expert Mode */}
+        {announcementDelayFinished && <Announcements channel={AnnouncementChannel.LOCK} />}
 
         <View style={tailwind('h-40 bg-lock-800')}>
           <View style={tailwind('self-center mt-4')}>

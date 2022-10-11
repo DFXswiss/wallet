@@ -12,7 +12,8 @@ export interface AnnouncementText {
 
 export enum AnnouncementChannel {
   BUY = 'BUY',
-  SELL = 'SELL'
+  SELL = 'SELL',
+  LOCK = 'LOCK'
 }
 
 export const ANNOUNCEMENTCHANNELDELAY = 2000
