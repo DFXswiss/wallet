@@ -34,7 +34,7 @@ export const environments: Record<EnvironmentName, Environment> = {
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://dev.api.lock.space/v1' // 'https://api.lock.space/v1'
+    lockApiUrl: 'https://api.lock.space/v1'
   },
   Preview: {
     name: EnvironmentName.Preview,
@@ -46,7 +46,7 @@ export const environments: Record<EnvironmentName, Environment> = {
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://dev.api.lock.space/v1' // 'https://api.lock.space/v1'
+    lockApiUrl: 'https://api.lock.space/v1'
   },
   Development: {
     name: EnvironmentName.Development,
