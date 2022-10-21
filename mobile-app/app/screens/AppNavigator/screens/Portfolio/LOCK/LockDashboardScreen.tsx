@@ -174,7 +174,9 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
       if (transactionCache.transaction?.tx.txId !== transaction.tx.txId) {
         // only POST on "fresh" transaction and invalidate with storing txId
         setTransactionCache({ ...transactionCache, transaction })
-        LOCKdeposit(stakingInfo?.id ?? 2, { amount: transactionCache.amount, txId: transaction.tx.txId }).catch(WalletAlertErrorApi)
+        LOCKdeposit(stakingInfo?.id ?? 2, { amount: transactionCache.amount, txId: transaction.tx.txId })
+          .then(setStakingInfo)
+          .catch(WalletAlertErrorApi)
       }
     }
   }, [transaction, transactionCache])
