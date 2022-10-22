@@ -119,7 +119,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
         stackScreenName: 'BottomSheetStaking',
         component: BottomSheetStaking({
           dfi: dfi,
-          headerLabel: translate('LOCK/LockDashboardScreen', 'How much DFI do you want to stake?'),
+          headerLabel: translate('LOCK/LockDashboardScreen', 'How much DFI do you want to {{action}}?', { action: action.toLocaleLowerCase() }),
           onCloseButtonPress: () => dismissModal(),
           onStaked: async (stakingTransaction): Promise<void> => {
             setTransactionCache(stakingTransaction)
@@ -234,7 +234,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
 
           {stakingInfo != null && stakingInfo.pendingDeposits > 0 && (
             <ListItem
-              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits'), share: `+${stakingInfo?.pendingDeposits} DFI` }}
+              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${new BigNumber(stakingInfo?.pendingDeposits).decimalPlaces(7).toString()} DFI` }}
               style='px-4 pb-2'
               fieldStyle='text-xl font-normal'
               isDisabled
@@ -242,7 +242,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           )}
           {stakingInfo != null && stakingInfo.pendingWithdrawals > 0 && (
             <ListItem
-              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals'), share: `-${stakingInfo?.pendingWithdrawals} DFI` }}
+              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${new BigNumber(stakingInfo?.pendingWithdrawals).decimalPlaces(7).toString()} DFI` }}
               style='px-4 pb-2'
               fieldStyle='text-xl font-normal'
               isDisabled
