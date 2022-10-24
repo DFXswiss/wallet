@@ -113,7 +113,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
 
   const [transactionCache, setTransactionCache] = useState<TransactionCache>()
 
-  const setStakingBottomSheet = useCallback((dfi, action: StakingAction) => { // TODO: remove accounts?
+  const setStakingBottomSheet = useCallback((dfi, action: StakingAction) => {
     setBottomSheetScreen([
       {
         stackScreenName: 'BottomSheetStaking',
@@ -519,7 +519,6 @@ export const BottomSheetStaking = ({
   async function signWithdrawal (withdrawal: WithdrawalDraftOutputDto): Promise<void> {
     const signed = await signMessage(withdrawal.signMessage)
 
-    // TODO: return updated state
     return await LOCKwithdrawalSign(stakingInfo?.id ?? 2, { id: withdrawal.id, signMessage: signed })
       .then((newStakingInfo) => onUnstaked(newStakingInfo)) // TODO: (thabrad) should we give user some info?
       .catch(WalletAlertErrorApi)
