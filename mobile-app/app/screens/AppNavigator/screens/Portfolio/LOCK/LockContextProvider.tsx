@@ -24,7 +24,7 @@ export function LockContextProvider (props: PropsWithChildren<{}>): JSX.Element 
    */
 
   const setKycComplete = useCallback((lockUserDto?: LockUserDto): void => {
-    setIsKycComplete(lockUserDto === undefined || lockUserDto?.kycStatus === 'Full')
+    setIsKycComplete(lockUserDto === undefined || ['Light', 'Full'].includes(lockUserDto?.kycStatus))
   }, [])
 
   const setStakingInfo = useCallback((stakingInfo: StakingOutputDto): void => {
