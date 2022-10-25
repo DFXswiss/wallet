@@ -595,11 +595,9 @@ function AmountRow ({
   staking
 }: AmountForm): JSX.Element {
   const reservedDFI = 0.1
-  // TODO (thabrad) use only max UTXO amount
   const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet))
 
-  // TODO (thabrad) maybe add in-place conversion element for token type conversion
-  let maxAmount = token.symbol === 'DFI' ? new BigNumber(DFIUtxo.amount).minus(reservedDFI)/* .minus(conversionAmount) */.toFixed(8) : token.amount
+  let maxAmount = token.symbol === 'DFI' ? new BigNumber(DFIUtxo.amount).minus(reservedDFI).toFixed(8) : token.amount
 
   maxAmount = action === 'UNSTAKE' ? (staking.balance - staking.pendingWithdrawals).toString() : BigNumber.max(maxAmount, 0).toFixed(8)
 
