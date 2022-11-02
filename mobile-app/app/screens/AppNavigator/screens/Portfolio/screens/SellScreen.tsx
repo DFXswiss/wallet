@@ -42,7 +42,7 @@ import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellCom
 import { send } from './SendConfirmationScreen'
 import { useConversion } from '@hooks/wallet/Conversion'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
-import { getBankAccounts, getUserDetail, sellWithPaymentInfos } from '@shared-api/dfx/ApiService'
+import { getBankAccounts, getUserDetail, putBankAccount, sellWithPaymentInfos } from '@shared-api/dfx/ApiService'
 import { DfxConversionInfo } from '@components/DfxConversionInfo'
 import { useWalletContext } from '@shared-contexts/WalletContext'
 import { DfxDexFeeInfo } from '@components/DfxDexFeeInfo'
@@ -267,8 +267,20 @@ export function SellScreen ({
         // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
         setSelectedFiat(fiat)
       })
+      .then(async () => await updatePreferredCurrencyIfNull(selectedBankAccount, fiat))
       .catch(WalletAlertErrorApi)
       .finally(() => setIsLoadingData(false))
+  }
+
+  const updatePreferredCurrencyIfNull = async (bankAccount: BankAccount, fiat: Fiat): Promise<void> => {
+    if (bankAccount.fiat != null) {
+      return
+    }
+
+    return await putBankAccount({ iban: bankAccount.iban, label: bankAccount.label, preferredCurrency: fiat }, bankAccount.id)
+      .then(() => {
+        bankAccount.fiat = fiat
+      })
   }
 
   const setFiatAccountListBottomSheet = useCallback((accounts: BankAccount[]) => {
@@ -359,7 +371,7 @@ export function SellScreen ({
           header: () => null
         }
       }])
-  }, [])
+  }, [selectedBankAccount])
 
   async function onSubmit (): Promise<void> {
     if (hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount === undefined || selectedFiat === undefined || depositAddress === undefined) {
