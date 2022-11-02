@@ -15,6 +15,9 @@ export interface KycData {
   location: string
   country: Country
 
+  mail: string
+  phone: string
+
   organizationName: string
   organizationStreet: string
   organizationHouseNumber: string
@@ -33,6 +36,9 @@ export interface KycDataDto {
   location: string
   country: Country
 
+  mail: string
+  phone: string
+
   organizationName: string
   organizationStreet: string
   organizationHouseNumber: string
@@ -50,6 +56,8 @@ export const toKycDataDto = (data: KycData): KycDataDto => ({
   zip: data.zip,
   location: data.location,
   country: data.country,
+  mail: data.mail,
+  phone: data.phone,
   organizationName: data.organizationName,
   organizationStreet: data.organizationStreet,
   organizationHouseNumber: data.organizationHouseNumber,

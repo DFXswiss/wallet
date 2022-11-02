@@ -187,7 +187,7 @@ export function UserDetailsScreen ({
   }
   const [country, setCountry] = useState<Country>(defaultCountry)
   const [orgCountry, setOrgCountry] = useState<Country>(defaultCountry)
-  const [loadingText, setloadingText] = useState<string>('…loading')
+  const [loadingText, setLoadingText] = useState<string>('…loading')
   const [isloading, setIsLoading] = useState<boolean>(true)
 
   // Bottom sheet token
@@ -263,6 +263,8 @@ export function UserDetailsScreen ({
       zip: getValues(Fields.zip),
       location: getValues(Fields.location),
       country: country,
+      mail: getValues(Fields.mail),
+      phone: getValues(Fields.phone),
       organizationName: getValues(Fields.organizationName),
       organizationStreet: getValues(Fields.organizationStreet),
       organizationHouseNumber: getValues(Fields.organizationHouseNumber),
@@ -270,28 +272,17 @@ export function UserDetailsScreen ({
       organizationZip: getValues(Fields.organizationZip),
       organizationCountry: orgCountry
     }
-    const userData: UserDetailRequestDto = {
-      mail: getValues(Fields.mail),
-      mobileNumber: getValues(Fields.phone)
-    }
 
     setIsLoading(true)
-    setloadingText('SENDING')
+    setLoadingText('SENDING')
     putKycData(kycData)
-      .then((x) => {
-        putUser(userData)
-          .then(() => {
-            setloadingText('SUCCESS')
+      .then(() => {
+        setLoadingText('SUCCESS')
 
-            void (async () => await DFXPersistence.setUserInfoComplete(address))()
+        void (async () => await DFXPersistence.setUserInfoComplete(address))()
 
-            navigation.popToTop()
-            navigation.navigate('Sell')
-          })
-          .catch(WalletAlertErrorApi)
-          .finally(() => {
-            setIsLoading(false)
-          })
+        navigation.popToTop()
+        navigation.navigate('Sell')
       })
       .catch(WalletAlertErrorApi)
       .finally(() => setIsLoading(false))
@@ -303,7 +294,7 @@ export function UserDetailsScreen ({
       .then((fetchedCountries) => {
         setCountries(fetchedCountries)
         setIsLoading(false)
-        setloadingText('Submit')
+        setLoadingText('Submit')
       })
       .catch(logger.error)
   }, [])
