@@ -17,6 +17,7 @@ import { useTokenPrice } from '../hooks/TokenPrice'
 import { DFITokenSelector } from '@store/wallet'
 import { useSelector } from 'react-redux'
 import { RootState } from '@store'
+import { useDisplayBalancesContext } from '@contexts/DisplayBalancesContext'
 
 interface LockStakingCardProps {
   denominationCurrency: string
@@ -25,6 +26,7 @@ interface LockStakingCardProps {
 
 export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockStakingCardProps): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
+  const { isBalancesDisplayed } = useDisplayBalancesContext()
   const { LOCKcreateWebToken } = useDFXAPIContext()
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false)
   // data loading logic
@@ -115,7 +117,7 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
               tokenAmount={stakingAmount.toString()}
               usdAmount={usdAmount}
               testID=''
-              isBalancesDisplayed
+              isBalancesDisplayed={isBalancesDisplayed}
               denominationCurrency={denominationCurrency}
               decimalScale={2}
                                       />}
