@@ -71,7 +71,7 @@ export function SellScreen ({
     name: 'EUR',
     enable: true
   }
-  const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
+  const [selectedFiat, setSelectedFiat] = useState<Fiat | undefined>(initialFiat)
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
   const [isLoadingData, setIsLoadingData] = useState(true)
   const {
@@ -237,9 +237,7 @@ export function SellScreen ({
         setDepositAddress(sellPaymentInfo.depositAddress)
         // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
         setSelectedBankAccount(item)
-        if (item.fiat != null) {
-          setSelectedFiat(item.fiat)
-        }
+        setSelectedFiat(item.fiat ?? undefined)
       })
       .catch(WalletAlertErrorApi)
       .finally(() => setIsLoadingData(false))
