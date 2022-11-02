@@ -193,7 +193,7 @@ export const BottomSheetFiatAccountCreate = ({
               await trigger('label')
             }}
             onClearButtonPress={async () => {
-              setValue('iban', '')
+              setValue('label', '')
               await trigger('label')
             }}
           />
