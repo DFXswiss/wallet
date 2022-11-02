@@ -34,7 +34,7 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
   const { isKycComplete, setKycComplete, getProviderStakingInfo, setProviderStakingInfo } = useLock()
 
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
-  const stakingAmount = !loggedIn ? '' : ((stakingInfo?.balance) != null) ? stakingInfo.balance : !isKycComplete ? 0 : getProviderStakingInfo?.balance ?? 0
+  const stakingAmount = !loggedIn ? null : ((stakingInfo?.balance) != null) ? stakingInfo.balance : !isKycComplete ? 0 : getProviderStakingInfo?.balance ?? 0
   const [analytics, setAnalytics] = useState<StakingAnalyticsOutputDto>()
   const { apy, apr } = analytics ?? { apy: 0, apr: 0 }
 
@@ -111,14 +111,14 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
           <View style={tailwind('flex-row items-center')}>
             <LOCKunlockedIcon height={48} width={48} />
             <TokenNameText displaySymbol='DFI Staking by LOCK' name={`${apy}% APY / ${apr}% APR`} testID='' />
-            <TokenAmountText
+            {stakingAmount != null && <TokenAmountText
               tokenAmount={stakingAmount.toString()}
               usdAmount={usdAmount}
               testID=''
               isBalancesDisplayed
               denominationCurrency={denominationCurrency}
               decimalScale={2}
-            />
+                                      />}
           </View>
         </TouchableOpacity>
         {(isLoading) && <ThemedActivityIndicator size='large' color='#fff' style={tailwind('absolute inset-0 items-center justify-center')} />}
