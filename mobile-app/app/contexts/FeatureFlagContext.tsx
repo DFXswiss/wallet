@@ -19,6 +19,7 @@ export interface FeatureFlagContextI {
   updateEnabledFeatures: (features: FEATURE_FLAG_ID[]) => void
   isFeatureAvailable: (featureId: FEATURE_FLAG_ID) => boolean
   isBetaFeature: (featureId: FEATURE_FLAG_ID) => boolean
+  isExpertFeature: (featureId: FEATURE_FLAG_ID) => boolean
   hasBetaFeatures: boolean
 }
 
@@ -37,14 +38,26 @@ export function FeatureFlagProvider (props: React.PropsWithChildren<any>): JSX.E
     isError,
     refetch
   } = useGetFeatureFlagsQuery(`${network}.${url}`)
-  const modifiedFeatureFlags = featureFlags.map((flag) => {
-    if (flag.id === 'loan') {
-      const modFlag: FeatureFlag = { ...flag, stage: 'beta' }
-      return modFlag
-    } else {
-      return flag
-    }
-  })
+
+  // removes duplicate flags by only leaving in last (non-'public') flag
+  const deleteDuplicates = (featureFlags: FeatureFlag[]): FeatureFlag[] => {
+    const ids: FEATURE_FLAG_ID[] = ['loan', 'auction', 'dfi_loan_payment', 'local_storage', 'dusd_vault_share', 'dusd_loan_payment', 'future_swap', 'service_provider', 'onboarding_v2', 'dusd_dex_high_fee', 'dusd_dfi_high_fee', 'setting_v2', 'lock']
+    const duplicates: FeatureFlag[][] = []
+    ids.map(id => duplicates.push(featureFlags.filter(flag => flag.id === id)))
+
+    const filteredDuplicates = duplicates.flatMap(duplicate => {
+      if (duplicate.length > 1) {
+        return duplicate.filter(flag => flag.stage !== 'public').pop()
+      } else {
+        return duplicate
+      }
+    })
+
+    return filteredDuplicates as FeatureFlag[]
+  }
+
+  const modifiedFeatureFlags = deleteDuplicates(featureFlags)
+
   const logger = useLogger()
 
   const prefetchPage = usePrefetch('getFeatureFlags')
@@ -72,6 +85,11 @@ export function FeatureFlagProvider (props: React.PropsWithChildren<any>): JSX.E
       flag.networks?.includes(network) && flag.id === featureId && flag.stage === 'beta')
   }
 
+  function isExpertFeature (featureId: FEATURE_FLAG_ID): boolean {
+    return modifiedFeatureFlags.some((flag: FeatureFlag) => satisfies(appVersion, flag.version) &&
+      flag.networks?.includes(network) && flag.id === featureId && flag.stage === 'expert')
+  }
+
   function isFeatureAvailable (featureId: FEATURE_FLAG_ID): boolean {
     return modifiedFeatureFlags.some((flag: FeatureFlag) => {
       if (flag.networks?.includes(network) && flag.platforms?.includes(Platform.OS)) {
@@ -89,6 +107,8 @@ export function FeatureFlagProvider (props: React.PropsWithChildren<any>): JSX.E
       case 'alpha':
         return getEnvironment(getReleaseChannel()).debug
       case 'beta':
+        return enabledFeatures.includes(feature.id)
+      case 'expert':
         return enabledFeatures.includes(feature.id)
       case 'public':
         return true
@@ -124,6 +144,7 @@ export function FeatureFlagProvider (props: React.PropsWithChildren<any>): JSX.E
     updateEnabledFeatures,
     isFeatureAvailable,
     isBetaFeature,
+    isExpertFeature,
     hasBetaFeatures: modifiedFeatureFlags.some((flag) => satisfies(appVersion, flag.version) &&
       flag.networks?.includes(network) && flag.platforms?.includes(Platform.OS) && flag.stage === 'beta')
   }

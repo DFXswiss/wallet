@@ -12,7 +12,8 @@ export interface AnnouncementText {
 
 export enum AnnouncementChannel {
   BUY = 'BUY',
-  SELL = 'SELL'
+  SELL = 'SELL',
+  LOCK = 'LOCK'
 }
 
 export const ANNOUNCEMENTCHANNELDELAY = 2000
@@ -136,5 +137,6 @@ export type FEATURE_FLAG_ID =
   | 'dusd_dex_high_fee'
   | 'dusd_dfi_high_fee'
   | 'setting_v2'
+  | 'lock'
 
-export type FEATURE_FLAG_STAGE = 'alpha' | 'beta' | 'public'
+export type FEATURE_FLAG_STAGE = 'alpha' | 'beta' | 'public' | 'expert'

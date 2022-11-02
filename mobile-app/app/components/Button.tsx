@@ -12,9 +12,12 @@ interface ButtonProps extends React.PropsWithChildren<TouchableOpacityProps> {
   fill?: ButtonFillType
   label?: string
   margin?: string
+  padding?: string
   title?: string
   isSubmitting?: boolean
   submittingLabel?: string
+  lock?: boolean
+  extraStyle?: string
 }
 
 export function Button (props: ButtonProps): JSX.Element {
@@ -24,15 +27,18 @@ export function Button (props: ButtonProps): JSX.Element {
     color = 'primary',
     fill = 'fill',
     margin = 'm-4 mt-8',
-    isSubmitting = false
+    padding = 'p-3',
+    isSubmitting = false,
+    lock = false,
+    extraStyle = ''
   } = props
   const { isLight } = useThemeContext()
   const themedColor = isLight ? `${color}` : `dark${color}`
 
-  const disabledStyle = isLight ? 'bg-gray-200 border-0' : 'bg-dfxgray-400 border-0'
-  const disabledText = isLight ? 'text-dfxgray-400' : 'text-dfxgray-500'
+  const disabledStyle = lock ? 'bg-lock-500' : isLight ? 'bg-gray-200 border-0' : 'bg-dfxgray-400 border-0'
+  const disabledText = lock ? 'bg-lock-500' : isLight ? 'text-dfxgray-400' : 'text-dfxgray-500'
 
-  const buttonColor = isLight ? `bg-${themedColor}-50` : 'bg-dfxred-500'
+  const buttonColor = lock ? 'bg-lock-800' : isLight ? `bg-${themedColor}-50` : 'bg-dfxred-500'
   const buttonStyle = `${fill === 'fill' ? buttonColor : 'bg-transparent'}`
   const buttonText = isLight ? `text-${themedColor}-500` : `${fill === 'fill' ? 'text-white' : 'text-dfxred-500'}`
 
@@ -42,7 +48,7 @@ export function Button (props: ButtonProps): JSX.Element {
   return (
     <TouchableOpacity
       {...props}
-      style={tailwind(`${margin} p-3 rounded flex-row justify-center ${buttonStyle} ${props.disabled === true ? disabledStyle : ''}`)}
+      style={tailwind(`${margin} ${padding} ${extraStyle} rounded flex-row justify-center ${buttonStyle} ${props.disabled === true ? disabledStyle : ''}`)}
     >
       {
         text !== undefined && (

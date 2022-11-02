@@ -21,6 +21,7 @@ import { FeatureFlagScreen } from './screens/FeatureFlagScreen'
 import { LoansFaq } from '@screens/AppNavigator/screens/Loans/screens/LoansFaq'
 import { AuctionsFaq } from '../Auctions/screens/AuctionsFaq'
 import { ServiceProviderScreen } from './screens/ServiceProviderScreen'
+import { DfxExpertModeScreen } from './screens/DfxExpertModeScreen'
 
 export interface SettingsParamList {
   SettingsScreen: undefined
@@ -224,6 +225,20 @@ export function SettingsNavigator (): JSX.Element {
           headerTitle: () => (
             <HeaderTitle
               text={translate('screens/FeatureFlagScreen', 'Beta Features')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false
+        }}
+      />
+
+      <SettingsStack.Screen
+        component={DfxExpertModeScreen}
+        name='DfxExpertModeScreen'
+        options={{
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('screens/DfxExpertModeScreen', 'Expert Mode')}
               containerTestID={headerContainerTestId}
             />
           ),

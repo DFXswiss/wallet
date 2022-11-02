@@ -168,6 +168,11 @@ export function SettingsScreen ({ navigation }: Props): JSX.Element {
         label='Language'
         onPress={() => navigation.navigate('LanguageSelectionScreen')}
       />
+      <NavigateItemRow
+        testID='setting_navigate_ExpertMode'
+        label={translate('screens/DfxExpertModeScreen', 'Expert Mode')}
+        onPress={() => navigation.navigate('DfxExpertModeScreen')}
+      />
       <RowExitWalletItem />
     </ThemedScrollView>
   )

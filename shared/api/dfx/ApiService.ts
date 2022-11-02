@@ -1,6 +1,6 @@
 import { History } from './models/History'
 import { getEnvironment } from '@environment'
-import { AuthResponse, SignMessageRespone } from './models/ApiDto'
+import { AuthResponse, SignMessageResponse } from './models/ApiDto'
 import { Asset } from './models/Asset'
 import { BuyPaymentInfoDto, BuyRoute, BuyRouteDto, fromBuyRouteDto, GetBuyPaymentInfoDto, toBuyRouteDto } from './models/BuyRoute'
 import { CfpResult } from './models/CfpResult'
@@ -9,6 +9,7 @@ import { Fiat } from './models/Fiat'
 import { Language } from './models/Language'
 import { fromSellRouteDto, GetSellPaymentInfoDto, SellData, SellPaymentInfoDto, SellRoute, SellRouteDto, toSellRouteDto } from './models/SellRoute'
 import {
+  Blockchain,
   CfpVotes,
   fromUserDetailDto,
   fromUserDto,
@@ -22,18 +23,19 @@ import {
   UserDetailRequestDto,
   UserDto
 } from './models/User'
-import { AuthService, Credentials, Session } from './AuthService'
+import { ApiDomain, AuthService, Credentials, Session } from './AuthService'
 import { StakingRoute } from './models/StakingRoute'
 import { RoutesDto, fromRoutesDto, Routes } from './models/Route'
 import { LimitRequest } from './models/LimitRequest'
-import { KycData, toKycDataDto } from './models/KycData'
+import { KycData, KycDataTransferDto, toKycDataDto } from './models/KycData'
 import { Settings } from './models/Settings'
 import { HistoryType } from './models/HistoryType'
 import { CryptoRoute } from './models/CryptoRoute'
 import * as Updates from 'expo-updates'
 import { BankAccount, BankAccountData, BankAccountDto, fromBankAccountDto, toBankAccountDto } from './models/BankAccount'
+import { noop } from 'lodash'
 
-const BaseUrl = getEnvironment(Updates.releaseChannel).dfxApiUrl
+const DfxBaseUrl = getEnvironment(Updates.releaseChannel).dfxApiUrl
 const AuthUrl = 'auth'
 const UserUrl = 'user'
 const KycUrl = 'kyc'
@@ -53,21 +55,163 @@ const BankTxUrl = 'bankTx'
 const StatisticUrl = 'statistic'
 const SettingUrl = 'setting/frontend'
 
+// ------------------------------------------------------
+// -----------------LOCK - API---------------------------
+// ------------------------------------------------------
+const LockBaseUrl = getEnvironment(Updates.releaseChannel).lockApiUrl
+const LOCKanalytics = 'analytics/staking'
+const LOCKKycUrl = 'kyc'
+const LOCKStakingUrl = 'staking'
+
+export interface LockSignMessageResponse {
+  message: string
+  blockchains: Blockchain
+}
+
+export interface NewLockUser {
+  address: string
+  signature: string
+  blockchain: Blockchain
+  walletName: 'DFX'
+}
+
+export interface StakingAnalyticsOutputDto {
+  updated: Date
+  apy: number
+  apr: number
+}
+
+export interface LockKYC {
+  mail: string
+  language: string
+  kycStatus: string
+  kycLink: string
+}
+
+export interface LockUserDto {
+  address: string
+  blockchain: Blockchain
+  mail: string
+  phone: string
+  language: string
+  kycStatus: 'NA' | 'Light' | 'Full'
+  kycLink: string
+}
+
+export interface CreateStakingDto {
+  assetName: string
+  blockchain: Blockchain
+}
+
+export interface StakingOutputDto {
+  id: number
+  asset: string
+  depositAddress: string
+  minimalStake: number
+  minimalDeposit: number
+  fee: number
+  balance: number
+  pendingDeposits: number
+  pendingWithdrawals: number
+}
+
+export interface CreateDepositDto {
+  amount: number
+  txId: string
+}
+
+export interface WithdrawalDraftOutputDto {
+  id: number
+  signMessage: string
+}
+
+// --- AUTH --- //
+export const LOCKsignIn = async (credentials?: Credentials): Promise<string> => {
+  return await fetchFromLOCK<AuthResponse>(`${AuthUrl}/sign-in`, 'POST', credentials, { withoutJWT: true }).then((resp) => {
+    return resp.accessToken
+  })
+}
+
+export const LOCKsignUp = async (user: NewLockUser): Promise<string> => {
+  return await fetchFromLOCK<AuthResponse>(`${AuthUrl}/sign-up`, 'POST', user, { withoutJWT: true }).then((resp) => {
+    return resp.accessToken
+  })
+}
+
+export const LOCKgetSignMessage = async (address: string): Promise<LockSignMessageResponse> => {
+  return await fetchFromLOCK<LockSignMessageResponse>(`${AuthUrl}/sign-message`, 'GET', undefined, { withoutJWT: true, queryParams: { address } })
+}
+
+// --- GENERAL --- //
+export const LOCKgetAnalytics = async (): Promise<StakingAnalyticsOutputDto> => {
+  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics)
+}
+
+// --- KYC --- //
+export const LOCKpostKyc = async (): Promise<LockKYC> => {
+  return await fetchFromLOCK<LockKYC>(LOCKKycUrl, 'POST')
+}
+
+// --- USER --- //
+export const LOCKgetUser = async (): Promise<LockUserDto> => {
+  return await fetchFromLOCK<LockUserDto>(UserUrl)
+}
+
+// --- STAKING --- //
+export const LOCKgetStaking = async (staking: CreateStakingDto): Promise<StakingOutputDto> => {
+  return await fetchFromLOCK<StakingOutputDto>(LOCKStakingUrl, undefined, undefined, { queryParams: staking })
+}
+
+export const LOCKdeposit = async (stakingId: number, deposit: CreateDepositDto): Promise<StakingOutputDto> => {
+  return await fetchFromLOCK<StakingOutputDto>(`${LOCKStakingUrl}/${stakingId}/deposit`, 'POST', deposit)
+}
+
+export const LOCKwithdrawal = async (stakingId: number, amount: number): Promise<WithdrawalDraftOutputDto> => {
+  return await fetchFromLOCK<WithdrawalDraftOutputDto>(`${LOCKStakingUrl}/${stakingId}/withdrawal`, 'POST', { amount })
+}
+
+export const LOCKwithdrawalDrafts = async (stakingId: number): Promise<WithdrawalDraftOutputDto[]> => {
+  return await fetchFromLOCK<WithdrawalDraftOutputDto[]>(`${LOCKStakingUrl}/${stakingId}/withdrawal/drafts`)
+}
+
+export const LOCKwithdrawalSign = async (stakingId: number, withdrawal: WithdrawalDraftOutputDto): Promise<StakingOutputDto> => {
+  return await fetchFromLOCK<StakingOutputDto>(`${LOCKStakingUrl}/${stakingId}/withdrawal/${withdrawal.id}/sign`, 'PATCH', { signature: withdrawal.signMessage })
+}
+
+const fetchFromLOCK = async <T>(
+  url: string,
+  method: RestType = 'GET',
+  data?: any,
+  options?: {
+    withoutJWT?: boolean
+    noJson?: boolean
+    queryParams?: Object | string[][] | Record<string, string> | URLSearchParams
+    apiDomain?: ApiDomain
+  }
+): Promise<T> => {
+  return await fetchFrom<T>(url, method, data, { ...options, apiDomain: ApiDomain.LOCK })
+}
+
+// ------------------------------------------------------
+// ------------------------------------------------------
+// ------------------------------------------------------
+// ------------------------------------------------------
+
 // --- AUTH --- //
 export const signIn = async (credentials?: Credentials): Promise<string> => {
-  return await fetchFrom<AuthResponse>(`${AuthUrl}/signIn`, 'POST', credentials).then((resp) => {
+  return await fetchFrom<AuthResponse>(`${AuthUrl}/signIn`, 'POST', credentials, { withoutJWT: true }).then((resp) => {
     return resp.accessToken
   })
 }
 
 export const signUp = async (user: NewUser): Promise<string> => {
-  return await fetchFrom<AuthResponse>(`${AuthUrl}/signUp`, 'POST', user).then((resp) => {
+  return await fetchFrom<AuthResponse>(`${AuthUrl}/signUp`, 'POST', user, { withoutJWT: true }).then((resp) => {
     return resp.accessToken
   })
 }
 
 export const getSignMessage = async (address: string): Promise<string> => {
-  return await fetchFrom<SignMessageRespone>(`${AuthUrl}/signMessage`, 'GET', undefined, undefined, { address: address }).then((resp) => {
+  return await fetchFrom<SignMessageResponse>(`${AuthUrl}/signMessage`, 'GET', undefined, { withoutJWT: true, queryParams: { address } }).then((resp) => {
     return resp.message
   })
 }
@@ -90,6 +234,11 @@ export const updateRefFee = async (fee: number): Promise<void> => {
 }
 
 // --- KYC --- //
+export const transferKyc = async (walletName: string): Promise<void> => {
+  const wallet: KycDataTransferDto = { walletName }
+  return await fetchFrom(`${KycUrl}/transfer`, 'PUT', wallet)
+}
+
 export const putKycData = async (data: KycData, code?: string): Promise<KycInfo> => {
   if (code === undefined) {
     return await putKycDataOLD(data) as unknown as KycInfo
@@ -292,41 +441,54 @@ const postFiles = async (url: string, files: File[]): Promise<void> => {
   files.forEach((value, index) => {
     formData.append('files', value)
   })
-  return await fetchFrom(url, 'POST', formData, true)
+  return await fetchFrom(url, 'POST', formData, { noJson: true })
 }
+
+type RestType = 'GET' | 'PUT' | 'POST' | 'PATCH'
 
 const fetchFrom = async <T>(
   url: string,
-  method: 'GET' | 'PUT' | 'POST' = 'GET',
+  method: RestType = 'GET',
   data?: any,
-  noJson?: boolean,
-  queryParams?: string | string[][] | Record<string, string> | URLSearchParams
+  options?: {
+    withoutJWT?: boolean
+    noJson?: boolean
+    queryParams?: Object | string[][] | Record<string, string> | URLSearchParams
+    apiDomain?: ApiDomain
+  }
 ): Promise<T> => {
   // QueryParams object conversion helper
-  url += (queryParams != null) ? `?${new URLSearchParams(queryParams).toString()}` : ''
+  url += (options?.queryParams != null) ? `?${new URLSearchParams(options?.queryParams).toString()}` : ''
+
+  const BaseUrl = options?.apiDomain === ApiDomain.LOCK ? LockBaseUrl : DfxBaseUrl
+
+  // console.log('URL--> ', `${BaseUrl}/${url}`)
+  // console.log('METHOD --> ', method)
+  // ;(data != null) && console.log('data --> ', data)
 
   return (
-    await AuthService.Session.then((session) => buildInit(method, session, data, noJson))
+    await AuthService.Session(options?.withoutJWT, options?.apiDomain).then((session) => buildInit(method, session, data, options?.noJson))
       .then(async (init) => await fetch(`${BaseUrl}/${url}`, init))
       .then(async (response) => {
         if (response.ok) {
-          return await response.json()
+          return await response.json().then().catch(() => noop())
         }
         return await response.json().then((body) => {
           throw body
         })
       })
       .catch((error) => {
+        // console.log(error)
         if (error.statusCode === 401) {
           AuthService.deleteSession().catch(() => 'You shall not pass!')
         }
 
         throw error
-      })
+    })
   )
 }
 
-const buildInit = (method: 'GET' | 'PUT' | 'POST', session: Session, data?: any, noJson?: boolean): RequestInit => ({
+const buildInit = (method: RestType, session: Session, data?: any, noJson?: boolean): RequestInit => ({
   method: method,
   headers: {
     ...((noJson !== undefined && noJson) ? undefined : { 'Content-Type': 'application/json' }),

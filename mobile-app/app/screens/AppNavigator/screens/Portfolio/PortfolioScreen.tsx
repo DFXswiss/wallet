@@ -11,7 +11,7 @@ import { ocean } from '@store/ocean'
 import { dexPricesSelectorByDenomination, fetchDexPrice, fetchTokens, tokensSelector, WalletToken } from '@store/wallet'
 import { tailwind } from '@tailwind'
 import BigNumber from 'bignumber.js'
-import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
+import React, { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { batch, useSelector } from 'react-redux'
 import { PortfolioParamList } from './PortfolioNavigator'
 import { Announcements } from '@screens/AppNavigator/screens/Portfolio/components/Announcements'
@@ -45,6 +45,8 @@ import { useDebounce } from '@hooks/useDebounce'
 import { from, defer } from 'rxjs'
 import { delay, map, retryWhen } from 'rxjs/operators'
 import { useNetworkContext } from '@shared-contexts/NetworkContext'
+import { LockStakingCard } from './LOCK/LockStakingCard'
+import { useFeatureFlagContext } from '@contexts/FeatureFlagContext'
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>
 
@@ -200,13 +202,6 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
       denomination: denominationCurrency
     }))
   }, [blockCount, denominationCurrency])
-
-  const onRefresh = useCallback(async () => {
-    setRefreshing(true)
-    fetchPortfolioData()
-    fetchDfxStakingBalance()
-    setRefreshing(false)
-  }, [address, client, dispatch])
 
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const {
@@ -511,6 +506,29 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
     ]
   }, [address, isLight])
 
+  const { isFeatureAvailable } = useFeatureFlagContext()
+
+  // Helper to reset LockStakingCard state
+  const [lockWithAddress, setLockWithAddress] = useState<string | undefined>(address)
+  useEffect(() => {
+    if (lockWithAddress !== address) {
+      setLockWithAddress(undefined)
+      setTimeout(() => {
+        setLockWithAddress(address)
+      }, 50)
+    }
+  }, [address])
+  // Triggers data refetch for LockStakingCard
+  const [lockRefetchTrigger, setLockRefetchTrigger] = useState(false)
+
+  const onRefresh = useCallback(async () => {
+    setRefreshing(true)
+    fetchPortfolioData()
+    fetchDfxStakingBalance()
+    setLockRefetchTrigger((value) => !value)
+    setRefreshing(false)
+  }, [address, client, dispatch])
+
   return (
     <View ref={containerRef} style={tailwind('flex-1')}>
       <ThemedScrollView
@@ -542,6 +560,11 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
           denominationCurrency={denominationCurrency}
         />
         <BalanceActionSection navigation={navigation} isZeroBalance={isZeroBalance} />
+
+        {(isFeatureAvailable('lock')) && (lockWithAddress != null) && (
+          <LockStakingCard denominationCurrency={denominationCurrency} refreshTrigger={lockRefetchTrigger} />
+        )}
+
         {hasPendingFutureSwap && <FutureSwapCta navigation={navigation} />}
         {/* to show bottom sheet for asset sort */}
         <AssetSortRow

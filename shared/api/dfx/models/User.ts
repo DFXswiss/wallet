@@ -125,6 +125,7 @@ export interface UserDetailDto extends UserDto {
   refCount: number
   refCountActive: number
   stakingBalance: number
+  linkedAddresses: LinkedAddresses[]
 }
 
 export interface UserDetail extends User {
@@ -136,7 +137,16 @@ export interface UserDetail extends User {
   refCount: number
   refCountActive: number
   stakingBalance: number
+  linkedAddresses: LinkedAddresses[]
 }
+
+export interface LinkedAddresses {
+  address: string
+  isSwitchable: boolean
+  blockchains: Blockchain
+}
+
+export type Blockchain = 'DeFiChain' | 'Bitcoin' | 'Ethereum'
 
 export interface UserDetailRequestDto {
   mail: string
@@ -189,7 +199,8 @@ export const fromUserDetailDto = (dto: UserDetailDto): UserDetail => ({
   paidRefCredit: dto.paidRefCredit,
   refCount: dto.refCount,
   refCountActive: dto.refCountActive,
-  stakingBalance: dto.stakingBalance
+  stakingBalance: dto.stakingBalance,
+  linkedAddresses: dto.linkedAddresses ?? []
 })
 
 const toStringDto = (string: string): string | null => (string === '' ? null : string)

@@ -688,7 +688,7 @@ export function CompositeSwapScreen ({ route }: Props): JSX.Element {
                 (isFutureSwap && isEnded)}
               label={translate('screens/CompositeSwapScreen', 'CONTINUE')}
               processingLabel={translate('screens/CompositeSwapScreen', 'CONTINUE')}
-              onSubmit={(dexStabilizationType === 'none' && isDexStabilizationEnabled) || !isDexStabilizationEnabled ? onSubmit : onWarningBeforeSubmit}
+              onSubmit={((dexStabilizationType === 'none' && isDexStabilizationEnabled) || (dexStabilizationType === 'return-path-with-fee' && isDexStabilizationEnabled)) || !isDexStabilizationEnabled ? onSubmit : onWarningBeforeSubmit}
               title='submit'
               isProcessing={hasPendingJob || hasPendingBroadcastJob}
               displayCancelBtn={false}
@@ -932,7 +932,7 @@ function TransactionDetailsSection ({
         rhsThemedProps={rowStyle.rhsThemedProps}
       />
       {
-        isDexStabilizationEnabled && dexStabilizationType !== 'none' && dexStabilizationFee !== undefined && (
+        isDexStabilizationEnabled && dexStabilizationType !== 'none' && dexStabilizationType !== 'return-path-with-fee' && dexStabilizationFee !== undefined && dexStabilizationFee !== '0' && (
           <NumberRow
             lhs={translate('screens/CompositeSwapScreen', 'DEX stabilization fee')}
             rhs={{

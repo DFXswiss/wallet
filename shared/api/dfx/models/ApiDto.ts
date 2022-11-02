@@ -7,6 +7,6 @@ export interface AuthResponse {
   accessToken: string
 }
 
-export interface SignMessageRespone {
+export interface SignMessageResponse {
   message: string
 }

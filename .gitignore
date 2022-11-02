@@ -52,6 +52,7 @@ missing_translations.json
 # OSX
 #
 .DS_Store
+ios
 
 # Xcode
 #

@@ -1,9 +1,14 @@
+import { DFXAPIContextI } from '@shared-contexts/DFXAPIContextProvider'
 import jwtDecode from 'jwt-decode'
 import { Observable, ReplaySubject } from 'rxjs'
 import { UserRole } from './models/User'
 import { StorageService } from './StorageService'
 
 const SessionKey = 'session'
+
+export enum ApiDomain {
+  LOCK = 'LOCK'
+}
 
 export interface Credentials {
   address?: string
@@ -51,30 +56,50 @@ export class Session implements ISession {
 }
 
 class AuthServiceClass {
+  // TODO: (thabrad) check if able to remove!
   private readonly session$ = new ReplaySubject<Session>()
+  private dfxApiHook: (DFXAPIContextI) | undefined
 
   constructor () {
-    this.Session
+    this.Session()
       .then((session) => this.session$.next(session))
       .catch(() => this.session$.next(new Session()))
   }
 
+  // was unused, so commented out for for, check replay subject use
   public get Session$ (): Observable<Session> {
     return this.session$
   }
 
-  public get Session (): Promise<Session> {
-    return StorageService.getValue<ISession>(SessionKey).then((session) => new Session(session))
+  private static SessionKey (forApiDomain?: ApiDomain): string {
+    return SessionKey.concat(forApiDomain != null ? ('-' + forApiDomain) : '')
   }
 
-  public async updateSession (session: ISession): Promise<void> {
-    return await StorageService.storeValue(SessionKey, session).then(() => this.session$.next(new Session(session)))
+  public async Session (noCredential?: boolean, forApiDomain?: ApiDomain): Promise<Session> {
+    if (noCredential ?? false) {
+      return new Session()
+    }
+
+    const session = new Session(await StorageService.getValue<ISession>(AuthServiceClass.SessionKey(forApiDomain)))
+    // console.log('\n\nforApiDomain: ', forApiDomain)
+    // console.log(session)
+    if (session.isExpired || session.accessToken === undefined || session.accessToken.length < 10) {
+      // console.log('EXPIRED --> ')//, session)
+      session.accessToken = forApiDomain === ApiDomain.LOCK ? await this.dfxApiHook?.LOCKcreateWebToken() : await this.dfxApiHook?.getActiveWebToken()
+    }
+    return await StorageService.getValue<ISession>(AuthServiceClass.SessionKey(forApiDomain)).then((session) => new Session(session))
   }
 
-  public async deleteSession (): Promise<void> {
-    return await this.updateSession({
-      accessToken: undefined
-    })
+  public async updateSession (session: ISession, forApiDomain?: ApiDomain): Promise<void> {
+    return await StorageService.storeValue(AuthServiceClass.SessionKey(forApiDomain), session).then(() => this.session$.next(new Session(session)))
+  }
+
+  public async deleteSession (forApiDomain?: ApiDomain): Promise<void> {
+    return await this.updateSession({ accessToken: undefined }, forApiDomain)
+  }
+
+  public setHookAccessor (dfxApiHook: DFXAPIContextI): void {
+    this.dfxApiHook = dfxApiHook
   }
 }
 

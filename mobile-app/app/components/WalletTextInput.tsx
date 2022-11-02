@@ -1,4 +1,4 @@
-import { forwardRef, useCallback, useState } from 'react'
+import React, { forwardRef, useCallback, useState } from 'react'
 import { Platform, TextInputProps, TouchableOpacity } from 'react-native'
 import { useBottomSheetInternal } from '@gorhom/bottom-sheet'
 import {
@@ -38,6 +38,7 @@ interface IWalletTextInputProps {
   }
   inputFooter?: React.ReactElement
   displayTickIcon?: boolean
+  lock?: boolean
 }
 
 export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (props: WalletTextInputProps, ref: React.Ref<any>): JSX.Element {
@@ -57,6 +58,7 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
     pasteButton,
     inputFooter,
     displayTickIcon,
+    lock = false,
     ...otherProps
   } = props
 
@@ -105,8 +107,8 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
         )}
       <ThemedView
         light={tailwind(`bg-white ${!valid ? 'border-error-500' : (isFocus ? 'border-primary-300' : 'border-dfxgray-300')}`)} // disabled border color is the same regardless of theme
-        dark={tailwind(`bg-dfxblue-800 ${!valid ? 'border-darkerror-500' : (isFocus ? 'border-dfxred-500' : 'border-dfxblue-900')}`)}
-        style={tailwind('flex-col w-full border rounded mt-2')}
+        dark={tailwind(lock ? 'bg-white' : `bg-dfxblue-800 ${!valid ? 'border-darkerror-500' : (isFocus ? 'border-dfxred-500' : 'border-dfxblue-900')}`)}
+        style={tailwind(lock ? 'rounded-md' : 'border rounded', 'flex-col w-full mt-2')}
       >
         <ThemedView
           light={tailwind(`${editable ? 'bg-transparent' : 'bg-gray-200'}`)}
@@ -125,6 +127,7 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
             ref={ref}
             editable={editable}
             {...otherProps}
+            lock={props.lock}
           />
           {displayTickIcon === true &&
             <ThemedIcon
@@ -174,7 +177,7 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
   )
 })
 
-export function ClearButton (props: {onPress?: () => void, testID?: string, iconThemedProps?: ThemedProps}): JSX.Element {
+export function ClearButton (props: {onPress?: () => void, testID?: string, iconThemedProps?: ThemedProps, lock?: boolean}): JSX.Element {
   return (
     <ThemedTouchableOpacity
       testID={props.testID}
@@ -211,6 +214,7 @@ const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref
       keyboardType={inputType}
       ref={ref}
       {...otherProps}
+      lock={props.lock}
     />
   )
 })
@@ -251,6 +255,7 @@ const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any
       onBlur={handleOnBlur}
       onFocus={handleOnFocus}
       {...otherProps}
+      lock={props.lock}
     />
   )
 })
