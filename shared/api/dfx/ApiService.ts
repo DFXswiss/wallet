@@ -144,8 +144,18 @@ export const LOCKgetSignMessage = async (address: string): Promise<LockSignMessa
 
 // --- GENERAL --- //
 export const LOCKgetAnalytics = async (): Promise<StakingAnalyticsOutputDto> => {
-  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics)
+  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics).then(fromAnalyticsDto)
 }
+
+const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalyticsOutputDto => {
+  return {
+    updated: analytics.updated,
+    apr: round(analytics.apr * 100, 1),
+    apy: round(analytics.apy * 100, 1)
+  }
+}
+
+const round = (amount: number, decimals: number): number => Math.round(amount * Math.pow(10, decimals)) / Math.pow(10, decimals)
 
 // --- KYC --- //
 export const LOCKpostKyc = async (): Promise<LockKYC> => {
