@@ -11,6 +11,7 @@ export enum EnvironmentNetwork {
 export enum EnvironmentName {
   Production = 'Production',
   Preview = 'Preview',
+  Staging = 'Staging',
   Development = 'Development',
 }
 
@@ -40,22 +41,34 @@ export const environments: Record<EnvironmentName, Environment> = {
     name: EnvironmentName.Preview,
     debug: true,
     networks: [
-      EnvironmentNetwork.RemotePlayground,
+      EnvironmentNetwork.MainNet,
       EnvironmentNetwork.TestNet,
-      EnvironmentNetwork.MainNet
+      EnvironmentNetwork.RemotePlayground
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://payment.dfx.swiss',
     lockApiUrl: 'https://api.lock.space/v1'
   },
+  Staging: {
+    name: EnvironmentName.Staging,
+    debug: true,
+    networks: [
+      EnvironmentNetwork.MainNet,
+      EnvironmentNetwork.TestNet,
+      EnvironmentNetwork.RemotePlayground
+    ],
+    dfxApiUrl: 'https://api.dfx.swiss/v1',
+    dfxPaymentUrl: 'https://payment.dfx.swiss',
+    lockApiUrl: 'https://stg.api.lock.space/v1'
+  },
   Development: {
     name: EnvironmentName.Development,
     debug: true,
     networks: [
-      EnvironmentNetwork.LocalPlayground,
-      EnvironmentNetwork.RemotePlayground,
       EnvironmentNetwork.TestNet,
-      EnvironmentNetwork.MainNet
+      EnvironmentNetwork.MainNet,
+      EnvironmentNetwork.LocalPlayground,
+      EnvironmentNetwork.RemotePlayground
     ],
     dfxApiUrl: 'https://dev.api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://dev.payment.dfx.swiss',
@@ -71,8 +84,12 @@ export function getEnvironment (channel: string): Environment {
     return environments[EnvironmentName.Production]
   }
 
-  if (channel.startsWith('pr-preview-') || channel === 'prerelease') {
+  if (channel.startsWith('pr-preview-') || channel === 'preview') {
     return environments[EnvironmentName.Preview]
+  }
+
+  if (channel.startsWith('pr-preview-') || channel === 'staging') {
+    return environments[EnvironmentName.Staging]
   }
 
   return environments[EnvironmentName.Development]
