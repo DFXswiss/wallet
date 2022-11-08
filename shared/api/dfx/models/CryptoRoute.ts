@@ -3,6 +3,7 @@ import { Deposit } from './Deposit'
 import { StakingRoute } from './StakingRoute'
 
 export enum Blockchain {
+  DEFICHAIN = 'DeFiChain',
   BITCOIN = 'Bitcoin',
 }
 

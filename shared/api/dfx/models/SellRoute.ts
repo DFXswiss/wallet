@@ -1,3 +1,5 @@
+import { Asset } from './Asset'
+import { Blockchain } from './CryptoRoute'
 import { Deposit } from './Deposit'
 import { Fiat } from './Fiat'
 
@@ -32,6 +34,8 @@ export interface SellData {
 
 export interface GetSellPaymentInfoDto {
   iban: string
+  asset: Asset
+  blockchain: Blockchain
   currency: Fiat
 }
 

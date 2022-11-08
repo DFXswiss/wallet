@@ -26,6 +26,7 @@ import { PortfolioParamList } from '../PortfolioNavigator'
 import { ConversionMode } from './ConvertScreen'
 import { useSelector } from 'react-redux'
 import { RootState } from '@store'
+import { getAssets } from '@shared-api/dfx/ApiService'
 
 interface TokenActionItems {
   title: string
@@ -91,6 +92,14 @@ export function TokenDetailScreen ({
     token,
     swapTokenDisplaySymbol
   } = usePoolPairToken(route.params.token)
+  const [isSellable, setIsSellable] = useState(false)
+
+  useEffect(() => {
+    getAssets().then((assets) => {
+      setIsSellable(assets.find((a) => a.name === token.displaySymbol)?.sellable ?? false)
+    })
+  }, [])
+
   const onNavigateLiquidity = ({
     destination,
     pair
@@ -153,16 +162,17 @@ export function TokenDetailScreen ({
               title={translate('screens/TokenDetailScreen', 'Buy')}
             />
 
-            <TokenActionRow
-              icon='money' // {BtnSell} // TODO: add + implement custom icon
-              onPress={() => navigation.navigate({
-                name: 'Sell',
-                params: { token },
-                merge: true
-              })}
-              testID='sell_button'
-              title={translate('screens/TokenDetailScreen', 'Sell')}
-            />
+            {isSellable && (
+              <TokenActionRow
+                icon='money' // {BtnSell} // TODO: add + implement custom icon
+                onPress={() => navigation.navigate({
+                  name: 'Sell',
+                  params: { token },
+                  merge: true
+                })}
+                testID='sell_button'
+                title={translate('screens/TokenDetailScreen', 'Sell')}
+              />)}
 
             <TokenActionRow
               icon='arrow-upward'

@@ -42,7 +42,7 @@ import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellCom
 import { send } from './SendConfirmationScreen'
 import { useConversion } from '@hooks/wallet/Conversion'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
-import { getBankAccounts, getUserDetail, putBankAccount, sellWithPaymentInfos } from '@shared-api/dfx/ApiService'
+import { getAssets, getBankAccounts, getUserDetail, putBankAccount, sellWithPaymentInfos } from '@shared-api/dfx/ApiService'
 import { DfxConversionInfo } from '@components/DfxConversionInfo'
 import { useWalletContext } from '@shared-contexts/WalletContext'
 import { DfxDexFeeInfo } from '@components/DfxDexFeeInfo'
@@ -54,6 +54,8 @@ import { SepaInstantComponent } from '../components/SepaInstantComponent'
 import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
 import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
 import { Announcements } from '../components/Announcements'
+import { Blockchain } from '@shared-api/dfx/models/CryptoRoute'
+import { Asset } from '@shared-api/dfx/models/Asset'
 
 type Props = StackScreenProps<PortfolioParamList, 'SellScreen'>
 
@@ -64,7 +66,7 @@ export function SellScreen ({
   const network = useNetworkContext()
   const logger = useLogger()
   const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
-  const [token, setToken] = useState(route.params?.token)
+  const [selectedToken, setSelectedToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedBankAccount] = useState<BankAccount>()
   const initialFiat: Fiat = {
     id: 2,
@@ -73,6 +75,7 @@ export function SellScreen ({
   }
   const [selectedFiat, setSelectedFiat] = useState<Fiat | undefined>(initialFiat)
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
+  const [assets, setAssets] = useState<Asset[]>([])
   const [isLoadingData, setIsLoadingData] = useState(true)
   const {
     control,
@@ -98,10 +101,10 @@ export function SellScreen ({
     conversionAmount
   } = useConversion({
     inputToken: {
-      type: token?.id === '0_unified' ? 'utxo' : 'others',
+      type: selectedToken?.id === '0_unified' ? 'utxo' : 'others',
       amount: new BigNumber(getValues('amount'))
     },
-    deps: [getValues('amount'), JSON.stringify(token)]
+    deps: [getValues('amount'), JSON.stringify(selectedToken)]
   })
   const [hasBalance, setHasBalance] = useState(false)
   const { fetchWalletAddresses } = useWalletAddress()
@@ -185,12 +188,13 @@ export function SellScreen ({
     checkUserProfile()
 
     setIsLoadingData(true)
-    getBankAccounts()
-      .then((bankAccounts) => {
+    Promise.all([getBankAccounts(), getAssets()])
+      .then(([bankAccounts, assets]) => {
         if (bankAccounts === undefined || bankAccounts.length < 1) {
           // checkUserProfile()
         }
         setBankAccounts(bankAccounts)
+        setAssets(assets)
         if (bankAccounts.length === 1) {
           setAccount(bankAccounts[0])
         }
@@ -205,7 +209,7 @@ export function SellScreen ({
   }, [])
 
   useEffect(() => {
-    const t = tokens.find((t) => t.id === token?.id)
+    const t = tokens.find((t) => t.id === selectedToken?.id)
     if (t !== undefined) {
       setToken({ ...t })
     }
@@ -221,57 +225,56 @@ export function SellScreen ({
     debounceMatchAddress()
   }, [address, addressBook])
 
-  const setAccount = (item: BankAccount): void => {
-    setIsLoadingData(true)
+  const setToken = (token: WalletToken): void => {
+    setSelectedToken(token)
 
-    // load sell infos
-    const paymentInfos: GetSellPaymentInfoDto = {
-      iban: item.iban ?? selectedBankAccount?.iban,
-      // eslint-disable-next-line @typescript-eslint/consistent-type-assertions
-      currency: item.fiat ?? selectedFiat
-    }
+    getPaymentInfo({ token })
+  }
 
-    sellWithPaymentInfos(paymentInfos)
-      .then((sellPaymentInfo) => {
-        setFee(sellPaymentInfo.fee)
-        setDepositAddress(sellPaymentInfo.depositAddress)
-        // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
-        setSelectedBankAccount(item)
-        setSelectedFiat(item.fiat ?? undefined)
-      })
-      .catch(WalletAlertErrorApi)
-      .finally(() => setIsLoadingData(false))
+  const setAccount = (bankAccount: BankAccount): void => {
+    setSelectedBankAccount(bankAccount)
+    setSelectedFiat(bankAccount.fiat ?? undefined)
+
+    getPaymentInfo({ bankAccount })
   }
 
   const setFiat = (fiat: Fiat): void => {
-    if (selectedBankAccount === undefined) {
-      setSelectedFiat(fiat)
+    setSelectedFiat(fiat)
+    updatePreferredCurrencyIfNull(fiat, selectedBankAccount)
+
+    getPaymentInfo({ fiat })
+  }
+
+  const getPaymentInfo = ({ bankAccount, fiat, token }: {bankAccount?: BankAccount, fiat?: Fiat, token?: WalletToken} = {}): void => {
+    bankAccount = bankAccount ?? selectedBankAccount
+    fiat = fiat ?? selectedFiat
+    token = token ?? selectedToken
+    const asset = assets.find((a) => a.name === token?.displaySymbol)
+
+    if (bankAccount == null || fiat == null || token == null || asset == null) {
       return
     }
 
-    // when bankAccount is already selected, get new corresponding depositAddress
-    setIsLoadingData(true)
-
     // load sell infos
     const paymentInfos: GetSellPaymentInfoDto = {
-      iban: selectedBankAccount.iban,
+      iban: bankAccount.iban,
+      asset: asset,
+      blockchain: Blockchain.DEFICHAIN,
       currency: fiat
     }
 
+    setIsLoadingData(true)
     sellWithPaymentInfos(paymentInfos)
       .then((sellPaymentInfo) => {
         setFee(sellPaymentInfo.fee)
         setDepositAddress(sellPaymentInfo.depositAddress)
-        // setMinimumDepositAmount(sellPaymentInfo.minDeposits)
-        setSelectedFiat(fiat)
       })
-      .then(async () => await updatePreferredCurrencyIfNull(selectedBankAccount, fiat))
       .catch(WalletAlertErrorApi)
       .finally(() => setIsLoadingData(false))
   }
 
-  const updatePreferredCurrencyIfNull = async (bankAccount: BankAccount, fiat: Fiat): Promise<void> => {
-    if (bankAccount.fiat != null) {
+  const updatePreferredCurrencyIfNull = async (fiat: Fiat, bankAccount?: BankAccount): Promise<void> => {
+    if (bankAccount == null || bankAccount.fiat != null) {
       return
     }
 
@@ -300,7 +303,7 @@ export function SellScreen ({
           header: () => null
         }
       }])
-  }, [bankAccounts])
+  }, [bankAccounts, assets, selectedToken, selectedFiat])
 
   const setFiatAccountCreateBottomSheet = useCallback((accounts: BankAccount[]) => { // TODO: remove accounts?
     setBottomSheetScreen([
@@ -322,14 +325,14 @@ export function SellScreen ({
           header: () => null
         }
       }])
-  }, [bankAccounts])
+  }, [bankAccounts, assets, selectedToken, selectedFiat])
 
   const setTokenListBottomSheet = useCallback(() => {
     setBottomSheetScreen([
       {
         stackScreenName: 'TokenList',
         component: BottomSheetTokenList({
-          tokens: getBottomSheetToken(tokens),
+          tokens: getBottomSheetToken(tokens, assets),
           tokenType: TokenType.BottomSheetToken,
           headerLabel: translate('screens/SendScreen', 'Choose token to send'),
           onCloseButtonPress: () => dismissModal(),
@@ -347,7 +350,7 @@ export function SellScreen ({
           header: () => null
         }
       }])
-  }, [])
+  }, [bankAccounts, assets, selectedBankAccount, selectedFiat])
 
   // fiat picker modal => open / return
   const setFiatPickerBottomSheet = useCallback((fiats: Fiat[]) => {
@@ -369,10 +372,10 @@ export function SellScreen ({
           header: () => null
         }
       }])
-  }, [selectedBankAccount])
+  }, [bankAccounts, assets, selectedBankAccount, selectedToken])
 
   async function onSubmit (): Promise<void> {
-    if (hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount === undefined || selectedFiat === undefined || depositAddress === undefined) {
+    if (hasPendingJob || hasPendingBroadcastJob || selectedToken === undefined || selectedBankAccount === undefined || selectedFiat === undefined || depositAddress === undefined) {
       return
     }
 
@@ -380,7 +383,7 @@ export function SellScreen ({
       setIsSubmitting(true)
       await send({
         address: depositAddress,
-        token,
+        token: selectedToken,
         amount: new BigNumber(getValues('amount')),
         networkName: network.networkName
       }, dispatch, () => {
@@ -405,7 +408,7 @@ export function SellScreen ({
 
         <TokenInput
           title={translate('screens/SellScreen', 'Cash out to my bank account')}
-          token={token}
+          token={selectedToken}
           onPress={() => {
             setTokenListBottomSheet()
             expandModal()
@@ -413,7 +416,7 @@ export function SellScreen ({
           isDisabled={!hasBalance}
         />
 
-        {token === undefined
+        {selectedToken === undefined
           ? (
             <ThemedText style={tailwind('px-4')}>
               {translate('screens/SellScreen', 'Select a token you want to sell to get started')}
@@ -423,7 +426,7 @@ export function SellScreen ({
             <>
               <ThemedView style={tailwind('px-4 mb-4')}>
                 <DfxDexFeeInfo
-                  token={token}
+                  token={selectedToken}
                   getDexFee={(df) => setDexFee(df)}
                 />
               </ThemedView>
@@ -482,11 +485,11 @@ export function SellScreen ({
                         setValue('amount', '')
                         await trigger('amount')
                       }}
-                      token={token}
+                      token={selectedToken}
                       conversionAmount={conversionAmount}
                     />
 
-                    <DfxConversionInfo token={token} />
+                    <DfxConversionInfo token={selectedToken} />
                   </View>
 
                   <ThemedView style={tailwind('px-4')}>
@@ -532,7 +535,7 @@ export function SellScreen ({
 
         <View style={tailwind('mt-6')}>
           <SubmitButtonGroup
-            isDisabled={!formState.isValid /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || selectedFiat === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
+            isDisabled={!formState.isValid /* TODO: (davidleomay) check if needed || isConversionRequired */ || selectedBankAccount === undefined || selectedFiat === undefined || hasPendingJob || hasPendingBroadcastJob || selectedToken === undefined}
             label={translate('screens/SellScreen', 'Transfer to your bank account')}
             processingLabel={translate('screens/SellScreen', 'Transfer to your bank account')}
             onSubmit={onSubmit}
@@ -799,9 +802,9 @@ function AmountRow ({
   )
 }
 
-function getBottomSheetToken (tokens: WalletToken[]): BottomSheetToken[] {
+function getBottomSheetToken (tokens: WalletToken[], assets: Asset[]): BottomSheetToken[] {
   return tokens.filter(t => {
-    return new BigNumber(t.amount).isGreaterThan(0) && t.id !== '0' && t.id !== '0_utxo'
+    return new BigNumber(t.amount).isGreaterThan(0) && t.id !== '0' && t.id !== '0_utxo' && assets.find((a) => a.name === t.displaySymbol && a.sellable)
   }).map(t => {
     const token: BottomSheetToken = {
       tokenId: t.id,
