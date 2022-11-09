@@ -234,7 +234,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
 
           {stakingInfo != null && stakingInfo.pendingDeposits > 0 && (
             <ListItem
-              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${new BigNumber(stakingInfo?.pendingDeposits).decimalPlaces(7).toString()} DFI` }}
+              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${new BigNumber(stakingInfo?.pendingDeposits).decimalPlaces(2).toString()} DFI` }}
               style='px-4 pb-2'
               fieldStyle='text-xl font-normal'
               isDisabled
@@ -242,7 +242,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           )}
           {stakingInfo != null && stakingInfo.pendingWithdrawals > 0 && (
             <ListItem
-              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${new BigNumber(stakingInfo?.pendingWithdrawals).decimalPlaces(7).toString()} DFI` }}
+              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${new BigNumber(stakingInfo?.pendingWithdrawals).decimalPlaces(2).toString()} DFI` }}
               style='px-4 pb-2'
               fieldStyle='text-xl font-normal'
               isDisabled
