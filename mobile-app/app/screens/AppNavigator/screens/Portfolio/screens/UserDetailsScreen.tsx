@@ -1,14 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/consistent-type-assertions */
 import BtnDobby from '@assets/images/dfx_buttons/btn_dobby.png'
-import { InputHelperText } from '@components/InputHelperText'
-import { WalletTextInput } from '@components/WalletTextInput'
 import { StackScreenProps } from '@react-navigation/stack'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Control, Controller, FieldValues, UseControllerProps, useForm } from 'react-hook-form'
 import { Platform, Image, View, Text, TouchableOpacity, KeyboardTypeOptions } from 'react-native'
 import {
-  ThemedIcon,
   ThemedScrollView,
   ThemedSectionTitle,
   ThemedTextInput,
@@ -17,7 +14,6 @@ import {
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { SymbolIcon } from '@components/SymbolIcon'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { SubmitButtonGroup } from '@components/SubmitButtonGroup'
@@ -25,14 +21,14 @@ import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 import { BottomSheetCountryPicker } from '@components/SellComponents/BottomSheetCountryPicker'
 import { PortfolioParamList } from '../PortfolioNavigator'
 import { Country } from '@shared-api/dfx/models/Country'
-import { putKycData, putUser } from '@shared-api/dfx/ApiService'
+import { putKycData } from '@shared-api/dfx/ApiService'
 import { yupResolver } from '@hookform/resolvers/yup'
 import * as yup from 'yup'
 import { KycData } from '@shared-api/dfx/models/KycData'
-import { AccountType, User, UserDetail, UserDetailRequestDto } from '@shared-api/dfx/models/User'
+import { AccountType, User } from '@shared-api/dfx/models/User'
 import { DFXPersistence } from '@api/persistence/dfx_storage'
 import { ButtonGroup } from '../../Dex/components/ButtonGroup'
-import { WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
+import { WalletAlertErrorApi } from '@components/WalletAlert'
 import PNF, { PhoneNumberUtil } from 'google-libphonenumber'
 import isEmailValidator from 'validator/lib/isEmail'
 import { useWalletContext } from '@shared-contexts/WalletContext'
