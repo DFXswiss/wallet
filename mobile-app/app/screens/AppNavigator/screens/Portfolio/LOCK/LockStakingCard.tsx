@@ -62,7 +62,7 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
       })
       .catch(WalletAlertErrorApi)
 
-    const getStakingInfo = LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
+    const getStakingInfo = LOCKgetStaking({ asset: 'DFI', blockchain: 'DeFiChain' })
       .then(staking => {
         setStakingInfo(staking)
         setProviderStakingInfo(staking)

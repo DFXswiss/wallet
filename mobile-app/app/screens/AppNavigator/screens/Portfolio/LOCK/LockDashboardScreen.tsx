@@ -141,7 +141,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
 
   const fetchStakingInfo = async (): Promise<void> => {
     setIsloading(true)
-    const getStakingInfo = LOCKgetStaking({ assetName: 'DFI', blockchain: 'DeFiChain' })
+    const getStakingInfo = LOCKgetStaking({ asset: 'DFI', blockchain: 'DeFiChain' })
       .then(staking => {
         setStakingInfo(staking)
         setProviderStakingInfo(staking)

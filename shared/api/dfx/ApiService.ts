@@ -99,7 +99,7 @@ export interface LockUserDto {
 }
 
 export interface CreateStakingDto {
-  assetName: string
+  asset: string
   blockchain: Blockchain
 }
 

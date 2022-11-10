@@ -41,7 +41,7 @@ export function FeatureFlagProvider (props: React.PropsWithChildren<any>): JSX.E
 
   // removes duplicate flags by only leaving in last (non-'public') flag
   const deleteDuplicates = (featureFlags: FeatureFlag[]): FeatureFlag[] => {
-    const ids: FEATURE_FLAG_ID[] = ['loan', 'auction', 'dfi_loan_payment', 'local_storage', 'dusd_vault_share', 'dusd_loan_payment', 'future_swap', 'service_provider', 'onboarding_v2', 'dusd_dex_high_fee', 'dusd_dfi_high_fee', 'setting_v2', 'lock']
+    const ids: FEATURE_FLAG_ID[] = ['loan', 'auction', 'dfi_loan_payment', 'local_storage', 'dusd_vault_share', 'dusd_loan_payment', 'future_swap', 'service_provider', 'onboarding_v2', 'dusd_dex_high_fee', 'dusd_dfi_high_fee', 'setting_v2']
     const duplicates: FeatureFlag[][] = []
     ids.map(id => duplicates.push(featureFlags.filter(flag => flag.id === id)))
 

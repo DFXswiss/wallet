@@ -46,7 +46,6 @@ import { from, defer } from 'rxjs'
 import { delay, map, retryWhen } from 'rxjs/operators'
 import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { LockStakingCard } from './LOCK/LockStakingCard'
-import { useFeatureFlagContext } from '@contexts/FeatureFlagContext'
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>
 
@@ -506,8 +505,6 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
     ]
   }, [address, isLight])
 
-  const { isFeatureAvailable } = useFeatureFlagContext()
-
   // Helper to reset LockStakingCard state
   const [lockWithAddress, setLockWithAddress] = useState<string | undefined>(address)
   useEffect(() => {
@@ -561,7 +558,7 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
         />
         <BalanceActionSection navigation={navigation} isZeroBalance={isZeroBalance} />
 
-        {(isFeatureAvailable('lock')) && (lockWithAddress != null) && (
+        {(lockWithAddress != null) && (
           <LockStakingCard denominationCurrency={denominationCurrency} refreshTrigger={lockRefetchTrigger} />
         )}
 
