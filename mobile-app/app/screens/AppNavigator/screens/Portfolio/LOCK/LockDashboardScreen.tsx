@@ -59,7 +59,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
   const transaction = useSelector((state: RootState) => firstTransactionSelector(state.ocean))
   const logger = useLogger()
-  const { setProviderStakingInfo } = useLock()
+  const { setProviderStakingInfo, openCfpVoting } = useLock()
 
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
   const [isLoading, setIsloading] = useState(true)
@@ -316,6 +316,17 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           padding='p-1'
           extraStyle='flex-grow'
           onPress={onCsvExport}
+          lock
+          style={tailwind('h-4')}
+        />
+
+        <Button
+          fill='fill'
+          label={translate('LOCK/LockDashboardScreen', 'CFP VOTING')}
+          margin='mx-8 mb-4'
+          padding='p-1'
+          extraStyle='flex-grow'
+          onPress={openCfpVoting}
           lock
           style={tailwind('h-4')}
         />

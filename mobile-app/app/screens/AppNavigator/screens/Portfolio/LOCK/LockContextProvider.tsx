@@ -1,5 +1,9 @@
+import { getEnvironment } from '@environment'
 import { LockUserDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
+import { ApiDomain, AuthService } from '@shared-api/dfx/AuthService'
+import { openURL } from 'expo-linking'
 import { createContext, PropsWithChildren, useCallback, useContext, useState } from 'react'
+import * as Updates from 'expo-updates'
 
 const LockKycHookContext = createContext<LockKycContextI>(undefined as any)
 
@@ -12,6 +16,7 @@ interface LockKycContextI {
   setKycComplete: (lockUserDto?: LockUserDto) => void
   getProviderStakingInfo: StakingOutputDto | undefined
   setProviderStakingInfo: (stakingInfo: StakingOutputDto) => void
+  openCfpVoting: () => void
 }
 
 export function LockContextProvider (props: PropsWithChildren<{}>): JSX.Element | null {
@@ -31,12 +36,19 @@ export function LockContextProvider (props: PropsWithChildren<{}>): JSX.Element 
     setInternalStakingInfo(stakingInfo)
   }, [])
 
+  const openCfpVoting = useCallback((): void => {
+    const paymentUrl = getEnvironment(Updates.releaseChannel).lockPaymentUrl
+    AuthService.Session(false, ApiDomain.LOCK)
+      .then(async (session) => await openURL(`${paymentUrl}/cfp?token=${session.accessToken ?? ''}`))
+  }, [])
+
   // public context API
   const context: LockKycContextI = {
     isKycComplete,
     setKycComplete,
     getProviderStakingInfo: internalStakingInfo,
-    setProviderStakingInfo: setStakingInfo
+    setProviderStakingInfo: setStakingInfo,
+    openCfpVoting: openCfpVoting
   }
 
   return (

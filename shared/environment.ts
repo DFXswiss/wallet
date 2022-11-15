@@ -22,6 +22,7 @@ interface Environment {
   dfxApiUrl: string
   dfxPaymentUrl: string
   lockApiUrl: string
+  lockPaymentUrl: string
 }
 
 export const environments: Record<EnvironmentName, Environment> = {
@@ -35,7 +36,8 @@ export const environments: Record<EnvironmentName, Environment> = {
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://api.lock.space/v1'
+    lockApiUrl: 'https://api.lock.space/v1',
+    lockPaymentUrl: 'https://kyc.lock.space'
   },
   Preview: {
     name: EnvironmentName.Preview,
@@ -47,7 +49,8 @@ export const environments: Record<EnvironmentName, Environment> = {
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://api.lock.space/v1'
+    lockApiUrl: 'https://api.lock.space/v1',
+    lockPaymentUrl: 'https://kyc.lock.space'
   },
   Staging: {
     name: EnvironmentName.Staging,
@@ -59,7 +62,8 @@ export const environments: Record<EnvironmentName, Environment> = {
     ],
     dfxApiUrl: 'https://api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://stg.api.lock.space/v1'
+    lockApiUrl: 'https://stg.api.lock.space/v1',
+    lockPaymentUrl: 'UNDEFINED'
   },
   Development: {
     name: EnvironmentName.Development,
@@ -72,7 +76,8 @@ export const environments: Record<EnvironmentName, Environment> = {
     ],
     dfxApiUrl: 'https://dev.api.dfx.swiss/v1',
     dfxPaymentUrl: 'https://dev.payment.dfx.swiss',
-    lockApiUrl: 'https://dev.api.lock.space/v1'
+    lockApiUrl: 'https://dev.api.lock.space/v1',
+    lockPaymentUrl: 'https://dev.kyc.lock.space'
   }
 }
 
