@@ -30,7 +30,6 @@ import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from 
 import { SubmitButtonGroup } from '@components/SubmitButtonGroup'
 import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { useAppDispatch } from '@hooks/useAppDispatch'
-
 import { send } from '@screens/AppNavigator/screens/Portfolio/screens/SendConfirmationScreen'
 import { Button } from '@components/Button'
 import { LOCKdeposit, LOCKgetAnalytics, LOCKgetStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
@@ -40,6 +39,9 @@ import { Announcements } from '../components/Announcements'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
 import { useLock } from './LockContextProvider'
+import { openURL } from 'expo-linking'
+import { getEnvironment } from '@environment'
+import * as Updates from 'expo-updates'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockDashboardScreen'>
 type StakingAction = 'STAKE' | 'UNSTAKE'
@@ -161,6 +163,11 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
     fetchStakingInfo()
     setRefreshing(false)
   }, [])
+
+  const onCsvExport = useCallback(async () => {
+    const baseUrl = getEnvironment(Updates.releaseChannel).lockApiUrl
+    await openURL(`${baseUrl}/analytics/history/compact?depositAddress=${stakingInfo?.depositAddress ?? ''}&type=csv`)
+  }, [stakingInfo])
 
   useEffect(() => {
     fetchStakingInfo()
@@ -301,6 +308,17 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
             />
           </View>
         </View>
+
+        <Button
+          fill='fill'
+          label={translate('LOCK/LockDashboardScreen', 'CSV EXPORT')}
+          margin='mx-8 mb-4'
+          padding='p-1'
+          extraStyle='flex-grow'
+          onPress={onCsvExport}
+          lock
+          style={tailwind('h-4')}
+        />
 
         <View style={tailwind('flex-row self-center mb-20')}>
           <TouchableOpacity style={tailwind('flex-row mx-2')} onPress={async () => await Linking.openURL('mailto:' + email)}>
