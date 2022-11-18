@@ -17,10 +17,10 @@ import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { useLock } from './LockContextProvider'
 import { kycCompleted } from '@shared-api/dfx/models/User'
 import { openURL } from '@api/linking'
+import { getEnvironment } from '@environment'
+import { getReleaseChannel } from '@api/releaseChannel'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockKycScreen'>
-
-const LOCKwalletName = 'LOCK.space'
 
 export function LockKycScreen ({ route }: Props): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
@@ -69,7 +69,7 @@ export function LockKycScreen ({ route }: Props): JSX.Element {
         if (newKyc) {
           return await openURL(kycData.kycLink)
         } else {
-          return await transferKyc(LOCKwalletName)
+          return await transferKyc(getEnvironment(getReleaseChannel()).lock.walletName)
             .then(() => {
               setKycComplete()
               navigation.dispatch(StackActions.popToTop())

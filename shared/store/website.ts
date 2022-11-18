@@ -1,7 +1,7 @@
 import { getEnvironment } from '@environment'
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import * as Updates from 'expo-updates'
 import { AdvertisementData, AnnouncementData, DefiChainStatus, FeatureFlag } from '@shared-types/website'
+import { getReleaseChannel } from '@api/releaseChannel'
 
 export const statusWebsiteSlice = createApi({
   reducerPath: 'websiteStatus',
@@ -28,7 +28,7 @@ export const statusWebsiteSlice = createApi({
 export const announcementWebsiteSlice = createApi({
   reducerPath: 'website',
   baseQuery: fetchBaseQuery({
-    baseUrl: getEnvironment(Updates.releaseChannel).dfxApiUrl
+    baseUrl: getEnvironment(getReleaseChannel()).dfx.apiUrl
   }),
   endpoints: builder => ({
     getAnnouncements: builder.query<AnnouncementData[], any>({

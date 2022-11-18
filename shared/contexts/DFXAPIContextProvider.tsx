@@ -10,7 +10,7 @@ import { WalletType } from '@shared-contexts/WalletPersistenceContext'
 import { authentication, Authentication } from '@store/authentication'
 import { translate } from '@translations'
 import { getSellRoutes, signIn, signUp, getCountries, getSignMessage, getUser, LOCKgetSignMessage, LOCKsignUp, LOCKsignIn } from '@shared-api/dfx/ApiService'
-import { ApiDomain, AuthService, Session } from '@shared-api/dfx/AuthService'
+import { ApiDomain, AuthService } from '@shared-api/dfx/AuthService'
 import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { useWalletNodeContext } from '@shared-contexts/WalletNodeProvider'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
@@ -18,14 +18,13 @@ import { useWhaleApiClient } from '@shared-contexts/WhaleContext'
 import { useWalletContext } from '@shared-contexts/WalletContext'
 import { useDispatch } from 'react-redux'
 import * as React from 'react'
-import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react'
+import { createContext, PropsWithChildren, useContext, useEffect } from 'react'
 import { Linking } from 'react-native'
 import { getEnvironment } from '@environment'
-import * as Updates from 'expo-updates'
 import { useDebounce } from '@hooks/useDebounce'
 import { SellRoute } from '@shared-api/dfx/models/SellRoute'
 import { Country } from '@shared-api/dfx/models/Country'
-import AsyncStorage from '@react-native-async-storage/async-storage'
+import { getReleaseChannel } from '@api/releaseChannel'
 
 // import fetchIntercept from 'fetch-intercept'
 
@@ -146,7 +145,7 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
         if (token === undefined || token.length === 0) {
           throw new Error('webToken is undefined')
         }
-        const baseUrl = getEnvironment(Updates.releaseChannel).dfxPaymentUrl
+        const baseUrl = getEnvironment(getReleaseChannel()).dfx.paymentUrl
         const urlEnding = url ?? `/login?token=${token}`
 
         // console.log(urlEnding) // TODO!!! (thabrad) comment out / REMOVE!!

@@ -29,11 +29,11 @@ import { KycData, KycDataTransferDto, toKycDataDto } from './models/KycData'
 import { Settings } from './models/Settings'
 import { HistoryType } from './models/HistoryType'
 import { CryptoRoute } from './models/CryptoRoute'
-import * as Updates from 'expo-updates'
 import { BankAccount, BankAccountData, BankAccountDto, fromBankAccountDto, toBankAccountDto } from './models/BankAccount'
 import { noop } from 'lodash'
+import { getReleaseChannel } from '@api/releaseChannel'
 
-const DfxBaseUrl = getEnvironment(Updates.releaseChannel).dfxApiUrl
+const DfxBaseUrl = getEnvironment(getReleaseChannel()).dfx.apiUrl
 const AuthUrl = 'auth'
 const UserUrl = 'user'
 const KycUrl = 'kyc'
@@ -56,7 +56,7 @@ const SettingUrl = 'setting/frontend'
 // ------------------------------------------------------
 // -----------------LOCK - API---------------------------
 // ------------------------------------------------------
-const LockBaseUrl = getEnvironment(Updates.releaseChannel).lockApiUrl
+const LockBaseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl
 const LOCKanalytics = 'analytics/staking'
 const LOCKKycUrl = 'kyc'
 const LOCKStakingUrl = 'staking'

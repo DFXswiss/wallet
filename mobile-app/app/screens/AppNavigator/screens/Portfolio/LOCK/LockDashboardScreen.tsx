@@ -41,7 +41,7 @@ import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/web
 import { useLock } from './LockContextProvider'
 import { openURL } from 'expo-linking'
 import { getEnvironment } from '@environment'
-import * as Updates from 'expo-updates'
+import { getReleaseChannel } from '@api/releaseChannel'
 
 type Props = StackScreenProps<PortfolioParamList, 'LockDashboardScreen'>
 type StakingAction = 'STAKE' | 'UNSTAKE'
@@ -165,7 +165,7 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   }, [])
 
   const onCsvExport = useCallback(async () => {
-    const baseUrl = getEnvironment(Updates.releaseChannel).lockApiUrl
+    const baseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl
     await openURL(`${baseUrl}/analytics/history/compact?depositAddress=${stakingInfo?.depositAddress ?? ''}&type=csv`)
   }, [stakingInfo])
 

@@ -19,10 +19,15 @@ interface Environment {
   name: EnvironmentName
   debug: boolean
   networks: EnvironmentNetwork[]
-  dfxApiUrl: string
-  dfxPaymentUrl: string
-  lockApiUrl: string
-  lockPaymentUrl: string
+  dfx: {
+    apiUrl: string
+    paymentUrl: string
+  }
+  lock: {
+    paymentUrl: string
+    walletName: string
+    apiUrl: string
+  }
 }
 
 export const environments: Record<EnvironmentName, Environment> = {
@@ -34,10 +39,15 @@ export const environments: Record<EnvironmentName, Environment> = {
       EnvironmentNetwork.TestNet,
       EnvironmentNetwork.RemotePlayground
     ],
-    dfxApiUrl: 'https://api.dfx.swiss/v1',
-    dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://api.lock.space/v1',
-    lockPaymentUrl: 'https://kyc.lock.space'
+    dfx: {
+      apiUrl: 'https://api.dfx.swiss/v1',
+      paymentUrl: 'https://payment.dfx.swiss'
+    },
+    lock: {
+      apiUrl: 'https://api.lock.space/v1',
+      paymentUrl: 'https://kyc.lock.space',
+      walletName: 'LOCK.space'
+    }
   },
   Preview: {
     name: EnvironmentName.Preview,
@@ -47,10 +57,15 @@ export const environments: Record<EnvironmentName, Environment> = {
       EnvironmentNetwork.TestNet,
       EnvironmentNetwork.RemotePlayground
     ],
-    dfxApiUrl: 'https://api.dfx.swiss/v1',
-    dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://api.lock.space/v1',
-    lockPaymentUrl: 'https://kyc.lock.space'
+    dfx: {
+      apiUrl: 'https://api.dfx.swiss/v1',
+      paymentUrl: 'https://payment.dfx.swiss'
+    },
+    lock: {
+      apiUrl: 'https://api.lock.space/v1',
+      paymentUrl: 'https://kyc.lock.space',
+      walletName: 'LOCK.space'
+    }
   },
   Staging: {
     name: EnvironmentName.Staging,
@@ -60,10 +75,15 @@ export const environments: Record<EnvironmentName, Environment> = {
       EnvironmentNetwork.TestNet,
       EnvironmentNetwork.RemotePlayground
     ],
-    dfxApiUrl: 'https://api.dfx.swiss/v1',
-    dfxPaymentUrl: 'https://payment.dfx.swiss',
-    lockApiUrl: 'https://stg.api.lock.space/v1',
-    lockPaymentUrl: 'UNDEFINED'
+    dfx: {
+      apiUrl: 'https://api.dfx.swiss/v1',
+      paymentUrl: 'https://payment.dfx.swiss'
+    },
+    lock: {
+      apiUrl: 'https://stg.api.lock.space/v1',
+      paymentUrl: 'https://kyc.lock.space',
+      walletName: 'LOCK.space STG'
+    }
   },
   Development: {
     name: EnvironmentName.Development,
@@ -74,10 +94,15 @@ export const environments: Record<EnvironmentName, Environment> = {
       EnvironmentNetwork.LocalPlayground,
       EnvironmentNetwork.RemotePlayground
     ],
-    dfxApiUrl: 'https://dev.api.dfx.swiss/v1',
-    dfxPaymentUrl: 'https://dev.payment.dfx.swiss',
-    lockApiUrl: 'https://dev.api.lock.space/v1',
-    lockPaymentUrl: 'https://dev.kyc.lock.space'
+    dfx: {
+      apiUrl: 'https://dev.api.dfx.swiss/v1',
+      paymentUrl: 'https://dev.payment.dfx.swiss'
+    },
+    lock: {
+      apiUrl: 'https://dev.api.lock.space/v1',
+      paymentUrl: 'https://dev.kyc.lock.space',
+      walletName: 'LOCK.space'
+    }
   }
 }
 

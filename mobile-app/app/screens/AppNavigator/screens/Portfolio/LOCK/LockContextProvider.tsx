@@ -3,7 +3,7 @@ import { LockUserDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
 import { ApiDomain, AuthService } from '@shared-api/dfx/AuthService'
 import { openURL } from 'expo-linking'
 import { createContext, PropsWithChildren, useCallback, useContext, useState } from 'react'
-import * as Updates from 'expo-updates'
+import { getReleaseChannel } from '@api/releaseChannel'
 
 const LockKycHookContext = createContext<LockKycContextI>(undefined as any)
 
@@ -37,7 +37,7 @@ export function LockContextProvider (props: PropsWithChildren<{}>): JSX.Element 
   }, [])
 
   const openCfpVoting = useCallback((): void => {
-    const paymentUrl = getEnvironment(Updates.releaseChannel).lockPaymentUrl
+    const paymentUrl = getEnvironment(getReleaseChannel()).lock.paymentUrl
     AuthService.Session(false, ApiDomain.LOCK)
       .then(async (session) => await openURL(`${paymentUrl}/cfp?token=${session.accessToken ?? ''}`))
   }, [])
