@@ -14,13 +14,14 @@ import { Control, Controller, useForm } from 'react-hook-form'
 import { useSelector } from 'react-redux'
 import { AmountButtonTypes, SetAmountButton } from '@components/SetAmountButton'
 import {
+  ThemedActivityIndicator,
   ThemedScrollView,
   ThemedView
 } from '@components/themed'
 import { onTransactionBroadcast } from '@api/transaction/transaction_commands'
 import { RootState } from '@store'
 import { firstTransactionSelector, hasTxQueued as hasBroadcastQueued, OceanTransaction } from '@store/ocean'
-import { hasTxQueued, transactionQueue } from '@store/transaction_queue'
+import { hasTxQueued } from '@store/transaction_queue'
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import { PortfolioParamList } from '../PortfolioNavigator'
@@ -35,9 +36,7 @@ import { Button } from '@components/Button'
 import { LOCKdeposit, LOCKgetAnalytics, LOCKgetStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
 import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
 import { NetworkName } from '@defichain/jellyfish-network'
-import { Announcements } from '../components/Announcements'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
-import { AnnouncementChannel, ANNOUNCEMENTCHANNELDELAY } from '@shared-types/website'
 import { useLock } from './LockContextProvider'
 import { openURL } from 'expo-linking'
 import { getEnvironment } from '@environment'
@@ -125,11 +124,13 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           onCloseButtonPress: () => dismissModal(),
           onStaked: async (stakingTransaction): Promise<void> => {
             setTransactionCache(stakingTransaction)
-            dismissModal()
+            // wait for pass code modal to open
+            setTimeout(() => dismissModal(), 1000)
           },
           onUnstaked: async (newStakingInfo): Promise<void> => {
             setStakingInfo(newStakingInfo)
-            dismissModal() // TODO: this is somehow not triggering 🤷‍♂️
+            // wait for pass code modal to close
+            setTimeout(() => dismissModal(), 1000)
           },
           stakingInfo: stakingInfo as StakingOutputDto,
           action,
@@ -177,23 +178,12 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
   // TODO: check for possible refactor to dispatch / component lifecycle-independence
   useEffect(() => {
     if (transaction?.tx?.txId != null && transactionCache != null) {
-      // only proceed when there's a valid txId (that hasn't been sent to LOCK Api before) and connect to previously sent transaction (details) ==> possible SIDE EFFECT -> [POST] LOCKdeposit <- on failed transaction with txId
-      if (transactionCache.transaction?.tx.txId !== transaction.tx.txId) {
-        // only POST on "fresh" transaction and invalidate with storing txId
-        setTransactionCache({ ...transactionCache, transaction })
-        LOCKdeposit(stakingInfo?.id ?? 2, { amount: transactionCache.amount, txId: transaction.tx.txId })
-          .then(setStakingInfo)
-          .catch(WalletAlertErrorApi)
-      }
-    }
+      LOCKdeposit(stakingInfo?.id ?? 2, { amount: transactionCache.amount, txId: transaction.tx.txId })
+        .then(setStakingInfo)
+        .then(() => setTransactionCache(undefined))
+        .catch(WalletAlertErrorApi)
+  }
   }, [transaction, transactionCache])
-
-  const [announcementDelayFinished, setAnnouncementDelayFinished] = useState(false)
-  useEffect(() => {
-    setTimeout(() => {
-      setAnnouncementDelayFinished(true)
-    }, ANNOUNCEMENTCHANNELDELAY)
-  }, [])
 
   return (
     <View style={tailwind('h-full bg-gray-200 border-t border-dfxgray-500')}>
@@ -206,8 +196,6 @@ export function LockDashboardScreen ({ route }: Props): JSX.Element {
           />
         }
       >
-
-        {announcementDelayFinished && <Announcements channel={AnnouncementChannel.LOCK} />}
 
         <View style={tailwind('h-40 bg-lock-800')}>
           <View style={tailwind('self-center mt-4')}>
