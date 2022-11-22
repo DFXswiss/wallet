@@ -15,6 +15,7 @@ interface ButtonGroupProps {
   customButtonGroupStyle?: StyleProp<TouchableOpacityProps>
   customActiveStyle?: ThemedProps
   inverted?: boolean
+  lock?: boolean
 }
 
 interface Buttons {
@@ -28,8 +29,8 @@ export function ButtonGroup (props: ButtonGroupProps): JSX.Element {
   return (
     <ThemedView
       light={props.lightThemeStyle ?? tailwind('bg-gray-100')}
-      dark={props.darkThemeStyle ?? tailwind('bg-dfxblue-800')}
-      style={tailwind('rounded-2xl flex flex-row justify-between')}
+      dark={props.darkThemeStyle ?? tailwind(props.lock === true ? 'bg-white' : 'bg-dfxblue-800')}
+      style={tailwind('flex flex-row ' + (props.lock === true ? 'rounded-md justify-evenly' : 'rounded-2xl justify-between'))}
       testID={props.testID}
       {...props.containerThemedProps}
     >
@@ -47,6 +48,7 @@ export function ButtonGroup (props: ButtonGroupProps): JSX.Element {
             customButtonGroupStyle={props.customButtonGroupStyle}
             customActiveStyle={props.customActiveStyle}
             inverted={props.inverted}
+            lock={props.lock}
           />
         ))
       }
@@ -65,23 +67,31 @@ interface ButtonGroupItemProps {
   customButtonGroupStyle?: StyleProp<TouchableOpacityProps>
   customActiveStyle?: ThemedProps
   inverted?: boolean
+  lock?: boolean
 }
 
 function ButtonGroupItem (props: ButtonGroupItemProps): JSX.Element {
+  const buttonDark = props.isActive && (props.inverted === true
+    ? (props.lock === true ? 'bg-white' : 'bg-dfxblue-800')
+    : (props.lock === true ? 'bg-lock-800' : 'bg-dfxblue-900'))
+  const textDark = props.isActive
+    ? 'text-white'
+    : (props.lock === true ? 'text-lock-800' : 'text-dfxgray-300')
+
   return (
-    <View style={tailwind('flex-shrink')}>
+    <View style={tailwind(props.lock === true ? 'flex-1' : 'flex-shrink')}>
       <ThemedTouchableOpacity
         onPress={props.onPress}
         light={tailwind({ 'bg-primary-50': props.isActive })}
-        dark={(props.inverted === true) ? tailwind({ 'bg-dfxblue-800': props.isActive }) : tailwind({ 'bg-dfxblue-900': props.isActive })}
+        dark={tailwind(buttonDark)}
         {...props.isActive && props.customActiveStyle}
-        style={props.customButtonGroupStyle ?? [[tailwind('m-0.5 py-2 px-3'), { borderRadius: 14 }]]}
+        style={props.customButtonGroupStyle ?? [tailwind('m-0.5 py-2 px-3'), props.lock === true ? { borderRadius: 4 } : { borderRadius: 14 }]}
         // TODO: (thabrad) check, from LW (somehow isn't working, maybe bc of below Text style) --> style={props.customButtonGroupStyle ?? [tailwind(['rounded-2xl break-words justify-center py-2 px-3']), { width: `${props.width.toFixed(2)}%` }]}
         testID={`${props.testID}${props.isActive ? '_active' : ''}`}
       >
         <ThemedText
           light={tailwind({ 'text-primary-500': props.isActive, 'text-gray-900': !props.isActive })}
-          dark={tailwind({ 'text-white': props.isActive, 'text-dfxgray-300': !props.isActive })}
+          dark={tailwind(textDark)}
           style={props.modalStyle ?? tailwind('font-medium text-sm text-center')}
         >
           {props.label}

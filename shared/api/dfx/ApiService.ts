@@ -61,6 +61,8 @@ const LOCKanalytics = 'analytics/staking'
 const LOCKKycUrl = 'kyc'
 const LOCKStakingUrl = 'staking'
 
+export type StakingStrategy = 'Masternode' | 'LiquidityMining'
+
 export interface LockSignMessageResponse {
   message: string
   blockchains: Blockchain
@@ -74,7 +76,6 @@ export interface NewLockUser {
 }
 
 export interface StakingAnalyticsOutputDto {
-  updated: Date
   apy: number
   apr: number
 }
@@ -96,9 +97,10 @@ export interface LockUserDto {
   kycLink: string
 }
 
-export interface CreateStakingDto {
+export interface StakingQueryDto {
   asset: string
   blockchain: Blockchain
+  strategy: StakingStrategy
 }
 
 export interface StakingOutputDto {
@@ -141,13 +143,12 @@ export const LOCKgetSignMessage = async (address: string): Promise<LockSignMessa
 }
 
 // --- GENERAL --- //
-export const LOCKgetAnalytics = async (): Promise<StakingAnalyticsOutputDto> => {
-  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics).then(fromAnalyticsDto)
+export const LOCKgetAnalytics = async (query: StakingQueryDto): Promise<StakingAnalyticsOutputDto> => {
+  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics, undefined, undefined, { queryParams: query }).then(fromAnalyticsDto)
 }
 
 const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalyticsOutputDto => {
   return {
-    updated: analytics.updated,
     apr: round(analytics.apr * 100, 1),
     apy: round(analytics.apy * 100, 1)
   }
@@ -166,8 +167,8 @@ export const LOCKgetUser = async (): Promise<LockUserDto> => {
 }
 
 // --- STAKING --- //
-export const LOCKgetStaking = async (staking: CreateStakingDto): Promise<StakingOutputDto> => {
-  return await fetchFromLOCK<StakingOutputDto>(LOCKStakingUrl, undefined, undefined, { queryParams: staking })
+export const LOCKgetStaking = async (query: StakingQueryDto): Promise<StakingOutputDto> => {
+  return await fetchFromLOCK<StakingOutputDto>(LOCKStakingUrl, undefined, undefined, { queryParams: query })
 }
 
 export const LOCKdeposit = async (stakingId: number, deposit: CreateDepositDto): Promise<StakingOutputDto> => {

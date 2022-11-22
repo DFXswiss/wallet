@@ -9,7 +9,7 @@ import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 import { translate } from '@translations'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { PortfolioParamList } from '../PortfolioNavigator'
-import { LOCKgetAnalytics, LOCKgetStaking, LOCKgetUser, StakingAnalyticsOutputDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
+import { LOCKgetAnalytics, LOCKgetStaking, LOCKgetUser, StakingAnalyticsOutputDto, StakingOutputDto, StakingQueryDto } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 import { useLock } from './LockContextProvider'
@@ -55,6 +55,8 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
   }
 
   const fetchLockData = (): void => {
+    const query: StakingQueryDto = { asset: 'DFI', blockchain: 'DeFiChain', strategy: 'Masternode' }
+
     setIsloading(true)
     const getUser = LOCKgetUser()
       .then((user) => {
@@ -62,13 +64,13 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
       })
       .catch(WalletAlertErrorApi)
 
-    const getStakingInfo = LOCKgetStaking({ asset: 'DFI', blockchain: 'DeFiChain' })
+    const getStakingInfo = LOCKgetStaking(query)
       .then(staking => {
         setStakingInfo(staking)
         setProviderStakingInfo(staking)
       })
 
-    const getAnalytics = LOCKgetAnalytics()
+    const getAnalytics = LOCKgetAnalytics(query)
       .then(setAnalytics)
 
     Promise.all([getUser, getStakingInfo, getAnalytics]).finally(() => setIsloading(false))
