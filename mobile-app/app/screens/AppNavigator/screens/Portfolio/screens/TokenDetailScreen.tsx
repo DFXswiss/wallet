@@ -93,10 +93,13 @@ export function TokenDetailScreen ({
     swapTokenDisplaySymbol
   } = usePoolPairToken(route.params.token)
   const [isSellable, setIsSellable] = useState(false)
+  const [isBuyable, setIsBuyable] = useState(false)
 
   useEffect(() => {
     getAssets().then((assets) => {
-      setIsSellable(assets.find((a) => a.name === token.displaySymbol)?.sellable ?? false)
+      const asset = assets.find((a) => a.name === token.displaySymbol)
+      setIsSellable(asset?.sellable ?? false)
+      setIsBuyable(asset?.buyable ?? false)
     })
   }, [])
 
@@ -150,17 +153,18 @@ export function TokenDetailScreen ({
       {
         token.id !== '0' && (
           <>
-            <TokenActionRow
-              icon='bank' // {BtnSell} // TODO: add + implement custom icon
-              iconType='MaterialCommunityIcons'
-              onPress={() => navigation.navigate({
-                name: 'Buy',
-                params: { token },
-                merge: true
-              })}
-              testID='buy_button'
-              title={translate('screens/TokenDetailScreen', 'Buy')}
-            />
+            {isBuyable && (
+              <TokenActionRow
+                icon='bank' // {BtnSell} // TODO: add + implement custom icon
+                iconType='MaterialCommunityIcons'
+                onPress={() => navigation.navigate({
+                  name: 'Buy',
+                  params: { token },
+                  merge: true
+                })}
+                testID='buy_button'
+                title={translate('screens/TokenDetailScreen', 'Buy')}
+              />)}
 
             {isSellable && (
               <TokenActionRow
