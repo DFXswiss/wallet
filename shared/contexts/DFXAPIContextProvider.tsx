@@ -222,7 +222,6 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
         addr: address,
         signature: sig
       })
-      await DFXPersistence.resetPin()
       return sig
     }
 
@@ -252,6 +251,7 @@ export function DFXAPIContextProvider (props: PropsWithChildren<{}>): JSX.Elemen
           dispatch(authentication.actions.prompt(auth))
         })
       } else {
+        await DFXPersistence.resetPin()
         const provider = MnemonicEncrypted.initProvider(providerData, network, { prompt: async () => pin })
         const sigBuffer = await signMessage(provider, message)
         return await onMessageSigned(sigBuffer, message)

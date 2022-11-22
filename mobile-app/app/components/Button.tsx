@@ -53,7 +53,7 @@ export function Button (props: ButtonProps): JSX.Element {
       {
         text !== undefined && (
           <>
-            {isSubmitting && <ThemedActivityIndicator />}
+            {isSubmitting && <ThemedActivityIndicator lock={props.lock} />}
             <Text style={(tailwind(`${textStyle} font-bold text-center`))}>
               {text}
             </Text>

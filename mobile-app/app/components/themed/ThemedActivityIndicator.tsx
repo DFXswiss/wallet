@@ -4,7 +4,7 @@ import { ActivityIndicator, ActivityIndicatorProps } from 'react-native'
 import { theme } from '../../tailwind.config'
 import { ThemedProps } from './index'
 
-type ThemedTextProps = ActivityIndicatorProps & ThemedProps
+type ThemedTextProps = ActivityIndicatorProps & ThemedProps & { lock?: boolean}
 
 export function ThemedActivityIndicator (props: ThemedTextProps): JSX.Element {
   const { isLight } = useThemeContext()
@@ -14,7 +14,7 @@ export function ThemedActivityIndicator (props: ThemedTextProps): JSX.Element {
   } = props
   return (
     <ActivityIndicator
-      color={isLight ? '#ff00af' : theme.extend.colors.dfxred[500]}
+      color={isLight ? '#ff00af' : (props.lock !== true && theme.extend.colors.dfxred[500])}
       style={style}
       {...otherProps}
     />
