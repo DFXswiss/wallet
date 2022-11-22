@@ -117,7 +117,7 @@ export function DfxButtons (): JSX.Element {
     },
     {
       Svg: DfxIcon,
-      label: 'Staking',
+      label: 'My DFX',
       onPress: openDfxServices
     },
     {
