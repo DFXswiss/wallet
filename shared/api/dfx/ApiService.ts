@@ -47,7 +47,6 @@ const CryptoRouteUrl = 'cryptoRoute'
 const HistoryUrl = 'history'
 const AssetUrl = 'asset'
 const FiatUrl = 'fiat'
-const CountryUrl = 'country'
 const LanguageUrl = 'language'
 const BankTxUrl = 'bankTx'
 const StatisticUrl = 'statistic'
@@ -252,6 +251,10 @@ export const putKycData = async (data: KycData): Promise<KycInfo> => {
   return await fetchFrom(`${KycUrl}/data`, 'POST', toKycDataDto(data))
 }
 
+export const getCountries = async (): Promise<Country[]> => {
+  return await fetchFrom<Country[]>(`${KycUrl}/countries`).then((countries) => countries.sort((a, b) => (a.name > b.name ? 1 : -1)))
+}
+
 // --- VOTING --- //
 export const getSettings = async (): Promise<Settings> => {
   return await fetchFrom<Settings>(SettingUrl)
@@ -366,10 +369,6 @@ export const getAssets = async (): Promise<Asset[]> => {
 
 export const getFiats = async (): Promise<Fiat[]> => {
   return await fetchFrom<Fiat[]>(FiatUrl)
-}
-
-export const getCountries = async (): Promise<Country[]> => {
-  return await fetchFrom<Country[]>(CountryUrl).then((countries) => countries.sort((a, b) => (a.name > b.name ? 1 : -1)))
 }
 
 export const getLanguages = async (): Promise<Language[]> => {

@@ -32,14 +32,6 @@ export const BottomSheetCountryPicker = ({
   }
   const FlatList = Platform.OS === 'web' ? flatListComponents.web : flatListComponents.mobile
 
-  const filterEnabled = (countryList: Country[]): Country[] => {
-    return countryList?.filter((item) => {
-      return item.enable
-    })
-  }
-
-  const filteredList = filterEnabled(countries)
-
   return (
 
     <FlatList
@@ -48,7 +40,7 @@ export const BottomSheetCountryPicker = ({
           'bg-dfxblue-800': !isLight,
           'bg-white': isLight
         })}
-      data={filteredList}
+      data={countries}
       renderItem={({ item }: { item: Country }) => (
         <ListItem item={item.name} onPress={() => onItemPress(item)} />
         )}
@@ -79,12 +71,12 @@ export const BottomSheetCountryPicker = ({
       //     'bg-dfxblue-800': !isLight,
       //     'bg-white': isLight
       //   })}
-      //   data={filteredList}
+      //   data={countries}
       //   renderItem={({ item }: { item: Country }) => (
       //     <FiatItem fiat={'TFL: ' + item.name} onPress={() => onItemPress(item)} />
       //   )}
       // />
-      // <FiatItem fiat={filteredList?.at(0)?.name ?? 'Land'} onPress={() => onItemPress(filteredList?.at(0) ?? testCountry)} />
+      // <FiatItem fiat={countries?.at(0)?.name ?? 'Land'} onPress={() => onItemPress(countries?.at(0) ?? testCountry)} />
       // <TouchableOpacity onPress={onCloseButtonPress}>
       //   <ThemedIcon iconType='MaterialIcons' name='close' size={20} />
       // </TouchableOpacity>
