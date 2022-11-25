@@ -2,22 +2,20 @@ import { tailwind } from '@tailwind'
 import BigNumber from 'bignumber.js'
 import React, { useEffect, useState } from 'react'
 import { TouchableOpacity, View } from 'react-native'
-import { TokenNameText } from '../components/TokenNameText'
-import { TokenAmountText } from '../components/TokenAmountText'
-import { ThemedActivityIndicator, ThemedIcon, ThemedTextBasic } from '@components/themed'
+import { ThemedActivityIndicator, ThemedIcon, ThemedText, ThemedTextBasic } from '@components/themed'
 import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 import { translate } from '@translations'
 import { useNavigation, NavigationProp } from '@react-navigation/native'
 import { PortfolioParamList } from '../PortfolioNavigator'
-import { LOCKgetAnalytics, LOCKgetStaking, LOCKgetUser, StakingAnalyticsOutputDto, StakingOutputDto, StakingQueryDto } from '@shared-api/dfx/ApiService'
+import { LOCKgetAllAnalytics, LOCKgetAllStaking, LOCKgetUser, StakingAnalyticsOutputDto, StakingOutputDto } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
 import { useLock } from './LockContextProvider'
 import { useTokenPrice } from '../hooks/TokenPrice'
-import { DFITokenSelector } from '@store/wallet'
-import { useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { useDisplayBalancesContext } from '@contexts/DisplayBalancesContext'
+import { BalanceText } from '../components/BalanceText'
+import NumberFormat from 'react-number-format'
+import { getPrecisedTokenValue } from '../../Auctions/helpers/precision-token-value'
+import { PortfolioButtonGroupTabKey } from '../components/TotalPortfolio'
 
 interface LockStakingCardProps {
   denominationCurrency: string
@@ -26,81 +24,65 @@ interface LockStakingCardProps {
 
 export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockStakingCardProps): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
-  const { isBalancesDisplayed } = useDisplayBalancesContext()
   const { LOCKcreateWebToken } = useDFXAPIContext()
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false)
   // data loading logic
-  const [isLoading, setIsloading] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
   const [loggedIn, setLoggedIn] = useState(false)
   // checks if there's a LOCK user
-  const { isKycComplete, setKycComplete, getProviderStakingInfo, setProviderStakingInfo } = useLock()
+  const { isKycComplete, setKycComplete } = useLock()
 
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
-  const stakingAmount = !loggedIn ? null : ((stakingInfo?.balance) != null) ? stakingInfo.balance : !isKycComplete ? 0 : getProviderStakingInfo?.balance ?? 0
+  const [yieldInfo, setYieldInfo] = useState<StakingOutputDto>()
   const [analytics, setAnalytics] = useState<StakingAnalyticsOutputDto>()
-  const { apy, apr } = analytics ?? { apy: 0, apr: 0 }
 
-  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet))
   const { getTokenPrice } = useTokenPrice(denominationCurrency)
-  const usdAmount = getTokenPrice(DFIToken.symbol, new BigNumber(stakingAmount))
+  const usdAmount = stakingInfo != null && yieldInfo != null
+    ? getTokenPrice(stakingInfo.asset, new BigNumber(stakingInfo?.balance ?? 0))
+      .plus(getTokenPrice(yieldInfo.asset, new BigNumber(yieldInfo?.balance ?? 0)))
+    : null
 
   const enterLOCK = (): void => {
     LOCKcreateWebToken()
       .then(() => {
         setLoggedIn(true)
-
-        fetchLockData()
+        fetchLockData(true)
       })
       .catch(WalletAlertErrorApi)
   }
 
-  const fetchLockData = (): void => {
-    const query: StakingQueryDto = { asset: 'DFI', blockchain: 'DeFiChain', strategy: 'Masternode' }
+  const fetchLockData = (loggedIn: boolean): void => {
+    setIsLoading(true)
 
-    setIsloading(true)
-    const getUser = LOCKgetUser()
-      .then((user) => {
-        setKycComplete(user)
+    const getUser = loggedIn
+      ? LOCKgetUser()
+        .then((user) => setKycComplete(user))
+        .catch(WalletAlertErrorApi)
+      : Promise.resolve()
+
+    const getStakingInfo = loggedIn
+      ? LOCKgetAllStaking()
+        .then(([stkInfo, ymInfo]) => {
+          setStakingInfo(stkInfo)
+          setYieldInfo(ymInfo)
+        })
+        .catch(() => {})
+      : Promise.resolve()
+
+    const getAnalytics = LOCKgetAllAnalytics()
+      .then(([stkAnalytics, ymAnalytics]) => {
+        setAnalytics(stkAnalytics.apr > ymAnalytics.apr ? stkAnalytics : ymAnalytics)
       })
-      .catch(WalletAlertErrorApi)
+      .catch(() => {})
 
-    const getStakingInfo = LOCKgetStaking(query)
-      .then(staking => {
-        setStakingInfo(staking)
-        setProviderStakingInfo(staking)
-      })
-
-    const getAnalytics = LOCKgetAnalytics(query)
-      .then(setAnalytics)
-
-    Promise.all([getUser, getStakingInfo, getAnalytics]).finally(() => setIsloading(false))
+    Promise.all([getUser, getStakingInfo, getAnalytics]).finally(() => setIsLoading(false))
   }
 
-  useEffect(() => {
-    if (loggedIn) {
-      fetchLockData()
-    }
-  }, [refreshTrigger])
+  useEffect(() => fetchLockData(loggedIn), [refreshTrigger])
 
   const navigateToLock = (): void => {
     isKycComplete ? navigation.navigate('LockDashboardScreen') : navigation.navigate('LockKycScreen')
   }
-
-  // if (!loggedIn) {
-  //   return (
-  //     <View
-  //       style={tailwind('m-4 px-4 py-4 bg-lock-500 rounded-lg')}
-  //     >
-  //       <TouchableOpacity onPress={() => enterLOCK()}>
-  //         <Text
-  //           style={tailwind('text-lg text-white self-center font-medium')}
-  //         >
-  //           enter LOCK
-  //         </Text>
-  //       </TouchableOpacity>
-  //     </View>
-  //   )
-  // }
 
   return (
     <>
@@ -114,24 +96,53 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
         >
           <View style={tailwind('flex-row items-center')}>
             <LOCKunlockedIcon height={48} width={48} />
-            <TokenNameText displaySymbol='DFI Staking by LOCK' name={`${apy}% APY / ${apr}% APR`} testID='' />
-            {stakingAmount != null && <TokenAmountText
-              tokenAmount={stakingAmount.toString()}
-              usdAmount={usdAmount}
-              testID=''
-              isBalancesDisplayed={isBalancesDisplayed}
-              denominationCurrency={denominationCurrency}
-              decimalScale={2}
-                                      />}
+            <View style={tailwind('mx-3 flex-auto')}>
+              <ThemedText
+                dark={tailwind('text-gray-200')}
+                light={tailwind('text-black')}
+                style={tailwind('font-medium')}
+              >
+                {translate('LOCK/LockCard', 'Interests by LOCK')}
+              </ThemedText>
+              {analytics != null && (
+                <ThemedText
+                  dark={tailwind('text-gray-200')}
+                  light={tailwind('text-gray-600')}
+                  numberOfLines={1}
+                  style={tailwind('text-xs')}
+                >
+                  {translate('LOCK/LockCard', 'up to {{apy}}% APY / {{apr}}% APR', { apr: analytics.apr, apy: analytics.apy })}
+                </ThemedText>
+              )}
+            </View>
+            {usdAmount != null && (
+              <NumberFormat
+                displayType='text'
+                prefix={(denominationCurrency === undefined || denominationCurrency === PortfolioButtonGroupTabKey.USDT) ? '≈ $' : undefined}
+                suffix={(denominationCurrency !== undefined && denominationCurrency !== PortfolioButtonGroupTabKey.USDT) ? ` ${denominationCurrency}` : undefined}
+                renderText={(value) =>
+                  <>
+                    <View style={tailwind('flex leading-6 items-end')}>
+                      <BalanceText
+                        dark={tailwind('text-gray-200')}
+                        light={tailwind('text-black')}
+                        style={tailwind('flex-wrap')}
+                        value={value}
+                      />
+                    </View>
+                  </>}
+                thousandSeparator
+                value={getPrecisedTokenValue(usdAmount)}
+              />)}
           </View>
         </TouchableOpacity>
-        {(isLoading) && <ThemedActivityIndicator size='large' color='#fff' style={tailwind('absolute inset-0 items-center justify-center')} />}
+        {(isLoading && stakingInfo == null && yieldInfo == null) && <ThemedActivityIndicator size='large' color='#fff' style={tailwind('absolute inset-0 items-center justify-center')} />}
         {isBreakdownExpanded && (
           <View
             style={tailwind('mx-2 pt-4 pb-3')}
           >
             <ThemedTextBasic style={tailwind('text-sm')}>
-              {translate('LOCK/LockCard', 'The custodial staking service powered by LOCK uses customers\' staked DFI, operates masternodes with it, and thus generates revenue (rewards) for customers.')}
+              {translate('LOCK/LockCard', 'The custodial service powered by LOCK invests customers\' assets into the DeFiChain, a decentralized protocol, to earn interests via Staking.')}
             </ThemedTextBasic>
           </View>
         )}

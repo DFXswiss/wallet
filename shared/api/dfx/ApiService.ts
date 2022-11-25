@@ -141,7 +141,26 @@ export const LOCKgetSignMessage = async (address: string): Promise<LockSignMessa
   return await fetchFromLOCK<LockSignMessageResponse>(`${AuthUrl}/sign-message`, 'GET', undefined, { withoutJWT: true, queryParams: { address } })
 }
 
-// --- GENERAL --- //
+// --- KYC --- //
+export const LOCKpostKyc = async (): Promise<LockKYC> => {
+  return await fetchFromLOCK<LockKYC>(LOCKKycUrl, 'POST')
+}
+
+// --- USER --- //
+export const LOCKgetUser = async (): Promise<LockUserDto> => {
+  return await fetchFromLOCK<LockUserDto>(UserUrl)
+}
+
+// --- STAKING --- //
+const stakingTypes: StakingQueryDto[] = [
+  { asset: 'DFI', blockchain: 'DeFiChain', strategy: 'Masternode' },
+  { asset: 'DUSD', blockchain: 'DeFiChain', strategy: 'LiquidityMining' }
+]
+
+export const LOCKgetAllAnalytics = async (): Promise<StakingAnalyticsOutputDto[]> => {
+  return await Promise.all(stakingTypes.map(LOCKgetAnalytics))
+}
+
 export const LOCKgetAnalytics = async (query: StakingQueryDto): Promise<StakingAnalyticsOutputDto> => {
   return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics, undefined, undefined, { queryParams: query }).then(fromAnalyticsDto)
 }
@@ -155,17 +174,10 @@ const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalytic
 
 const round = (amount: number, decimals: number): number => Math.round(amount * Math.pow(10, decimals)) / Math.pow(10, decimals)
 
-// --- KYC --- //
-export const LOCKpostKyc = async (): Promise<LockKYC> => {
-  return await fetchFromLOCK<LockKYC>(LOCKKycUrl, 'POST')
+export const LOCKgetAllStaking = async (): Promise<StakingOutputDto[]> => {
+  return await Promise.all(stakingTypes.map(LOCKgetStaking))
 }
 
-// --- USER --- //
-export const LOCKgetUser = async (): Promise<LockUserDto> => {
-  return await fetchFromLOCK<LockUserDto>(UserUrl)
-}
-
-// --- STAKING --- //
 export const LOCKgetStaking = async (query: StakingQueryDto): Promise<StakingOutputDto> => {
   return await fetchFromLOCK<StakingOutputDto>(LOCKStakingUrl, undefined, undefined, { queryParams: query })
 }

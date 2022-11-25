@@ -32,7 +32,7 @@ import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { send } from '@screens/AppNavigator/screens/Portfolio/screens/SendConfirmationScreen'
 import { Button } from '@components/Button'
-import { LOCKdeposit, LOCKgetAnalytics, LOCKgetStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, StakingQueryDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
+import { LOCKdeposit, LOCKgetAllAnalytics, LOCKgetAllStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
 import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
@@ -64,7 +64,7 @@ enum TabKey {
 
 export function LockDashboardScreen (): JSX.Element {
   const transaction = useSelector((state: RootState) => firstTransactionSelector(state.ocean))
-  const { setProviderStakingInfo, openCfpVoting } = useLock()
+  const { openCfpVoting } = useLock()
   const { address } = useWalletContext()
 
   const [isLoading, setIsLoading] = useState(true)
@@ -72,11 +72,6 @@ export function LockDashboardScreen (): JSX.Element {
   const [stakingAnalytics, setStakingAnalytics] = useState<StakingAnalyticsOutputDto>({ apr: 0, apy: 0 })
   const [yieldMachineInfo, setYieldMachineInfo] = useState<StakingOutputDto>()
   const [yieldMachineAnalytics, setYieldMachineAnalytics] = useState<StakingAnalyticsOutputDto>({ apr: 0, apy: 0 })
-
-  const stakingTypes: StakingQueryDto[] = [
-    { asset: 'DFI', blockchain: 'DeFiChain', strategy: 'Masternode' },
-    { asset: 'DUSD', blockchain: 'DeFiChain', strategy: 'LiquidityMining' }
-  ]
 
   const email = 'support@lock.space'
 
@@ -162,44 +157,46 @@ export function LockDashboardScreen (): JSX.Element {
       }])
   }, [])
 
-  const fetchStakingInfo = async (): Promise<void> => {
-    setIsLoading(true)
-
-    await Promise.all(stakingTypes.map(fetchStakingInfoFor))
-      .then(([[stkInfo, stkAnalytics], [ymInfo, ymAnalytics]]) => {
-        setStakingInfo(stkInfo)
-        setProviderStakingInfo(stkInfo)
-        setStakingAnalytics(stkAnalytics)
-        setYieldMachineInfo(ymInfo)
-        setYieldMachineAnalytics(ymAnalytics)
-      })
-      .catch(WalletAlertErrorApi)
-      .finally(() => setIsLoading(false))
-  }
-
-  const fetchStakingInfoFor = async (query: StakingQueryDto): Promise<[StakingOutputDto, StakingAnalyticsOutputDto]> => {
-    return await Promise.all([
-      LOCKgetStaking(query),
-      LOCKgetAnalytics(query)
-    ])
-  }
+  useEffect(() => fetch(), [])
 
   const [refreshing, setRefreshing] = useState(false)
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
-    fetchStakingInfo()
+    fetch()
     setRefreshing(false)
   }, [])
+
+  const fetch = (): void => {
+    fetchStakingInfo()
+    fetchAnalytics()
+  }
+
+  const fetchStakingInfo = async (): Promise<void> => {
+    setIsLoading(true)
+
+    await LOCKgetAllStaking()
+      .then(([stkInfo, ymInfo]) => {
+        setStakingInfo(stkInfo)
+        setYieldMachineInfo(ymInfo)
+      })
+      .catch(WalletAlertErrorApi)
+      .finally(() => setIsLoading(false))
+  }
+
+  const fetchAnalytics = async (): Promise<void> => {
+    await LOCKgetAllAnalytics()
+      .then(([stkAnalytics, ymAnalytics]) => {
+        setStakingAnalytics(stkAnalytics)
+        setYieldMachineAnalytics(ymAnalytics)
+      })
+      .catch(WalletAlertErrorApi)
+  }
 
   const onCsvExport = useCallback(async () => {
     const baseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl
     await openURL(`${baseUrl}/analytics/history/compact?userAddress=${address ?? ''}&type=csv`)
   }, [address])
-
-  useEffect(() => {
-    fetchStakingInfo()
-  }, [])
 
   // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
   // TODO: check for possible refactor to dispatch / component lifecycle-independence
