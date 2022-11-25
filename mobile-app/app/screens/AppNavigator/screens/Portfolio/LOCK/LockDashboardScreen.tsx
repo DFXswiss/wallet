@@ -195,7 +195,7 @@ export function LockDashboardScreen (): JSX.Element {
 
   const onCsvExport = useCallback(async () => {
     const baseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl
-    await openURL(`${baseUrl}/analytics/history/compact?userAddress=${address ?? ''}&type=csv`)
+    await openURL(`${baseUrl}/analytics/history/ChainReport?userAddress=${address ?? ''}&type=csv`)
   }, [address])
 
   // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
