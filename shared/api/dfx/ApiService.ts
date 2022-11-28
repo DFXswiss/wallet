@@ -77,6 +77,8 @@ export interface NewLockUser {
 export interface StakingAnalyticsOutputDto {
   apy: number
   apr: number
+  tvl: number
+  asset: string
 }
 
 export interface LockKYC {
@@ -167,8 +169,10 @@ export const LOCKgetAnalytics = async (query: StakingQueryDto): Promise<StakingA
 
 const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalyticsOutputDto => {
   return {
+    ...analytics,
     apr: round(analytics.apr * 100, 1),
-    apy: round(analytics.apy * 100, 1)
+    apy: round(analytics.apy * 100, 1),
+    tvl: round(analytics.tvl, 0)
   }
 }
 

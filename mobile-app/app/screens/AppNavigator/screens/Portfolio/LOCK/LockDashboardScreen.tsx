@@ -69,9 +69,9 @@ export function LockDashboardScreen (): JSX.Element {
 
   const [isLoading, setIsLoading] = useState(true)
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
-  const [stakingAnalytics, setStakingAnalytics] = useState<StakingAnalyticsOutputDto>({ apr: 0, apy: 0 })
+  const [stakingAnalytics, setStakingAnalytics] = useState<StakingAnalyticsOutputDto>()
   const [yieldMachineInfo, setYieldMachineInfo] = useState<StakingOutputDto>()
-  const [yieldMachineAnalytics, setYieldMachineAnalytics] = useState<StakingAnalyticsOutputDto>({ apr: 0, apy: 0 })
+  const [yieldMachineAnalytics, setYieldMachineAnalytics] = useState<StakingAnalyticsOutputDto>()
 
   const email = 'support@lock.space'
 
@@ -224,7 +224,7 @@ export function LockDashboardScreen (): JSX.Element {
     }
   ]
 
-  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'dUSD Yield Machine'
+  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'dUSD Yield Machine (BETA)'
   const info = activeButton === TabKey.Staking ? stakingInfo : yieldMachineInfo
   const setInfo = (info: StakingOutputDto): void => activeButton === TabKey.Staking ? setStakingInfo(info) : setYieldMachineInfo(info)
   const analytics = activeButton === TabKey.Staking ? stakingAnalytics : yieldMachineAnalytics
@@ -242,7 +242,7 @@ export function LockDashboardScreen (): JSX.Element {
         }
       >
 
-        <View style={tailwind('h-40 bg-lock-800')}>
+        <View style={tailwind('bg-lock-800')}>
           <View style={tailwind('self-center mt-4')}>
             <View style={tailwind('flex-row self-center')}>
               <LOCKunlockedIcon height={48} width={48} style={tailwind('mr-2')} />
@@ -253,8 +253,11 @@ export function LockDashboardScreen (): JSX.Element {
             <Text style={tailwind('mt-6 text-lg text-white self-center')}>
               {translate('LOCK/LockDashboardScreen', title)}
             </Text>
-            <Text style={tailwind('text-xl text-white font-bold mb-6 self-center')}>
-              {translate('LOCK/LockDashboardScreen', `APY ${analytics.apy}%  APR ${analytics.apr}%`)}
+            <Text style={tailwind('text-xl text-white font-bold self-center')}>
+              {analytics != null && translate('LOCK/LockDashboardScreen', 'APY {{apy}}%  APR {{apr}}%', { apy: analytics.apy, apr: analytics.apr })}
+            </Text>
+            <Text style={tailwind('text-sm text-white mb-5 self-center')}>
+              {analytics != null && translate('LOCK/LockDashboardScreen', analytics.asset === 'DFI' ? '{{amount}} {{asset}} staked' : '{{amount}} {{asset}} deposited', { amount: analytics.tvl, asset: analytics.asset })}
             </Text>
           </View>
         </View>
