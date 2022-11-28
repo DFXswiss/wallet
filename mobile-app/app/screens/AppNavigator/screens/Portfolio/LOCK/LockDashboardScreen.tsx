@@ -42,6 +42,7 @@ import { getEnvironment } from '@environment'
 import { getReleaseChannel } from '@api/releaseChannel'
 import { ButtonGroup } from '../../Dex/components/ButtonGroup'
 import { useWalletContext } from '@shared-contexts/WalletContext'
+import NumberFormat from 'react-number-format'
 
 type StakingAction = 'STAKE' | 'UNSTAKE' | 'DEPOSIT' | 'WITHDRAW'
 
@@ -253,12 +254,21 @@ export function LockDashboardScreen (): JSX.Element {
             <Text style={tailwind('mt-6 text-lg text-white self-center')}>
               {translate('LOCK/LockDashboardScreen', title)}
             </Text>
-            <Text style={tailwind('text-xl text-white font-bold self-center')}>
-              {analytics != null && translate('LOCK/LockDashboardScreen', 'APY {{apy}}%  APR {{apr}}%', { apy: analytics.apy, apr: analytics.apr })}
-            </Text>
-            <Text style={tailwind('text-sm text-white mb-5 self-center')}>
-              {analytics != null && translate('LOCK/LockDashboardScreen', analytics.asset === 'DFI' ? '{{amount}} {{asset}} staked' : '{{amount}} {{asset}} deposited', { amount: analytics.tvl, asset: analytics.asset })}
-            </Text>
+            {analytics != null &&
+              <>
+                <Text style={tailwind('text-xl text-white font-bold self-center')}>
+                  {translate('LOCK/LockDashboardScreen', 'APY {{apy}}%  APR {{apr}}%', { apy: analytics.apy, apr: analytics.apr })}
+                </Text>
+                <NumberFormat
+                  value={analytics.tvl}
+                  thousandSeparator
+                  displayType='text'
+                  renderText={value =>
+                    <Text style={tailwind('text-sm text-white mb-5 self-center')}>
+                      {translate('LOCK/LockDashboardScreen', analytics.asset === 'DFI' ? '{{amount}} {{asset}} staked' : '{{amount}} {{asset}} deposited', { amount: value, asset: analytics.asset })}
+                    </Text>}
+                />
+              </>}
           </View>
         </View>
 
@@ -401,24 +411,45 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
         <Text style={tailwind('text-xl font-bold ')}>
           {translate('LOCK/LockDashboardScreen', asset === 'DFI' ? 'DFI Staking' : asset)}
         </Text>
-        <Text style={tailwind('text-xl font-medium ')}>
-          {translate('LOCK/LockDashboardScreen', '{{amount}} {{asset}}', { amount: new BigNumber(info.balance ?? 0).decimalPlaces(7).toString(), asset: asset })}
-        </Text>
+        <NumberFormat
+          value={info.balance ?? 0}
+          thousandSeparator
+          decimalScale={4}
+          displayType='text'
+          renderText={value =>
+            <Text style={tailwind('text-xl font-medium ')}>
+              {translate('LOCK/LockDashboardScreen', '{{amount}} {{asset}}', { amount: value, asset: asset })}
+            </Text>}
+        />
       </View>
       {info != null && info.pendingDeposits > 0 && (
-        <ListItem
-          pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${new BigNumber(info.pendingDeposits).decimalPlaces(2).toString()} ${asset}` }}
-          style='px-4 pb-2'
-          fieldStyle='text-xl font-normal'
-          isDisabled
+        <NumberFormat
+          value={info.pendingDeposits}
+          thousandSeparator
+          decimalScale={2}
+          displayType='text'
+          renderText={value =>
+            <ListItem
+              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${value} ${asset}` }}
+              style='px-4 pb-2'
+              fieldStyle='text-xl font-normal'
+              isDisabled
+            />}
         />
       )}
       {info != null && info.pendingWithdrawals > 0 && (
-        <ListItem
-          pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${new BigNumber(info.pendingWithdrawals).decimalPlaces(2).toString()} ${asset}` }}
-          style='px-4 pb-2'
-          fieldStyle='text-xl font-normal'
-          isDisabled
+        <NumberFormat
+          value={info.pendingWithdrawals}
+          thousandSeparator
+          decimalScale={2}
+          displayType='text'
+          renderText={value =>
+            <ListItem
+              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${value} ${asset}` }}
+              style='px-4 pb-2'
+              fieldStyle='text-xl font-normal'
+              isDisabled
+            />}
         />
       )}
 
