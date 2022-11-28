@@ -42,6 +42,8 @@ import { getEnvironment } from '@environment'
 import { getReleaseChannel } from '@api/releaseChannel'
 import { ButtonGroup } from '../../Dex/components/ButtonGroup'
 import { useWalletContext } from '@shared-contexts/WalletContext'
+import { ANNOUNCEMENTCHANNELDELAY, AnnouncementChannel } from '@shared-types/website'
+import { Announcements } from '../components/Announcements'
 import NumberFormat from 'react-number-format'
 
 type StakingAction = 'STAKE' | 'UNSTAKE' | 'DEPOSIT' | 'WITHDRAW'
@@ -210,6 +212,14 @@ export function LockDashboardScreen (): JSX.Element {
   }
   }, [transaction, transactionCache])
 
+  // announcements
+  const [announcementDelayFinished, setAnnouncementDelayFinished] = useState(false)
+  useEffect(() => {
+    setTimeout(() => {
+      setAnnouncementDelayFinished(true)
+    }, ANNOUNCEMENTCHANNELDELAY)
+  }, [])
+
   // tabbing
   const [activeButton, setActiveButton] = useState<string>(TabKey.Staking)
   const buttonGroup = [
@@ -242,6 +252,7 @@ export function LockDashboardScreen (): JSX.Element {
           />
         }
       >
+        {announcementDelayFinished && <Announcements channel={AnnouncementChannel.LOCK} />}
 
         <View style={tailwind('bg-lock-800')}>
           <View style={tailwind('self-center mt-4')}>
