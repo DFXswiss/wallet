@@ -118,6 +118,7 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
             {usdAmount != null && (
               <NumberFormat
                 displayType='text'
+                decimalScale={2}
                 prefix={(denominationCurrency === undefined || denominationCurrency === PortfolioButtonGroupTabKey.USDT) ? '≈ $' : undefined}
                 suffix={(denominationCurrency !== undefined && denominationCurrency !== PortfolioButtonGroupTabKey.USDT) ? ` ${denominationCurrency}` : undefined}
                 renderText={(value) =>
