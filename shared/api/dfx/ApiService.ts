@@ -164,7 +164,7 @@ export const LOCKgetAllAnalytics = async (): Promise<StakingAnalyticsOutputDto[]
 }
 
 export const LOCKgetAnalytics = async (query: StakingQueryDto): Promise<StakingAnalyticsOutputDto> => {
-  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics, undefined, undefined, { queryParams: query }).then(fromAnalyticsDto)
+  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics, undefined, undefined, { queryParams: query, withoutJWT: true }).then(fromAnalyticsDto)
 }
 
 const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalyticsOutputDto => {
