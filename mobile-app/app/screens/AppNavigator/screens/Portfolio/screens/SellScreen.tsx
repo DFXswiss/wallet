@@ -226,8 +226,8 @@ export function SellScreen ({
   }, [address, addressBook])
 
   useEffect(() => {
-    getPaymentInfo()
-  }, [selectedBankAccount, selectedFiat, selectedToken])
+    !isLoadingKyc && getPaymentInfo()
+  }, [isLoadingKyc, selectedBankAccount, selectedFiat, selectedToken])
 
   const setToken = (token: WalletToken): void => {
     setSelectedToken(token)
