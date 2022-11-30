@@ -8,6 +8,7 @@ export interface Asset {
   chainId: string
   type: AssetType
   name: string
+  dexName: string
   buyable: boolean
   sellable: boolean
 }

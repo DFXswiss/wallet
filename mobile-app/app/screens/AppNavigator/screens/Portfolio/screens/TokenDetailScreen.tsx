@@ -97,7 +97,7 @@ export function TokenDetailScreen ({
 
   useEffect(() => {
     getAssets().then((assets) => {
-      const asset = assets.find((a) => a.name === token.displaySymbol)
+      const asset = assets.find((a) => a.dexName === token.symbol)
       setIsSellable(asset?.sellable ?? false)
       setIsBuyable(asset?.buyable ?? false)
     })
