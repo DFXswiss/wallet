@@ -225,42 +225,37 @@ export function SellScreen ({
     debounceMatchAddress()
   }, [address, addressBook])
 
+  useEffect(() => {
+    getPaymentInfo()
+  }, [selectedBankAccount, selectedFiat, selectedToken])
+
   const setToken = (token: WalletToken): void => {
     setSelectedToken(token)
-
-    getPaymentInfo({ token })
   }
 
   const setAccount = (bankAccount: BankAccount): void => {
     setSelectedBankAccount(bankAccount)
     setSelectedFiat(bankAccount.fiat ?? undefined)
-
-    getPaymentInfo({ bankAccount })
   }
 
   const setFiat = (fiat: Fiat): void => {
     setSelectedFiat(fiat)
     updatePreferredCurrencyIfNull(fiat, selectedBankAccount)
-
-    getPaymentInfo({ fiat })
   }
 
-  const getPaymentInfo = ({ bankAccount, fiat, token }: {bankAccount?: BankAccount, fiat?: Fiat, token?: WalletToken} = {}): void => {
-    bankAccount = bankAccount ?? selectedBankAccount
-    fiat = fiat ?? selectedFiat
-    token = token ?? selectedToken
-    const asset = assets.find((a) => a.name === token?.displaySymbol)
+  const getPaymentInfo = (): void => {
+    const asset = assets.find((a) => a.name === selectedToken?.displaySymbol)
 
-    if (bankAccount == null || fiat == null || token == null || asset == null) {
+    if (selectedBankAccount == null || selectedFiat == null || selectedToken == null || asset == null) {
       return
     }
 
     // load sell infos
     const paymentInfos: GetSellPaymentInfoDto = {
-      iban: bankAccount.iban,
+      iban: selectedBankAccount.iban,
       asset: asset,
       blockchain: Blockchain.DEFICHAIN,
-      currency: fiat
+      currency: selectedFiat
     }
 
     setIsLoadingData(true)
