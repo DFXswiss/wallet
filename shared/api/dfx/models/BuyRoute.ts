@@ -54,6 +54,7 @@ export interface BuyPaymentInfoDto {
   fee: number
   refBonus: number
   remittanceInfo: string
+  sepaInstant: boolean
   minDeposits: [
     {
       amount: number

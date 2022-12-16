@@ -69,7 +69,7 @@ export function BuyConfirmationScreen ({ route, navigation }: Props): JSX.Elemen
           text={translate('screens/SendScreen', 'TRANSACTION DETAILS')}
         />
         <ThemedView dark={tailwind('rounded-md border-2 border-dfxblue-800')}>
-          <List list={transactionDetailList} sepaInstant={route.params.transactionDetails.sepaInstant} />
+          <List list={transactionDetailList} sepaInstant={route.params.buyPaymentInfo.sepaInstant} />
         </ThemedView>
 
         <Button
