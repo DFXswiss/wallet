@@ -120,7 +120,7 @@ export function LockDashboardScreen (): JSX.Element {
     }
   ]
 
-  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'dUSD Yield Machine (BETA)'
+  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'dUSD Yield Machine'
   const info = activeButton === TabKey.Staking ? stakingInfo : yieldMachineInfo
   const setInfo = (info: StakingOutputDto): void => activeButton === TabKey.Staking ? setStakingInfo(info) : setYieldMachineInfo(info)
   const analytics = activeButton === TabKey.Staking ? stakingAnalytics : yieldMachineAnalytics
