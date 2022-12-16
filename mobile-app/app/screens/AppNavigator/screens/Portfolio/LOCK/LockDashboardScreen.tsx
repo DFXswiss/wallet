@@ -6,7 +6,7 @@ import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 
 import { InputHelperText } from '@components/InputHelperText'
 import { WalletTextInput } from '@components/WalletTextInput'
-import { DFIUtxoSelector, tokensSelector, WalletToken } from '@store/wallet'
+import { DFIUtxoSelector, tokenSelectorByDisplaySymbol, tokensSelector, WalletToken } from '@store/wallet'
 import BigNumber from 'bignumber.js'
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Control, Controller, useForm } from 'react-hook-form'
@@ -45,6 +45,7 @@ import { useWalletContext } from '@shared-contexts/WalletContext'
 import { ANNOUNCEMENTCHANNELDELAY, AnnouncementChannel } from '@shared-types/website'
 import { Announcements } from '../components/Announcements'
 import NumberFormat from 'react-number-format'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 
 type StakingAction = 'STAKE' | 'UNSTAKE' | 'DEPOSIT' | 'WITHDRAW'
 
@@ -104,6 +105,27 @@ export function LockDashboardScreen (): JSX.Element {
     }
   ]
 
+  // tabbing
+  const [activeButton, setActiveButton] = useState<string>(TabKey.Staking)
+  const buttonGroup = [
+    {
+      id: TabKey.Staking,
+      label: translate('LOCK/LockDashboardScreen', 'STAKING'),
+      handleOnPress: () => setActiveButton(TabKey.Staking)
+    },
+    {
+      id: TabKey.YieldMachine,
+      label: translate('LOCK/LockDashboardScreen', 'YIELD MACHINE'),
+      handleOnPress: () => setActiveButton(TabKey.YieldMachine)
+    }
+  ]
+
+  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'dUSD Yield Machine (BETA)'
+  const info = activeButton === TabKey.Staking ? stakingInfo : yieldMachineInfo
+  const setInfo = (info: StakingOutputDto): void => activeButton === TabKey.Staking ? setStakingInfo(info) : setYieldMachineInfo(info)
+  const analytics = activeButton === TabKey.Staking ? stakingAnalytics : yieldMachineAnalytics
+  const rewards = activeButton === TabKey.Staking ? stakingRewardDistribution : yieldMachineRewardDistribution
+
   // Bottom sheet
   const [isModalDisplayed, setIsModalDisplayed] = useState(false)
   const [bottomSheetScreen, setBottomSheetScreen] = useState<BottomSheetNavScreen[]>([])
@@ -128,12 +150,12 @@ export function LockDashboardScreen (): JSX.Element {
 
   const [transactionCache, setTransactionCache] = useState<TransactionCache>()
 
-  const openModal = (action: StakingAction, info: StakingOutputDto, token: WalletToken): void => {
+  const openModal = (action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData): void => {
     setStakingBottomSheet(action, info, token)
     expandModal()
   }
 
-  const setStakingBottomSheet = useCallback((action: StakingAction, info: StakingOutputDto, token: WalletToken) => {
+  const setStakingBottomSheet = useCallback((action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData) => {
     setBottomSheetScreen([
       {
         stackScreenName: 'BottomSheetStaking',
@@ -146,9 +168,10 @@ export function LockDashboardScreen (): JSX.Element {
             dismissModal()
           },
           onUnstaked: async (newStakingInfo): Promise<void> => {
-            setStakingInfo(newStakingInfo)
+            setInfo(newStakingInfo)
             // wait for pass code modal to close
             setTimeout(() => dismissModal(), 1000)
+            setTimeout(() => dismissModal(), 2000)
           },
           stakingInfo: info,
           action,
@@ -158,7 +181,7 @@ export function LockDashboardScreen (): JSX.Element {
           header: () => null
         }
       }])
-  }, [])
+  }, [activeButton])
 
   useEffect(() => fetch(), [])
 
@@ -219,27 +242,6 @@ export function LockDashboardScreen (): JSX.Element {
       setAnnouncementDelayFinished(true)
     }, ANNOUNCEMENTCHANNELDELAY)
   }, [])
-
-  // tabbing
-  const [activeButton, setActiveButton] = useState<string>(TabKey.Staking)
-  const buttonGroup = [
-    {
-      id: TabKey.Staking,
-      label: translate('LOCK/LockDashboardScreen', 'STAKING'),
-      handleOnPress: () => setActiveButton(TabKey.Staking)
-    },
-    {
-      id: TabKey.YieldMachine,
-      label: translate('LOCK/LockDashboardScreen', 'YIELD MACHINE'),
-      handleOnPress: () => setActiveButton(TabKey.YieldMachine)
-    }
-  ]
-
-  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'dUSD Yield Machine (BETA)'
-  const info = activeButton === TabKey.Staking ? stakingInfo : yieldMachineInfo
-  const setInfo = (info: StakingOutputDto): void => activeButton === TabKey.Staking ? setStakingInfo(info) : setYieldMachineInfo(info)
-  const analytics = activeButton === TabKey.Staking ? stakingAnalytics : yieldMachineAnalytics
-  const rewards = activeButton === TabKey.Staking ? stakingRewardDistribution : yieldMachineRewardDistribution
 
   return (
     <View style={tailwind('h-full bg-gray-200 border-t border-dfxgray-500')}>
@@ -404,14 +406,14 @@ interface StakingCardProps {
   info: StakingOutputDto
   rewardDistribution: Array<{ asset: string, share: number}>
   isLoading: boolean
-  openModal: (action: StakingAction, info: StakingOutputDto, token: WalletToken) => void
+  openModal: (action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData) => void
 }
 
 function StakingCard ({ info, rewardDistribution, isLoading, openModal }: StakingCardProps): JSX.Element {
-  const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
-  const token = tokens.find((t) => t.displaySymbol === info.asset)
-  const asset = info.asset
+  const token = useSelector((state: RootState) => tokenSelectorByDisplaySymbol(state.wallet, info.asset))
+  const walletToken = useSelector((state: RootState) => tokensSelector(state.wallet)).find((t) => t.displaySymbol === info.asset)
 
+  const asset = info.asset
   const addAction = asset === 'DFI' ? 'STAKE' : 'DEPOSIT'
   const removeAction = asset === 'DFI' ? 'UNSTAKE' : 'WITHDRAW'
 
@@ -487,9 +489,9 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
           margin='m-3 '
           padding='p-1'
           extraStyle='flex-grow'
-          onPress={() => token != null && openModal(addAction, info, token)}
+          onPress={() => walletToken != null && openModal(addAction, info, walletToken)}
           lock
-          disabled={isLoading || token == null || new BigNumber(token.amount).isLessThanOrEqualTo(0)}
+          disabled={isLoading || walletToken == null || new BigNumber(walletToken.amount).isLessThanOrEqualTo(0)}
           isSubmitting={isLoading}
           style={tailwind('h-8')}
         />
@@ -501,7 +503,7 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
           extraStyle='flex-grow'
           onPress={() => token != null && openModal(removeAction, info, token)}
           lock
-          disabled={isLoading || token == null || (info != null && info.balance <= 0) || asset !== 'DFI'}
+          disabled={isLoading || token == null || (info != null && info.balance <= 0)}
           isSubmitting={isLoading}
           style={tailwind('h-4')}
         />
@@ -519,7 +521,7 @@ interface BottomSheetStakingProps {
   onCloseButtonPress: () => void
   onStaked: (stakingTransaction: TransactionCache) => void
   onUnstaked: (newStakingInfo: StakingOutputDto) => void
-  token: WalletToken
+  token: WalletToken | TokenData
   stakingInfo: StakingOutputDto
   action: StakingAction
   signMessage: (message: string) => Promise<string>
@@ -542,18 +544,15 @@ export const BottomSheetStaking = ({
     setValue,
     formState,
     getValues,
-    trigger,
-    watch
+    trigger
   } = useForm({ mode: 'onChange' })
   const dispatch = useAppDispatch()
-  const { address } = watch()
   const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
   const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
   const logger = useLogger()
 
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
 
-  const [hasBalance, setHasBalance] = useState(false)
   const [isOnPage, setIsOnPage] = useState<boolean>(true)
 
   // modal scrollView setup
@@ -587,6 +586,10 @@ export const BottomSheetStaking = ({
   }
 
   async function stake (amount: BigNumber): Promise<void> {
+    if (!('amount' in token)) {
+return
+}
+
     const depositAddress = stakingInfo?.depositAddress ?? ''
 
     if (formState.isValid && (depositAddress.length > 0)) {
