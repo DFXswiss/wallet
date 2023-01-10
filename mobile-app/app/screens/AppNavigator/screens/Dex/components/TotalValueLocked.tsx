@@ -2,7 +2,7 @@ import { ThemedText, ThemedView } from '@components/themed'
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
 import BigNumber from 'bignumber.js'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 
 export function TotalValueLocked (props: {tvl: number}): JSX.Element {
   return (

@@ -11,7 +11,7 @@ import { translate } from '@translations'
 import BigNumber from 'bignumber.js'
 import React, { useCallback, useEffect, useState } from 'react'
 import { Platform, View } from 'react-native'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 
 export interface AddOrEditCollateralFormProps {
   token: string

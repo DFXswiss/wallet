@@ -2,7 +2,7 @@ import { useRef } from 'react'
 import { ThemedFlatList, ThemedIcon, ThemedText, ThemedTouchableOpacity } from '@components/themed'
 import { tailwind } from '@tailwind'
 import { translate } from '@translations'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { View } from 'react-native'
 import { getNativeIcon } from '@components/icons/assets'
 import { LoanToken, LoanVaultActive, LoanVaultState } from '@defichain/whale-api-client/dist/api/loan'

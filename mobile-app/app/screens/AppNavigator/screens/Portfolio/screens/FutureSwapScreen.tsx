@@ -3,7 +3,7 @@ import { ThemedFlatList, ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedV
 import { StackScreenProps } from '@react-navigation/stack'
 import { translate } from '@translations'
 import { useCallback, useEffect } from 'react'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { tailwind } from '@tailwind'
 import { PortfolioParamList } from '../PortfolioNavigator'
 import { batch, useSelector } from 'react-redux'

@@ -1,6 +1,6 @@
 import BigNumber from 'bignumber.js'
 
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { tailwind } from '@tailwind'
 import { ThemedText } from './themed'
 import { View } from '.'

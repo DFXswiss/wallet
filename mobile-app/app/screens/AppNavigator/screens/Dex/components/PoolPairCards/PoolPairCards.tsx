@@ -23,7 +23,7 @@ import { WalletToken } from '@store/wallet'
 import { useDebounce } from '@hooks/useDebounce'
 import { useFavouritePoolpairs } from '../../hook/FavouritePoolpairs'
 import { AddressToken } from '@defichain/whale-api-client/dist/api/address'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue'
 import { useSelector } from 'react-redux'
 import { RootState } from '@store'
@@ -116,24 +116,28 @@ export function PoolPairCards ({
   )
 
   useEffect(() => {
-    setIsSearching(false)
     if (showSearchInput === false) {
-      setFilteredYourPairs(yourPairs.sort(pairSortingFn))
-      return
+      setFilteredYourPairs(yourPairs.sort(pairSortingFn));
+      return;
     }
 
-    if (debouncedSearchTerm !== undefined && debouncedSearchTerm.trim().length > 0) {
+    if (
+      debouncedSearchTerm !== undefined &&
+      debouncedSearchTerm.trim().length > 0
+    ) {
       setFilteredYourPairs(
-        yourPairs.filter((pair) =>
-          pair.data.displaySymbol
-            .toLowerCase()
-            .includes(debouncedSearchTerm.trim().toLowerCase())
-        ).sort(pairSortingFn)
-      )
+        yourPairs
+          .filter((pair) =>
+            pair.data.displaySymbol
+              .toLowerCase()
+              .includes(debouncedSearchTerm.trim().toLowerCase())
+          )
+          .sort(pairSortingFn)
+      );
     } else {
-      setFilteredYourPairs([])
+      setFilteredYourPairs([]);
     }
-  }, [yourPairs, debouncedSearchTerm, showSearchInput])
+  }, [yourPairs, debouncedSearchTerm, showSearchInput]);
 
   const renderItem = ({
     item,

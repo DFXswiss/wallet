@@ -1,6 +1,6 @@
 
 import { View } from 'react-native'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { tailwind } from '@tailwind'
 import { getNativeIcon } from './icons/assets'
 import { ThemedText, ThemedView } from './themed'

@@ -44,7 +44,7 @@ import { ButtonGroup } from '../components/ButtonGroup'
 import { useFutureSwap, useFutureSwapDate } from '../hook/FutureSwap'
 import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext'
 import { openURL } from '@api/linking'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { TextRow } from '@components/TextRow'
 import { PriceRateProps, PricesSection } from '@components/PricesSection'
 import { fetchExecutionBlock } from '@store/futureSwap'

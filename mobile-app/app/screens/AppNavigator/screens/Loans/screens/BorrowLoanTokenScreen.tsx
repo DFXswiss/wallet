@@ -15,7 +15,7 @@ import { LoanParamList } from '../LoansNavigator'
 import { BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types'
 import { SymbolIcon } from '@components/SymbolIcon'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { WalletTextInput } from '@components/WalletTextInput'
 import { NumberRow } from '@components/NumberRow'
 import { BottomSheetVaultList } from '../components/BottomSheetVaultList'

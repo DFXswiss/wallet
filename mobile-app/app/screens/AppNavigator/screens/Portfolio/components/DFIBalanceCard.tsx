@@ -23,7 +23,7 @@ import BigNumber from 'bignumber.js'
 import { useState } from 'react'
 import { LockedBalance, useTokenLockedBalance } from '../hooks/TokenLockedBalance'
 import { TokenBreakdownDetails } from './TokenBreakdownDetails'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { BalanceText } from './BalanceText'
 import { translate } from '@translations'
 interface DFIBalaceCardProps {

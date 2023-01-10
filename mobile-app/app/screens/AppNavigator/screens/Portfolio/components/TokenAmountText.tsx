@@ -1,6 +1,6 @@
 import { tailwind } from '@tailwind'
 import { View } from '@components'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { BalanceText } from '@screens/AppNavigator/screens/Portfolio/components/BalanceText'
 import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue'
 import BigNumber from 'bignumber.js'

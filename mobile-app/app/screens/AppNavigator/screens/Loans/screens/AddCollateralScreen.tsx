@@ -10,7 +10,7 @@ import BigNumber from 'bignumber.js'
 import { BottomSheetModal } from '@gorhom/bottom-sheet'
 import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { TouchableOpacity } from 'react-native'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { LoanParamList } from '../LoansNavigator'
 import { BottomSheetNavScreen, BottomSheetWithNav } from '@components/BottomSheetWithNav'
 import { AddOrEditCollateralForm, AddOrEditCollateralFormProps } from '../components/AddOrEditCollateralForm'

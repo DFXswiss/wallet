@@ -12,7 +12,7 @@ import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingPro
 import { debounce } from 'lodash'
 import { openURL } from '@api/linking'
 import { IconTooltip } from '@components/tooltip/IconTooltip'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import BigNumber from 'bignumber.js'
 import { useSelector } from 'react-redux'
 import { RootState } from '@store'

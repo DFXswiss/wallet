@@ -1,6 +1,6 @@
 import { tailwind } from '@tailwind'
 import { ThemedView, ThemedText } from '@components/themed'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { StyleProp, ViewProps } from 'react-native'
 import { TextProps } from '@components'
 import { SuffixType } from './NumberRow'

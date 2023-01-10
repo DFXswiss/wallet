@@ -6,7 +6,7 @@ import { tailwind } from '@tailwind'
 import { getNativeIcon } from '@components/icons/assets'
 import { ThemedText } from '@components/themed'
 import { translate } from '@translations'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { SkeletonLoader, SkeletonLoaderScreen } from '@components/SkeletonLoader'
 
 interface PriceRatesSectionProps {
