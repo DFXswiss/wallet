@@ -1,5 +1,5 @@
 // @ts-expect-error
-import Avatar from 'react-native-boring-avatars'
+import Avatar from "@mealection/react-native-boring-avatars";
 import { theme } from '../../../../../tailwind.config'
 
 export function RandomAvatar (props: Avatar['props']): JSX.Element {
