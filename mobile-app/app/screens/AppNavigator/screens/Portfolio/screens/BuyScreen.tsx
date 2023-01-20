@@ -34,7 +34,7 @@ import { ActionButton } from '../../Dex/components/PoolPairCards/ActionSection'
 import { BottomSheetFiatAccountCreate, FiatPickerRow } from '@components/SellComponents/BottomSheetFiatAccountCreate'
 import { buyWithPaymentInfos, getAssets, getBankAccounts } from '@shared-api/dfx/ApiService'
 import { BankAccount } from '@shared-api/dfx/models/BankAccount'
-import { Fiat } from '@shared-api/dfx/models/Fiat'
+import { DefaultFiat, Fiat } from '@shared-api/dfx/models/Fiat'
 import { BottomSheetFiatPicker } from '@components/SellComponents/BottomSheetFiatPicker'
 import { GetBuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute'
 import { Asset } from '@shared-api/dfx/models/Asset'
@@ -55,12 +55,7 @@ export function BuyScreen ({
   const [token, setToken] = useState(route.params?.token)
   const [selectedBankAccount, setSelectedbankAccount] = useState<BankAccount>()
   const [bankAccounts, setBankAccounts] = useState<BankAccount[]>([])
-  const initialFiat: Fiat = {
-    id: 2,
-    name: 'EUR',
-    enable: true
-  }
-  const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
+  const [selectedFiat, setSelectedFiat] = useState<Fiat>(DefaultFiat)
   const {
     control,
     setValue,
@@ -270,16 +265,10 @@ export function BuyScreen ({
       }])
   }, [])
 
-  const canProcess = (): boolean => {
-    return !(hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount === undefined || !selectedFiat.enable)
-  }
+  const dataInvalid = hasPendingJob || hasPendingBroadcastJob || token === undefined || selectedBankAccount?.iban === undefined || selectedFiat === undefined || !selectedFiat.sellable
 
   async function onSubmit (): Promise<void> {
-    if (!canProcess()) {
-      return
-    }
-
-    if (token === undefined || ((selectedBankAccount?.iban) == null)) {
+    if (dataInvalid) {
       return
     }
 
@@ -363,7 +352,7 @@ export function BuyScreen ({
                     <FiatPickerRow
                       fiat={selectedFiat}
                       openFiatBottomSheet={(fiats) => {
-                        setFiatPickerBottomSheet(fiats)
+                        setFiatPickerBottomSheet(fiats.filter((f) => f.sellable))
                         expandModal()
                       }}
                     />
@@ -389,7 +378,7 @@ export function BuyScreen ({
 
         <View style={tailwind('mt-6')}>
           <SubmitButtonGroup
-            isDisabled={!formState.isValid || !canProcess() || selectedBankAccount === undefined || hasPendingJob || hasPendingBroadcastJob || token === undefined}
+            isDisabled={!formState.isValid || dataInvalid}
             label={translate('screens/BuyScreen', 'Buy Asset')}
             processingLabel={translate('screens/BuyScreen', 'Buy Asset')}
             onSubmit={onSubmit}
