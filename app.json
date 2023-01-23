@@ -30,12 +30,8 @@
       }
     },
     "android": {
-      "adaptiveIcon": {
-        "foregroundImage": "./shared/assets/images/adaptive-icon.png",
-        "backgroundColor": "#FFFFFF"
-      },
       "package": "com.defichain.app.dfx",
-      "versionCode": 32,
+      "versionCode": 35,
       "permissions": [
         "CAMERA",
         "USE_BIOMETRIC",
@@ -44,6 +40,11 @@
     },
     "web": {
       "favicon": "./shared/assets/images/favicon.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "21b4cf58-e50b-497b-ac75-45508d88ff29"
+      }
     }
   }
 }
