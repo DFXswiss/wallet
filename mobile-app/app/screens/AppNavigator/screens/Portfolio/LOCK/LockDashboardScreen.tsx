@@ -178,7 +178,7 @@ export function LockDashboardScreen (): JSX.Element {
         headerBackTitleVisible: false
       }
     }])
-  }, [])
+  }, [activeButton])
 
   const setStakingBottomSheet = useCallback((action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData | undefined) => {
     setBottomSheetScreen([
