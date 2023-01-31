@@ -442,7 +442,7 @@ interface StakingCardProps {
 
 function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModal }: StakingCardProps): JSX.Element {
   const token = useSelector((state: RootState) => tokenSelectorByDisplaySymbol(state.wallet, info.asset))
-  const walletToken = useSelector((state: RootState) => tokensSelector(state.wallet)).find((t) => t.displaySymbol === info.asset)
+  const walletToken = useSelector((state: RootState) => tokensSelector(state.wallet)).find((t) => info.balances.map((b) => b.asset).includes(t.displaySymbol))
 
   const addAction = info.strategy === StakingStrategy.MASTERNODE ? 'STAKE' : 'DEPOSIT'
   const removeAction = info.strategy === StakingStrategy.MASTERNODE ? 'UNSTAKE' : 'WITHDRAW'
