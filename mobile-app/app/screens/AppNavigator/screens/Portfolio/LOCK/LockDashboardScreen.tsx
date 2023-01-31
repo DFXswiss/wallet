@@ -549,7 +549,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
           extraStyle='flex-grow'
           onPress={() => token != null && openModal(removeAction, info, token)}
           lock
-          disabled={isLoading || token == null || info?.balances.some((b) => b.balance > 0) || info.strategy === StakingStrategy.LIQUIDITY_MINING}
+          disabled={isLoading || token == null || !info?.balances.some((b) => b.balance > 0) || info.strategy === StakingStrategy.LIQUIDITY_MINING}
           isSubmitting={isLoading}
           style={tailwind('h-4')}
         />
@@ -739,7 +739,7 @@ export const BottomSheetStaking = ({
           token={token}
           action={action}
           staking={stakingInfo}
-          balance={stakingInfo.balances.find((b) => b.asset === token.name)}
+          balance={stakingInfo.balances.find((b) => b.asset === token.displaySymbol)}
         />
 
         <View style={tailwind('my-6')}>
