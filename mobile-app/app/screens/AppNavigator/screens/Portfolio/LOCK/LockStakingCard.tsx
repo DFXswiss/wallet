@@ -38,8 +38,7 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
 
   const { getTokenPrice } = useTokenPrice(denominationCurrency)
   const usdAmount = stakingInfo != null && yieldInfo != null
-    ? getTokenPrice(stakingInfo.asset, new BigNumber(stakingInfo?.balances?.[0].balance ?? 0))
-      .plus(yieldInfo.balances.map((b) => getTokenPrice(b.asset, new BigNumber(b.balance))).reduce((prev, curr) => prev.plus(curr)))
+    ? stakingInfo.balances.concat(yieldInfo.balances).map((b) => getTokenPrice(b.asset, new BigNumber(b.balance))).reduce((prev, curr) => prev.plus(curr))
     : null
 
   const enterLOCK = (): void => {
