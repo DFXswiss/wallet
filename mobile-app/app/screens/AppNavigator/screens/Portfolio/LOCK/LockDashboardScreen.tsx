@@ -32,7 +32,7 @@ import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { send } from '@screens/AppNavigator/screens/Portfolio/screens/SendConfirmationScreen'
 import { Button } from '@components/Button'
-import { LOCKdeposit, LOCKgetAllAnalytics, LOCKgetAllStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
+import { LOCKdeposit, LOCKgetAllAnalytics, LOCKgetAllStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, StakingStrategy, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
 import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
@@ -46,6 +46,7 @@ import { ANNOUNCEMENTCHANNELDELAY, AnnouncementChannel } from '@shared-types/web
 import { Announcements } from '../components/Announcements'
 import NumberFormat from 'react-number-format'
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
+import { BottomSheetToken, BottomSheetTokenList, TokenType } from '@components/BottomSheetTokenList'
 
 type StakingAction = 'STAKE' | 'UNSTAKE' | 'DEPOSIT' | 'WITHDRAW'
 
@@ -147,15 +148,41 @@ export function LockDashboardScreen (): JSX.Element {
   }, [])
 
   const { signMessage } = useDFXAPIContext()
-
+  const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const [transactionCache, setTransactionCache] = useState<TransactionCache>()
 
   const openModal = (action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData): void => {
-    setStakingBottomSheet(action, info, token)
+    if (info.strategy === StakingStrategy.LIQUIDITY_MINING) {
+      setTokenSelectionBottomSheet(action, info)
+    } else {
+      setStakingBottomSheet(action, info, token)
+    }
     expandModal()
   }
 
-  const setStakingBottomSheet = useCallback((action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData) => {
+  const setTokenSelectionBottomSheet = useCallback((action: StakingAction, info: StakingOutputDto) => {
+    setBottomSheetScreen([{
+      stackScreenName: 'TokenList',
+      component: BottomSheetTokenList({
+        isLOCK: true,
+        simple: true,
+        tokens: getBottomSheetToken(tokens.filter((token) => token.id === '11' || token.id === '0_utxo')),
+        tokenType: TokenType.BottomSheetToken,
+        headerLabel: translate('LOCK/LockDashboardScreen', 'Select token to deposit'), // TODO: withdraw
+        onCloseButtonPress: dismissModal,
+        onTokenPress: (item) => setStakingBottomSheet(action, info, item.walletToken)
+      }),
+      option: {
+        header: () => null,
+        headerBackTitleVisible: false
+      }
+    }])
+  }, [])
+
+  const setStakingBottomSheet = useCallback((action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData | undefined) => {
+    if (token === undefined) {
+      return
+    }
     setBottomSheetScreen([
       {
         stackScreenName: 'BottomSheetStaking',
@@ -414,8 +441,8 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
   const walletToken = useSelector((state: RootState) => tokensSelector(state.wallet)).find((t) => t.displaySymbol === info.asset)
 
   const asset = info.asset
-  const addAction = asset === 'DFI' ? 'STAKE' : 'DEPOSIT'
-  const removeAction = asset === 'DFI' ? 'UNSTAKE' : 'WITHDRAW'
+  const addAction = info.strategy === StakingStrategy.MASTERNODE ? 'STAKE' : 'DEPOSIT'
+  const removeAction = info.strategy === StakingStrategy.MASTERNODE ? 'UNSTAKE' : 'WITHDRAW'
 
   return (
     <>
@@ -663,10 +690,10 @@ return
 
   return (
     <ScrollView
-      style={tailwind('flex-1 bg-gray-200')}
+      style={tailwind('flex-1 bg-gray-100')}
     >
       <View
-        style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b border-gray-300', { 'py-3.5 border-t -mb-px': Platform.OS === 'android' })} // border top on android to handle 1px of horizontal transparent line when scroll past header
+        style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b border-gray-200', { 'py-3.5 border-t -mb-px': Platform.OS === 'android' })} // border top on android to handle 1px of horizontal transparent line when scroll past header
       >
         <Text
           style={tailwind('text-lg font-medium')}
@@ -818,4 +845,24 @@ function AmountRow ({
       />
     </>
   )
+}
+
+function getBottomSheetToken (tokens: WalletToken[]): BottomSheetToken[] {
+  return tokens.filter(t => {
+    return new BigNumber(t.amount).isGreaterThan(0) && t.id !== '0'
+  }).map(t => {
+    const displaySymbol = t.displaySymbol.replace(' (UTXO)', '')
+    const token: BottomSheetToken = {
+      tokenId: t.id,
+      available: new BigNumber(t.amount),
+      token: {
+        name: t.name,
+        displaySymbol,
+        symbol: t.symbol,
+        isLPS: t.isLPS
+      },
+      walletToken: { ...t, displaySymbol }
+    }
+    return token
+  })
 }

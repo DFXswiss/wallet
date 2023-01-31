@@ -60,7 +60,10 @@ const LOCKanalytics = 'analytics/staking'
 const LOCKKycUrl = 'kyc'
 const LOCKStakingUrl = 'staking'
 
-export type StakingStrategy = 'Masternode' | 'LiquidityMining'
+export enum StakingStrategy {
+  MASTERNODE = 'Masternode',
+  LIQUIDITY_MINING = 'LiquidityMining',
+}
 
 export interface LockSignMessageResponse {
   message: string
@@ -114,6 +117,7 @@ export interface StakingOutputDto {
   balance: number
   pendingDeposits: number
   pendingWithdrawals: number
+  strategy: StakingStrategy
 }
 
 export interface CreateDepositDto {
