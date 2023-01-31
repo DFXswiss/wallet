@@ -166,7 +166,7 @@ export function LockDashboardScreen (): JSX.Element {
       component: BottomSheetTokenList({
         isLOCK: true,
         simple: true,
-        tokens: getBottomSheetToken(tokens.filter((token) => token.id === '11' || token.id === '0_utxo')),
+        tokens: getBottomSheetToken(tokens.filter((token) => info.balances.map((b) => b.asset).includes(token.displaySymbol))),
         tokenType: TokenType.BottomSheetToken,
         headerLabel: translate('LOCK/LockDashboardScreen', 'Select token to deposit'), // TODO: withdraw
         onCloseButtonPress: dismissModal,
@@ -549,7 +549,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
           extraStyle='flex-grow'
           onPress={() => token != null && openModal(removeAction, info, token)}
           lock
-          disabled={isLoading || token == null || (info != null && info.balances.filter((b) => b.balance <= 0).length > 0)}
+          disabled={isLoading || token == null || info?.balances.some((b) => b.balance > 0) || info.strategy === StakingStrategy.LIQUIDITY_MINING}
           isSubmitting={isLoading}
           style={tailwind('h-4')}
         />
@@ -627,7 +627,7 @@ export const BottomSheetStaking = ({
     if (isStake(action)) {
       stake(amount)
     } else {
-      unstake(amount)
+      unstake(amount, token.displaySymbol)
     }
   }
 
@@ -653,8 +653,8 @@ export const BottomSheetStaking = ({
     }
   }
 
-  async function unstake (amount: BigNumber): Promise<void> {
-    LOCKwithdrawal(stakingInfo.id, amount.toNumber())
+  async function unstake (amount: BigNumber, asset: string): Promise<void> {
+    LOCKwithdrawal(stakingInfo.id, amount.toNumber(), asset)
       .then(async (withdrawal) => {
         setIsSubmitting(true)
         signWithdrawal(withdrawal)
