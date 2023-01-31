@@ -6,7 +6,7 @@ import LOCKunlockedIcon from '@assets/LOCK/Lock_unlocked.svg'
 
 import { InputHelperText } from '@components/InputHelperText'
 import { WalletTextInput } from '@components/WalletTextInput'
-import { DFIUtxoSelector, tokenSelectorByDisplaySymbol, tokensSelector, WalletToken } from '@store/wallet'
+import { allTokens, AssociatedToken, DFIUtxoSelector, tokenSelectorByDisplaySymbol, tokensSelector, WalletToken } from '@store/wallet'
 import BigNumber from 'bignumber.js'
 import React, { memo, useCallback, useEffect, useRef, useState } from 'react'
 import { Control, Controller, useForm } from 'react-hook-form'
@@ -148,7 +148,8 @@ export function LockDashboardScreen (): JSX.Element {
   }, [])
 
   const { signMessage } = useDFXAPIContext()
-  const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
+  const tokens = useSelector((state: RootState) => allTokens(state.wallet))
+  const walletTokens = useSelector((state: RootState) => tokensSelector(state.wallet))
   const [transactionCache, setTransactionCache] = useState<TransactionCache>()
 
   const openModal = (action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData): void => {
@@ -166,11 +167,11 @@ export function LockDashboardScreen (): JSX.Element {
       component: BottomSheetTokenList({
         isLOCK: true,
         simple: true,
-        tokens: getBottomSheetToken(tokens.filter((token) => info.balances.map((b) => b.asset).includes(token.displaySymbol) && !(action === 'WITHDRAW' && token.displaySymbol === 'DFI'))),
+        tokens: getBottomSheetToken(tokens, walletTokens, info, action),
         tokenType: TokenType.BottomSheetToken,
         headerLabel: translate('LOCK/LockDashboardScreen', `Select token to ${action.toLowerCase()}`),
         onCloseButtonPress: dismissModal,
-        onTokenPress: (item) => setStakingBottomSheet(action, info, item.walletToken)
+        onTokenPress: (item) => setStakingBottomSheet(action, info, item.walletToken ?? item.tokenData)
       }),
       option: {
         header: () => null,
@@ -180,9 +181,6 @@ export function LockDashboardScreen (): JSX.Element {
   }, [])
 
   const setStakingBottomSheet = useCallback((action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData | undefined) => {
-    if (token === undefined) {
-      return
-    }
     setBottomSheetScreen([
       {
         stackScreenName: 'BottomSheetStaking',
@@ -739,7 +737,7 @@ export const BottomSheetStaking = ({
           token={token}
           action={action}
           staking={stakingInfo}
-          balance={stakingInfo.balances.find((b) => b.asset === token.displaySymbol)}
+          balance={stakingInfo.balances.find((b) => b.asset === token?.displaySymbol)}
         />
 
         <View style={tailwind('my-6')}>
@@ -784,8 +782,10 @@ function AmountRow ({
 
   let maxAmount = token.symbol === 'DFI' ? new BigNumber(DFIUtxo.amount).minus(reservedDFI).toFixed(8) : token.amount
 
-  maxAmount = isStake(action) ? BigNumber.max(maxAmount, 0).toFixed(8) : balance !== undefined ? (balance.balance - balance?.pendingWithdrawals).toString() : '0'
-
+  maxAmount = isStake(action) ? BigNumber.max(maxAmount, 0).toFixed(8) : balance !== undefined ? (balance.balance - balance.pendingWithdrawals).toString() : '0'
+  if (maxAmount === 'NaN') {
+    maxAmount = '0'
+  }
   // cap amount with maxAmount before setting the setValue('amount', amount) field
   const onAmountChangeCAPPED = (amount: string): void => {
     const base = new BigNumber(amount)
@@ -869,21 +869,32 @@ function AmountRow ({
   )
 }
 
-function getBottomSheetToken (tokens: WalletToken[]): BottomSheetToken[] {
-  return tokens.filter(t => {
-    return new BigNumber(t.amount).isGreaterThan(0) && t.id !== '0'
-  }).map(t => {
+function getWalletToken (walletTokens: WalletToken[], tokenId: string): WalletToken | undefined {
+  return walletTokens.find((walletToken) => {
+    let wantedId = tokenId
+    if (tokenId === '0') {
+      wantedId = '0_utxo'
+    }
+    return walletToken.id === wantedId
+  })
+}
+
+function getBottomSheetToken (tokens: AssociatedToken, walletTokens: WalletToken[], info: StakingOutputDto, action: StakingAction): BottomSheetToken[] {
+  const tokenData = info.balances.filter((b) => !(action === 'WITHDRAW' && b.asset === 'DFI')).map((b) => tokens[b.asset])
+  return tokenData.map(t => {
     const displaySymbol = t.displaySymbol.replace(' (UTXO)', '')
+    const walletToken = getWalletToken(walletTokens, t.id)
     const token: BottomSheetToken = {
       tokenId: t.id,
-      available: new BigNumber(t.amount),
+      available: new BigNumber(walletToken?.amount ?? 0),
       token: {
         name: t.name,
         displaySymbol,
         symbol: t.symbol,
         isLPS: t.isLPS
       },
-      walletToken: { ...t, displaySymbol }
+      walletToken: walletToken !== undefined ? { ...walletToken, displaySymbol } : undefined,
+      tokenData: t
     }
     return token
   })
