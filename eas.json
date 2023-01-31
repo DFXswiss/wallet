@@ -11,7 +11,10 @@
       "distribution": "internal"
     },
     "production": {
-      "releaseChannel": "production"
+      "releaseChannel": "production",
+      "ios": {
+        "resourceClass": "m1-medium"
+      }
     }
   },
   "submit": {
