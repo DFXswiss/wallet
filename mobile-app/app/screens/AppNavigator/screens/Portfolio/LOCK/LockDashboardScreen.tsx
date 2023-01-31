@@ -455,7 +455,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
         <View key={index}>
           <View style={tailwind('flex-row px-4 py-0.5 justify-between')}>
             <View style={tailwind('flex-row')}>
-              <Text style={tailwind('text-xl font-bold ')}>
+              <Text style={tailwind('text-lg font-bold ')}>
                 {translate('LOCK/LockDashboardScreen', info.strategy === StakingStrategy.MASTERNODE ? 'DFI Staking' : balance.asset)}
               </Text>
               {analytics !== undefined && info.balances.length > 1 &&
@@ -464,7 +464,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
                   decimalScale={2}
                   displayType='text'
                   renderText={value =>
-                    <Text style={tailwind('text-lock-800 text-xs font-bold px-2 py-0.5')}>
+                    <Text style={tailwind('text-lock-800 text-xs font-bold px-1 py-0.5')}>
                       {translate('LOCK/LockDashboardScreen', '{{apy}}% APY', { apy: value })}
                     </Text>}
                 />}
@@ -472,10 +472,10 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
             <NumberFormat
               value={balance.balance ?? 0}
               thousandSeparator
-              decimalScale={4}
+              decimalScale={2}
               displayType='text'
               renderText={value =>
-                <Text style={tailwind('text-xl font-medium ')}>
+                <Text style={tailwind('text-lg font-medium ')}>
                   {translate('LOCK/LockDashboardScreen', '{{amount}} {{asset}}', { amount: value, asset: balance.asset })}
                 </Text>}
             />
@@ -490,7 +490,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
                 <ListItem
                   pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${value} ${balance.asset}` }}
                   style='px-4 pb-2'
-                  fieldStyle='text-xl font-normal'
+                  fieldStyle='text-lg font-normal'
                   isDisabled
                 />}
             />
@@ -505,7 +505,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
                 <ListItem
                   pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${value} ${balance.asset}` }}
                   style='px-4 pb-2'
-                  fieldStyle='text-xl font-normal'
+                  fieldStyle='text-lg font-normal'
                   isDisabled
                 />}
             />
@@ -515,18 +515,18 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
       <View style={tailwind('border-b border-gray-200 py-1')} />
 
       {/* card content / staking details */}
-      <View style={tailwind('p-4')}>
-        <Text style={tailwind('text-xl font-bold mb-2')}>
+      <View style={tailwind('px-4 py-2')}>
+        <Text style={tailwind('text-xl font-bold')}>
           {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
         </Text>
-        <ListItem pair={{ asset: 'Reinvest', share: 100 }} fieldStyle='text-xl font-medium' />
-        <ListItem pair={{ asset: 'Pay out to the wallet', share: 'tbd.' }} fieldStyle='text-xl font-normal' isDisabled />
+        <ListItem pair={{ asset: 'Reinvest', share: 100 }} fieldStyle='text-lg font-medium' />
+        <ListItem pair={{ asset: 'Pay out to the wallet', share: 'tbd.' }} fieldStyle='text-lg font-normal' isDisabled />
         {rewardDistribution.map((pair, i) => {
           return (
             <ListItem key={`al-${i}`} pair={pair} isDisabled />
           )
         })}
-        <ListItem pair={{ asset: 'Pay out to bank account', share: 'tbd.' }} fieldStyle='text-xl font-normal' isDisabled />
+        <ListItem pair={{ asset: 'Pay out to bank account', share: 'tbd.' }} fieldStyle='text-lg font-normal' isDisabled />
       </View>
       <View style={tailwind('flex-row bg-lock-200 rounded-b-md justify-between')}>
         <Button
