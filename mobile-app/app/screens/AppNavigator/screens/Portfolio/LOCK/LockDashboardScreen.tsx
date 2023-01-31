@@ -458,9 +458,9 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
               <Text style={tailwind('text-lg font-bold ')}>
                 {translate('LOCK/LockDashboardScreen', info.strategy === StakingStrategy.MASTERNODE ? 'DFI Staking' : balance.asset)}
               </Text>
-              {analytics !== undefined && info.balances.length > 1 &&
+              {info.balances.length > 1 && analytics?.find((a) => a.asset === balance.asset) !== undefined &&
                 <NumberFormat
-                  value={analytics[index].apy}
+                  value={analytics?.find((a) => a.asset === balance.asset)?.apy}
                   decimalScale={2}
                   displayType='text'
                   renderText={value =>
