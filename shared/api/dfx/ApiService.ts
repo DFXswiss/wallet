@@ -127,6 +127,7 @@ export interface StakingOutputDto {
 }
 
 export interface CreateDepositDto {
+  asset: string
   amount: number
   txId: string
 }

@@ -255,7 +255,7 @@ export function LockDashboardScreen (): JSX.Element {
   // TODO: check for possible refactor to dispatch / component lifecycle-independence
   useEffect(() => {
     if (transaction?.tx?.txId != null && transactionCache != null) {
-      LOCKdeposit(info?.id ?? 0, { amount: transactionCache.amount, txId: transaction.tx.txId })
+      LOCKdeposit(info?.id ?? 0, { asset: transactionCache.token.symbol, amount: transactionCache.amount, txId: transaction.tx.txId })
         .then(setInfo)
         .then(() => setTransactionCache(undefined))
         .catch(WalletAlertErrorApi)
@@ -300,14 +300,14 @@ export function LockDashboardScreen (): JSX.Element {
                   <Text style={tailwind('text-xl text-white font-bold self-center')}>
                     {translate('LOCK/LockDashboardScreen', 'APY {{apy}}%  APR {{apr}}%', { apy: analytics[0].apy, apr: analytics[0].apr })}
                   </Text>}
-                {analytics.forEach((item, index) =>
+                {analytics.map((item, index) =>
                   <NumberFormat
                     key={index}
                     value={item.tvl}
                     thousandSeparator
                     displayType='text'
                     renderText={value =>
-                      <Text style={tailwind('text-sm text-white mb-5 self-center')}>
+                      <Text style={tailwind('text-sm text-white self-center', { 'mb-5': index === analytics.length - 1 })}>
                         {translate('LOCK/LockDashboardScreen', item.strategy === StakingStrategy.MASTERNODE ? '{{amount}} {{asset}} staked' : '{{amount}} {{asset}} deposited', { amount: value, asset: item.asset })}
                       </Text>}
                   />)}
@@ -326,7 +326,7 @@ export function LockDashboardScreen (): JSX.Element {
           : (
             <>
               <View style={tailwind('bg-white rounded-md my-8')}>
-                <StakingCard info={info} isLoading={isLoading} rewardDistribution={rewards} openModal={openModal} />
+                <StakingCard info={info} analytics={analytics} isLoading={isLoading} rewardDistribution={rewards} openModal={openModal} />
               </View>
 
               <Button
@@ -434,28 +434,41 @@ function ListItem ({ pair, isDisabled, fieldStyle, style }: ListItemProp): JSX.E
 
 interface StakingCardProps {
   info: StakingOutputDto
+  analytics?: StakingAnalyticsOutputDto[]
   rewardDistribution: Array<{ asset: string, share: number}>
   isLoading: boolean
   openModal: (action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData) => void
 }
 
-function StakingCard ({ info, rewardDistribution, isLoading, openModal }: StakingCardProps): JSX.Element {
+function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModal }: StakingCardProps): JSX.Element {
   const token = useSelector((state: RootState) => tokenSelectorByDisplaySymbol(state.wallet, info.asset))
   const walletToken = useSelector((state: RootState) => tokensSelector(state.wallet)).find((t) => t.displaySymbol === info.asset)
 
-  const asset = info.asset
   const addAction = info.strategy === StakingStrategy.MASTERNODE ? 'STAKE' : 'DEPOSIT'
   const removeAction = info.strategy === StakingStrategy.MASTERNODE ? 'UNSTAKE' : 'WITHDRAW'
 
   return (
     <>
       {/* card header */}
-      {info.balances.forEach((balance, index) =>
-        <>
-          <View key={index} style={tailwind('flex-row p-4 justify-between')}>
-            <Text style={tailwind('text-xl font-bold ')}>
-              {translate('LOCK/LockDashboardScreen', asset === 'DFI' ? 'DFI Staking' : asset)}
-            </Text>
+      <View style={tailwind('py-1')} />
+      {info.balances.map((balance, index) =>
+        <View key={index}>
+          <View style={tailwind('flex-row px-4 py-0.5 justify-between')}>
+            <View style={tailwind('flex-row')}>
+              <Text style={tailwind('text-xl font-bold ')}>
+                {translate('LOCK/LockDashboardScreen', info.strategy === StakingStrategy.MASTERNODE ? 'DFI Staking' : balance.asset)}
+              </Text>
+              {analytics !== undefined && info.balances.length > 1 &&
+                <NumberFormat
+                  value={analytics[index].apy}
+                  decimalScale={2}
+                  displayType='text'
+                  renderText={value =>
+                    <Text style={tailwind('text-lock-800 text-xs font-bold px-2 py-0.5')}>
+                      {translate('LOCK/LockDashboardScreen', '{{apy}}% APY', { apy: value })}
+                    </Text>}
+                />}
+            </View>
             <NumberFormat
               value={balance.balance ?? 0}
               thousandSeparator
@@ -463,7 +476,7 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
               displayType='text'
               renderText={value =>
                 <Text style={tailwind('text-xl font-medium ')}>
-                  {translate('LOCK/LockDashboardScreen', '{{amount}} {{asset}}', { amount: value, asset: asset })}
+                  {translate('LOCK/LockDashboardScreen', '{{amount}} {{asset}}', { amount: value, asset: balance.asset })}
                 </Text>}
             />
           </View>
@@ -475,7 +488,7 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
               displayType='text'
               renderText={value =>
                 <ListItem
-                  pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${value} ${asset}` }}
+                  pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${value} ${balance.asset}` }}
                   style='px-4 pb-2'
                   fieldStyle='text-xl font-normal'
                   isDisabled
@@ -490,23 +503,23 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
               displayType='text'
               renderText={value =>
                 <ListItem
-                  pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${value} ${asset}` }}
+                  pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${value} ${balance.asset}` }}
                   style='px-4 pb-2'
                   fieldStyle='text-xl font-normal'
                   isDisabled
                 />}
             />
           )}
-        </>)}
+        </View>)}
 
-      <View style={tailwind('border-b border-gray-200')} />
+      <View style={tailwind('border-b border-gray-200 py-1')} />
 
       {/* card content / staking details */}
       <View style={tailwind('p-4')}>
         <Text style={tailwind('text-xl font-bold mb-2')}>
           {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
         </Text>
-        <ListItem pair={{ asset: `${asset} Reinvest`, share: 100 }} fieldStyle='text-xl font-medium' />
+        <ListItem pair={{ asset: `${info.asset} Reinvest`, share: 100 }} fieldStyle='text-xl font-medium' />
         <ListItem pair={{ asset: 'Pay out to the wallet', share: 'tbd.' }} fieldStyle='text-xl font-normal' isDisabled />
         {rewardDistribution.map((pair, i) => {
           return (
