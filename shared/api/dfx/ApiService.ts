@@ -203,7 +203,7 @@ export const LOCKdeposit = async (stakingId: number, deposit: CreateDepositDto):
 }
 
 export const LOCKwithdrawal = async (stakingId: number, amount: number, asset: string): Promise<WithdrawalDraftOutputDto> => {
-  return await fetchFromLOCK<WithdrawalDraftOutputDto>(`${LOCKStakingUrl}/${stakingId}/withdrawal`, 'POST', { amount })
+  return await fetchFromLOCK<WithdrawalDraftOutputDto>(`${LOCKStakingUrl}/${stakingId}/withdrawal`, 'POST', { amount, asset })
 }
 
 export const LOCKwithdrawalDrafts = async (stakingId: number): Promise<WithdrawalDraftOutputDto[]> => {

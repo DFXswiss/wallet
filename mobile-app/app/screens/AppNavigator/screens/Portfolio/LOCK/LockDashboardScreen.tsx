@@ -166,9 +166,9 @@ export function LockDashboardScreen (): JSX.Element {
       component: BottomSheetTokenList({
         isLOCK: true,
         simple: true,
-        tokens: getBottomSheetToken(tokens.filter((token) => info.balances.map((b) => b.asset).includes(token.displaySymbol))),
+        tokens: getBottomSheetToken(tokens.filter((token) => info.balances.map((b) => b.asset).includes(token.displaySymbol) && !(action === 'WITHDRAW' && token.displaySymbol === 'DFI'))),
         tokenType: TokenType.BottomSheetToken,
-        headerLabel: translate('LOCK/LockDashboardScreen', 'Select token to deposit'), // TODO: withdraw
+        headerLabel: translate('LOCK/LockDashboardScreen', `Select token to ${action.toLowerCase()}`),
         onCloseButtonPress: dismissModal,
         onTokenPress: (item) => setStakingBottomSheet(action, info, item.walletToken)
       }),
@@ -549,7 +549,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
           extraStyle='flex-grow'
           onPress={() => token != null && openModal(removeAction, info, token)}
           lock
-          disabled={isLoading || token == null || !info?.balances.some((b) => b.balance > 0) || info.strategy === StakingStrategy.LIQUIDITY_MINING}
+          disabled={isLoading || token == null || !info?.balances.some((b) => b.balance > 0)}
           isSubmitting={isLoading}
           style={tailwind('h-4')}
         />
