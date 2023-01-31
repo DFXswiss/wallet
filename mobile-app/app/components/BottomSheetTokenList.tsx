@@ -17,6 +17,7 @@ import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice'
 import { getActivePrice } from '@screens/AppNavigator/screens/Auctions/helpers/ActivePrice'
 import { WalletToken } from '@store/wallet'
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 
 interface BottomSheetTokenListProps {
   headerLabel: string
@@ -46,6 +47,7 @@ export interface BottomSheetToken {
   factor?: string
   reserve?: string
   walletToken?: WalletToken
+  tokenData?: TokenData
 }
 
 export enum TokenType {
@@ -127,13 +129,14 @@ export const BottomSheetTokenList = ({
                 >
                   {item.token.displaySymbol}
                 </ThemedText>
-                <ThemedText
-                  light={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-500')}
-                  dark={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-400')}
-                  style={tailwind(['text-xs', { hidden: item.token.name === '' }])}
-                >
-                  {item.token.name}
-                </ThemedText>
+                {!isLOCK &&
+                  <ThemedText
+                    light={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-500')}
+                    dark={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-400')}
+                    style={tailwind(['text-xs', { hidden: item.token.name === '' }])}
+                  >
+                    {item.token.name}
+                  </ThemedText>}
               </View>
             </View>
             <View style={tailwind('flex flex-row items-center')}>
