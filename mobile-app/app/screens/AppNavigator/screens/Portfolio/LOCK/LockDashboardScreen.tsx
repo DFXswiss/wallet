@@ -32,7 +32,7 @@ import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { useAppDispatch } from '@hooks/useAppDispatch'
 import { send } from '@screens/AppNavigator/screens/Portfolio/screens/SendConfirmationScreen'
 import { Button } from '@components/Button'
-import { LOCKdeposit, LOCKgetAllAnalytics, LOCKgetAllStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingOutputDto, StakingStrategy, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
+import { LOCKdeposit, LOCKgetAllAnalytics, LOCKgetAllStaking, LOCKwithdrawal, LOCKwithdrawalDrafts, LOCKwithdrawalSign, StakingAnalyticsOutputDto, StakingBalance, StakingOutputDto, StakingStrategy, WithdrawalDraftOutputDto } from '@shared-api/dfx/ApiService'
 import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert'
 import { NetworkName } from '@defichain/jellyfish-network'
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider'
@@ -74,9 +74,9 @@ export function LockDashboardScreen (): JSX.Element {
 
   const [isLoading, setIsLoading] = useState(true)
   const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>()
-  const [stakingAnalytics, setStakingAnalytics] = useState<StakingAnalyticsOutputDto>()
+  const [stakingAnalytics, setStakingAnalytics] = useState<StakingAnalyticsOutputDto[]>()
   const [yieldMachineInfo, setYieldMachineInfo] = useState<StakingOutputDto>()
-  const [yieldMachineAnalytics, setYieldMachineAnalytics] = useState<StakingAnalyticsOutputDto>()
+  const [yieldMachineAnalytics, setYieldMachineAnalytics] = useState<StakingAnalyticsOutputDto[]>()
 
   const email = 'support@lock.space'
 
@@ -121,7 +121,7 @@ export function LockDashboardScreen (): JSX.Element {
     }
   ]
 
-  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'dUSD Yield Machine'
+  const title = activeButton === TabKey.Staking ? 'DFI Staking' : 'Yield Machine'
   const info = activeButton === TabKey.Staking ? stakingInfo : yieldMachineInfo
   const setInfo = (info: StakingOutputDto): void => activeButton === TabKey.Staking ? setStakingInfo(info) : setYieldMachineInfo(info)
   const analytics = activeButton === TabKey.Staking ? stakingAnalytics : yieldMachineAnalytics
@@ -239,9 +239,9 @@ export function LockDashboardScreen (): JSX.Element {
 
   const fetchAnalytics = async (): Promise<void> => {
     await LOCKgetAllAnalytics()
-      .then(([stkAnalytics, ymAnalytics]) => {
-        setStakingAnalytics(stkAnalytics)
-        setYieldMachineAnalytics(ymAnalytics)
+      .then((analytics) => {
+        setStakingAnalytics(analytics.filter((a) => a.strategy === StakingStrategy.MASTERNODE))
+        setYieldMachineAnalytics(analytics.filter((a) => a.strategy === StakingStrategy.LIQUIDITY_MINING))
       })
       .catch(WalletAlertErrorApi)
   }
@@ -296,18 +296,21 @@ export function LockDashboardScreen (): JSX.Element {
             </Text>
             {analytics != null &&
               <>
-                <Text style={tailwind('text-xl text-white font-bold self-center')}>
-                  {translate('LOCK/LockDashboardScreen', 'APY {{apy}}%  APR {{apr}}%', { apy: analytics.apy, apr: analytics.apr })}
-                </Text>
-                <NumberFormat
-                  value={analytics.tvl}
-                  thousandSeparator
-                  displayType='text'
-                  renderText={value =>
-                    <Text style={tailwind('text-sm text-white mb-5 self-center')}>
-                      {translate('LOCK/LockDashboardScreen', analytics.asset === 'DFI' ? '{{amount}} {{asset}} staked' : '{{amount}} {{asset}} deposited', { amount: value, asset: analytics.asset })}
-                    </Text>}
-                />
+                {analytics.length === 1 &&
+                  <Text style={tailwind('text-xl text-white font-bold self-center')}>
+                    {translate('LOCK/LockDashboardScreen', 'APY {{apy}}%  APR {{apr}}%', { apy: analytics[0].apy, apr: analytics[0].apr })}
+                  </Text>}
+                {analytics.forEach((item, index) =>
+                  <NumberFormat
+                    key={index}
+                    value={item.tvl}
+                    thousandSeparator
+                    displayType='text'
+                    renderText={value =>
+                      <Text style={tailwind('text-sm text-white mb-5 self-center')}>
+                        {translate('LOCK/LockDashboardScreen', item.strategy === StakingStrategy.MASTERNODE ? '{{amount}} {{asset}} staked' : '{{amount}} {{asset}} deposited', { amount: value, asset: item.asset })}
+                      </Text>}
+                  />)}
               </>}
           </View>
         </View>
@@ -447,51 +450,54 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
   return (
     <>
       {/* card header */}
-      <View style={tailwind('flex-row p-4 justify-between')}>
-        <Text style={tailwind('text-xl font-bold ')}>
-          {translate('LOCK/LockDashboardScreen', asset === 'DFI' ? 'DFI Staking' : asset)}
-        </Text>
-        <NumberFormat
-          value={info.balance ?? 0}
-          thousandSeparator
-          decimalScale={4}
-          displayType='text'
-          renderText={value =>
-            <Text style={tailwind('text-xl font-medium ')}>
-              {translate('LOCK/LockDashboardScreen', '{{amount}} {{asset}}', { amount: value, asset: asset })}
-            </Text>}
-        />
-      </View>
-      {info != null && info.pendingDeposits > 0 && (
-        <NumberFormat
-          value={info.pendingDeposits}
-          thousandSeparator
-          decimalScale={2}
-          displayType='text'
-          renderText={value =>
-            <ListItem
-              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${value} ${asset}` }}
-              style='px-4 pb-2'
-              fieldStyle='text-xl font-normal'
-              isDisabled
-            />}
-        />
-      )}
-      {info != null && info.pendingWithdrawals > 0 && (
-        <NumberFormat
-          value={info.pendingWithdrawals}
-          thousandSeparator
-          decimalScale={2}
-          displayType='text'
-          renderText={value =>
-            <ListItem
-              pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${value} ${asset}` }}
-              style='px-4 pb-2'
-              fieldStyle='text-xl font-normal'
-              isDisabled
-            />}
-        />
-      )}
+      {info.balances.forEach((balance, index) =>
+        <>
+          <View key={index} style={tailwind('flex-row p-4 justify-between')}>
+            <Text style={tailwind('text-xl font-bold ')}>
+              {translate('LOCK/LockDashboardScreen', asset === 'DFI' ? 'DFI Staking' : asset)}
+            </Text>
+            <NumberFormat
+              value={balance.balance ?? 0}
+              thousandSeparator
+              decimalScale={4}
+              displayType='text'
+              renderText={value =>
+                <Text style={tailwind('text-xl font-medium ')}>
+                  {translate('LOCK/LockDashboardScreen', '{{amount}} {{asset}}', { amount: value, asset: asset })}
+                </Text>}
+            />
+          </View>
+          {balance.pendingDeposits > 0 && (
+            <NumberFormat
+              value={balance.pendingDeposits}
+              thousandSeparator
+              decimalScale={2}
+              displayType='text'
+              renderText={value =>
+                <ListItem
+                  pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Deposits '), share: `+${value} ${asset}` }}
+                  style='px-4 pb-2'
+                  fieldStyle='text-xl font-normal'
+                  isDisabled
+                />}
+            />
+          )}
+          {balance.pendingWithdrawals > 0 && (
+            <NumberFormat
+              value={balance.pendingWithdrawals}
+              thousandSeparator
+              decimalScale={2}
+              displayType='text'
+              renderText={value =>
+                <ListItem
+                  pair={{ asset: translate('LOCK/LockDashboardScreen', 'Pending Withdrawals '), share: `-${value} ${asset}` }}
+                  style='px-4 pb-2'
+                  fieldStyle='text-xl font-normal'
+                  isDisabled
+                />}
+            />
+          )}
+        </>)}
 
       <View style={tailwind('border-b border-gray-200')} />
 
@@ -530,7 +536,7 @@ function StakingCard ({ info, rewardDistribution, isLoading, openModal }: Stakin
           extraStyle='flex-grow'
           onPress={() => token != null && openModal(removeAction, info, token)}
           lock
-          disabled={isLoading || token == null || (info != null && info.balance <= 0)}
+          disabled={isLoading || token == null || (info != null && info.balances.filter((b) => b.balance <= 0).length > 0)}
           isSubmitting={isLoading}
           style={tailwind('h-4')}
         />
@@ -614,8 +620,8 @@ export const BottomSheetStaking = ({
 
   async function stake (amount: BigNumber): Promise<void> {
     if (!('amount' in token)) {
-return
-}
+      return
+    }
 
     const depositAddress = stakingInfo?.depositAddress ?? ''
 
@@ -720,6 +726,7 @@ return
           token={token}
           action={action}
           staking={stakingInfo}
+          balance={stakingInfo.balances.find((b) => b.asset === token.name)}
         />
 
         <View style={tailwind('my-6')}>
@@ -747,6 +754,7 @@ interface AmountForm {
   conversionAmount?: BigNumber
   action: StakingAction
   staking: StakingOutputDto
+  balance?: StakingBalance
 }
 
 function AmountRow ({
@@ -755,14 +763,15 @@ function AmountRow ({
   onAmountChange,
   onClearButtonPress,
   action,
-  staking
+  staking,
+  balance
 }: AmountForm): JSX.Element {
   const reservedDFI = 0.1
   const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet))
 
   let maxAmount = token.symbol === 'DFI' ? new BigNumber(DFIUtxo.amount).minus(reservedDFI).toFixed(8) : token.amount
 
-  maxAmount = isStake(action) ? BigNumber.max(maxAmount, 0).toFixed(8) : (staking.balance - staking.pendingWithdrawals).toString()
+  maxAmount = isStake(action) ? BigNumber.max(maxAmount, 0).toFixed(8) : balance !== undefined ? (balance.balance - balance?.pendingWithdrawals).toString() : '0'
 
   // cap amount with maxAmount before setting the setValue('amount', amount) field
   const onAmountChangeCAPPED = (amount: string): void => {
