@@ -519,7 +519,7 @@ function StakingCard ({ info, analytics, rewardDistribution, isLoading, openModa
         <Text style={tailwind('text-xl font-bold mb-2')}>
           {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
         </Text>
-        <ListItem pair={{ asset: `${info.asset} Reinvest`, share: 100 }} fieldStyle='text-xl font-medium' />
+        <ListItem pair={{ asset: 'Reinvest', share: 100 }} fieldStyle='text-xl font-medium' />
         <ListItem pair={{ asset: 'Pay out to the wallet', share: 'tbd.' }} fieldStyle='text-xl font-normal' isDisabled />
         {rewardDistribution.map((pair, i) => {
           return (
