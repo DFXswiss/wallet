@@ -82,6 +82,7 @@ export interface StakingAnalyticsOutputDto {
   apr: number
   tvl: number
   asset: string
+  strategy: StakingStrategy
 }
 
 export interface LockKYC {
@@ -107,6 +108,13 @@ export interface StakingQueryDto {
   strategy: StakingStrategy
 }
 
+export interface StakingBalance {
+  asset: string
+  balance: number
+  pendingDeposits: number
+  pendingWithdrawals: number
+}
+
 export interface StakingOutputDto {
   id: number
   asset: string
@@ -114,9 +122,7 @@ export interface StakingOutputDto {
   minimalStake: number
   minimalDeposit: number
   fee: number
-  balance: number
-  pendingDeposits: number
-  pendingWithdrawals: number
+  balances: StakingBalance[]
   strategy: StakingStrategy
 }
 
@@ -159,8 +165,9 @@ export const LOCKgetUser = async (): Promise<LockUserDto> => {
 
 // --- STAKING --- //
 const stakingTypes: StakingQueryDto[] = [
-  { asset: 'DFI', blockchain: 'DeFiChain', strategy: 'Masternode' },
-  { asset: 'DUSD', blockchain: 'DeFiChain', strategy: 'LiquidityMining' }
+  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.MASTERNODE },
+  { asset: 'DUSD', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
+  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING }
 ]
 
 export const LOCKgetAllAnalytics = async (): Promise<StakingAnalyticsOutputDto[]> => {
