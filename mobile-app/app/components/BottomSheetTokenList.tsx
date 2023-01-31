@@ -16,6 +16,7 @@ import { LoanVaultActive } from '@defichain/whale-api-client/dist/api/loan'
 import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue'
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice'
 import { getActivePrice } from '@screens/AppNavigator/screens/Auctions/helpers/ActivePrice'
+import { WalletToken } from '@store/wallet'
 
 interface BottomSheetTokenListProps {
   headerLabel: string
@@ -30,6 +31,7 @@ interface BottomSheetTokenListProps {
   tokenType: TokenType
   isOraclePrice?: boolean
   simple?: boolean
+  isLOCK?: boolean
 }
 
 export interface BottomSheetToken {
@@ -43,6 +45,7 @@ export interface BottomSheetToken {
   }
   factor?: string
   reserve?: string
+  walletToken?: WalletToken
 }
 
 export enum TokenType {
@@ -59,7 +62,8 @@ export const BottomSheetTokenList = ({
   vault,
   tokenType,
   isOraclePrice,
-  simple = false
+  simple = false,
+  isLOCK = false
 }: BottomSheetTokenListProps): React.MemoExoticComponent<() => JSX.Element> => memo(() => {
   const { isLight } = useThemeContext()
   const navigation = useNavigation<NavigationProp<BottomSheetWithNavRouteParam>>()
@@ -106,6 +110,8 @@ export const BottomSheetTokenList = ({
               }
             }}
             style={tailwind('px-4 py-3 flex flex-row items-center justify-between')}
+            light={tailwind({ 'text-black border-b border-gray-200': isLOCK })}
+            dark={tailwind({ 'text-black border-b border-gray-200': isLOCK })}
             testID={`select_${item.token.displaySymbol}`}
           >
             <View style={tailwind('flex flex-row items-center')}>
@@ -115,13 +121,15 @@ export const BottomSheetTokenList = ({
               />
               <View style={tailwind('ml-2')}>
                 <ThemedText
+                  light={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-500')}
+                  dark={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-400')}
                   testID={`token_symbol_${item.token.displaySymbol}`}
                 >
                   {item.token.displaySymbol}
                 </ThemedText>
                 <ThemedText
-                  light={tailwind('text-dfxgray-500')}
-                  dark={tailwind('text-dfxgray-400')}
+                  light={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-500')}
+                  dark={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-400')}
                   style={tailwind(['text-xs', { hidden: item.token.name === '' }])}
                 >
                   {item.token.name}
@@ -137,8 +145,8 @@ export const BottomSheetTokenList = ({
                     displayType='text'
                     renderText={value =>
                       <ThemedText
-                        light={tailwind('text-gray-700')}
-                        dark={tailwind('text-dfxgray-300')}
+                        light={tailwind(isLOCK ? 'text-black' : 'text-gray-700')}
+                        dark={tailwind(isLOCK ? 'text-black' : 'text-dfxgray-300')}
                         testID={`select_${item.token.displaySymbol}_value`}
                       >
                         {value}
@@ -151,24 +159,26 @@ export const BottomSheetTokenList = ({
                   />
                 </View>
               )}
-              <ThemedIcon iconType='MaterialIcons' name='chevron-right' size={20} />
+              <ThemedIcon light={tailwind({ 'text-black': isLOCK })} dark={tailwind({ 'text-black': isLOCK })} iconType='MaterialIcons' name='chevron-right' size={20} />
             </View>
           </ThemedTouchableOpacity>
         )
       }}
       ListHeaderComponent={
         <ThemedView
-          light={tailwind('bg-white border-gray-200')}
-          dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
+          light={tailwind(isLOCK ? 'bg-gray-100 border-gray-200' : 'bg-white border-gray-200')}
+          dark={tailwind(isLOCK ? 'bg-gray-100 border-gray-200' : 'bg-dfxblue-800 border-dfxblue-900')}
           style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b', { 'py-3.5 border-t -mb-px': Platform.OS === 'android' })} // border top on android to handle 1px of horizontal transparent line when scroll past header
         >
           <ThemedText
+            light={tailwind({ 'text-black': isLOCK })}
+            dark={tailwind({ 'text-black': isLOCK })}
             style={tailwind('text-lg font-medium')}
           >
             {headerLabel}
           </ThemedText>
           <TouchableOpacity onPress={onCloseButtonPress}>
-            <ThemedIcon iconType='MaterialIcons' name='close' size={20} />
+            <ThemedIcon light={tailwind({ 'text-black': isLOCK })} dark={tailwind({ 'text-black': isLOCK })} iconType='MaterialIcons' name='close' size={20} />
           </TouchableOpacity>
         </ThemedView>
       }
@@ -176,7 +186,8 @@ export const BottomSheetTokenList = ({
       keyExtractor={(item) => item.tokenId}
       style={tailwind({
         'bg-dfxblue-800': !isLight,
-        'bg-white': isLight
+        'bg-white': isLight,
+        'bg-gray-100': isLOCK
       })}
     />
   )
