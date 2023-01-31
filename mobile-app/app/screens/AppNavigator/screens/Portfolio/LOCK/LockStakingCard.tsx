@@ -38,8 +38,8 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
 
   const { getTokenPrice } = useTokenPrice(denominationCurrency)
   const usdAmount = stakingInfo != null && yieldInfo != null
-    ? getTokenPrice(stakingInfo.asset, new BigNumber(stakingInfo?.balance ?? 0))
-      .plus(getTokenPrice(yieldInfo.asset, new BigNumber(yieldInfo?.balance ?? 0)))
+    ? getTokenPrice(stakingInfo.asset, new BigNumber(stakingInfo?.balances?.[0].balance ?? 0))
+      .plus(yieldInfo.balances.map((b) => getTokenPrice(b.asset, new BigNumber(b.balance))).reduce((prev, curr) => prev.plus(curr)))
     : null
 
   const enterLOCK = (): void => {
@@ -70,8 +70,8 @@ export function LockStakingCard ({ refreshTrigger, denominationCurrency }: LockS
       : Promise.resolve()
 
     const getAnalytics = LOCKgetAllAnalytics()
-      .then(([stkAnalytics, ymAnalytics]) => {
-        setAnalytics(stkAnalytics.apr > ymAnalytics.apr ? stkAnalytics : ymAnalytics)
+      .then((analytics) => {
+        setAnalytics(analytics.sort((a, b) => b.apr - a.apr)?.[0])
       })
       .catch(() => {})
 
