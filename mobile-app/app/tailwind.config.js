@@ -168,6 +168,8 @@ module.exports = {
         },
         lock: {
           200: '#D6E1D0',
+          400: '#8AAE7A',
+          450: '#C5D6BE',
           500: '#57755A',
           800: '#337116'
         },
@@ -214,7 +216,8 @@ module.exports = {
         '2xs': 10
       },
       borderWidth: {
-        0.5: 0.5
+        0.5: 0.5,
+        1.5: 1.5,
       },
       borderRadius: {
         'lg-v2': 10,
