@@ -13,9 +13,10 @@ interface ListItemProp {
   title?: string;
   value?: string;
   style: ListItemStyle;
+  header?: boolean;
 }
 
-export function ListItem({ title, value, style }: ListItemProp): JSX.Element {
+export function ListItem({ title, value, style, header }: ListItemProp): JSX.Element {
   const TokenIcon = getNativeIcon(icon() ?? '');
 
   function fieldStyle(): string {
@@ -52,7 +53,9 @@ export function ListItem({ title, value, style }: ListItemProp): JSX.Element {
           ) : (
             <TokenIcon width={23} height={23} />
           ))}
-        <Text style={tailwind(fieldStyle())}>{translate('LOCK/LockDashboardScreen', title ?? '')}</Text>
+        <Text style={tailwind(fieldStyle(), { 'font-bold': header })}>
+          {translate('LOCK/LockDashboardScreen', title ?? '')}
+        </Text>
       </View>
       <Text style={tailwind(fieldStyle())}>{translate('LOCK/LockDashboardScreen', value ?? '')}</Text>
     </View>
