@@ -880,7 +880,7 @@ function getWalletToken (walletTokens: WalletToken[], tokenId: string): WalletTo
 }
 
 function getBottomSheetToken (tokens: AssociatedToken, walletTokens: WalletToken[], info: StakingOutputDto, action: StakingAction): BottomSheetToken[] {
-  const tokenData = info.balances.filter((b) => !(action === 'WITHDRAW' && b.asset === 'DFI')).map((b) => tokens[b.asset])
+  const tokenData = info.balances.map((b) => tokens[b.asset])
   return tokenData.map(t => {
     const displaySymbol = t.displaySymbol.replace(' (UTXO)', '')
     const walletToken = getWalletToken(walletTokens, t.id)
