@@ -73,12 +73,12 @@ export function StakingCard({ info, analytics, isLoading, openModal }: StakingCa
       {/* card header */}
       <View style={tailwind('py-1')} />
 
-      <View style={tailwind('border-b border-gray-200 pb-1.5')}>
+      <View style={tailwind('border-b border-lockGray-100 pb-1.5')}>
         {info.balances.map((balance, index) => (
           <View key={index} style={tailwind('flex flex-col px-4')}>
             {info.strategy === StakingStrategy.LIQUIDITY_MINING && index === 0 && (
               <>
-                <View style={tailwind('flex-col border-b border-gray-200 pt-1 pb-2.5')}>
+                <View style={tailwind('flex-col border-b border-lockGray-100 pt-1 pb-2.5')}>
                   <NumberFormat
                     value={getTotalBalance()}
                     decimalScale={2}
@@ -132,7 +132,7 @@ export function StakingCard({ info, analytics, isLoading, openModal }: StakingCa
                     displayType="text"
                     renderText={(value) => (
                       <TouchableOpacity onPress={() => setShowsApy(!showsApy)}>
-                        <Text style={tailwind('text-lock-800 text-xs font-bold px-1 py-0.5')}>
+                        <Text style={tailwind('text-lock-200 text-xs font-bold px-1 py-0.5')}>
                           {translate('LOCK/LockDashboardScreen', '{{value}}% {{text}}', {
                             value,
                             text: showsApy ? 'APY' : 'APR',
@@ -197,13 +197,15 @@ export function StakingCard({ info, analytics, isLoading, openModal }: StakingCa
           <Text style={tailwind('text-base font-bold')}>
             {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
           </Text>
-          <IconButton
-            iconName={showsRewardStrategy ? 'expand-less' : 'expand-more'}
-            iconType="MaterialIcons"
-            iconSize={16}
-            onPress={() => setShowsRewardStrategy(!showsRewardStrategy)}
-            lock
-          />
+          <View style={tailwind('py-1')}>
+            <IconButton
+              iconName={showsRewardStrategy ? 'chevron-up' : 'chevron-down'}
+              iconType="FontAwesome"
+              iconSize={10}
+              onPress={() => setShowsRewardStrategy(!showsRewardStrategy)}
+              lock
+            />
+          </View>
         </View>
         {showsRewardStrategy &&
           listItems.map((item, index) => (

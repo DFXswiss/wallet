@@ -40,7 +40,7 @@ export function Button(props: ButtonProps): JSX.Element {
   const disabledStyle = lock ? 'bg-gray-200' : isLight ? 'bg-gray-200 border-0' : 'bg-dfxgray-400 border-0';
   const disabledText = lock ? 'text-white' : isLight ? 'text-dfxgray-400' : 'text-dfxgray-500';
 
-  const buttonColor = lock ? 'bg-lock-800' : isLight ? `bg-${themedColor}-50` : 'bg-dfxred-500';
+  const buttonColor = lock ? 'bg-lock-200' : isLight ? `bg-${themedColor}-50` : 'bg-dfxred-500';
   const buttonStyle = `${fill === 'fill' ? buttonColor : 'bg-transparent'}`;
   const buttonText = isLight ? `text-${themedColor}-500` : `${fill === 'fill' ? 'text-white' : 'text-dfxred-500'}`;
 
@@ -61,7 +61,7 @@ export function Button(props: ButtonProps): JSX.Element {
       {text !== undefined && (
         <>
           {isSubmitting && <ThemedActivityIndicator lock={props.lock} />}
-          <Text style={tailwind(`${textStyle} font-bold text-center`, { 'text-lock-800': secondary })}>{text}</Text>
+          <Text style={tailwind(`${textStyle} font-bold text-center`, { 'text-lock-200': secondary })}>{text}</Text>
         </>
       )}
 

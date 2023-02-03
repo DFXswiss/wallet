@@ -24,12 +24,12 @@ export function IconButton(props: IconButtonProps): JSX.Element {
       light={tailwind({
         'border-dfxgray-300 bg-white': !disabled,
         'border-gray-100 bg-gray-100': disabled,
-        'bg-lock-800 border-0': props.lock,
+        'bg-lock-200 border-0': props.lock,
       })}
       dark={tailwind({
         'border-dfxblue-900 bg-dfxblue-800': !standalone,
         'border-dfxred-500': standalone,
-        'bg-lock-800 border-0': props.lock,
+        'bg-lock-200 border-0': props.lock,
       })}
       {...(disabled ? props.disabledThemedProps : props.themedProps)}
       onPress={props.onPress}

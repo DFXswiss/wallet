@@ -251,14 +251,14 @@ export function LockDashboardScreen(): JSX.Element {
   };
 
   return (
-    <View style={tailwind('h-full bg-gray-200 border-t border-dfxgray-500')}>
+    <View style={tailwind('h-full bg-lockGray-100')}>
       <ScrollView
         contentContainerStyle={tailwind('flex-grow flex-col')}
         refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
       >
         {announcementDelayFinished && <Announcements channel={AnnouncementChannel.LOCK} />}
 
-        <View style={tailwind('bg-lock-800')}>
+        <View style={tailwind('bg-lock-200')}>
           <View style={tailwind('self-center mt-4')}>
             <View style={tailwind('flex-row self-center')}>
               {activeButton === TabKey.Staking ? <LOCKStaking /> : <LOCKYieldMachine />}
@@ -316,7 +316,7 @@ export function LockDashboardScreen(): JSX.Element {
             onPress={async () => await Linking.openURL('mailto:' + email)}
           >
             <MaterialCommunityIcons
-              style={tailwind('mr-2 text-lock-800 self-center')}
+              style={tailwind('mr-2 text-lock-200 self-center')}
               iconType="MaterialIcons"
               name="email-outline"
               size={12}
@@ -330,7 +330,7 @@ export function LockDashboardScreen(): JSX.Element {
             onPress={async () => await Linking.openURL('https://lock.space/terms')}
           >
             <MaterialCommunityIcons
-              style={tailwind('mr-2 text-lock-800 self-center')}
+              style={tailwind('mr-2 text-lock-200 self-center')}
               iconType="MaterialCommunityIcons"
               name="open-in-new"
               size={12}

@@ -179,9 +179,9 @@ export const BottomSheetStaking = ({
     }
 
     return (
-      <ScrollView style={tailwind('flex-1 bg-gray-100')}>
+      <ScrollView style={tailwind('flex-1 bg-lockGray-100')}>
         <View
-          style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b border-gray-200', {
+          style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b border-lockGray-100', {
             'py-3.5 border-t -mb-px': Platform.OS === 'android',
           })} // border top on android to handle 1px of horizontal transparent line when scroll past header
         >

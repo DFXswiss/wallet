@@ -95,7 +95,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
 
   return (
     <>
-      <View style={tailwind('m-4 px-4 pt-4 pb-2 bg-lock-500 rounded-lg')}>
+      <View style={tailwind('m-4 px-4 pt-4 pb-2 bg-lock-100 rounded-lg')}>
         <TouchableOpacity
           onPress={loggedIn ? navigateToLock : enterLOCK}
           disabled={isLoading}
@@ -105,7 +105,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
             <LOCKunlockedIcon height={48} width={48} />
             <View style={tailwind('mx-3 flex-auto')}>
               <ThemedText
-                dark={tailwind('text-gray-200')}
+                dark={tailwind('text-lockGray-200')}
                 light={tailwind('text-black')}
                 style={tailwind('font-medium')}
               >
@@ -113,8 +113,8 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
               </ThemedText>
               {analytics != null && (
                 <ThemedText
-                  dark={tailwind('text-gray-200')}
-                  light={tailwind('text-gray-600')}
+                  dark={tailwind('text-lockGray-200')}
+                  light={tailwind('text-lockGray-200')}
                   numberOfLines={1}
                   style={tailwind('text-xs')}
                 >
@@ -143,7 +143,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
                   <>
                     <View style={tailwind('flex leading-6 items-end')}>
                       <BalanceText
-                        dark={tailwind('text-gray-200')}
+                        dark={tailwind('text-lockGray-200')}
                         light={tailwind('text-black')}
                         style={tailwind('flex-wrap')}
                         value={value}
@@ -177,8 +177,8 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
         <View style={tailwind('flex-row justify-center items-center')}>
           <TouchableOpacity onPress={() => setIsBreakdownExpanded(!isBreakdownExpanded)} testID="details_dfi">
             <ThemedIcon
-              light={tailwind('text-gray-600')}
-              dark={tailwind('text-dfxgray-300')}
+              light={tailwind('text-lockGray-300')}
+              dark={tailwind('text-lockGray-300')}
               iconType="MaterialIcons"
               name={!isBreakdownExpanded ? 'expand-more' : 'expand-less'}
               size={24}

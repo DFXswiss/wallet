@@ -32,7 +32,7 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
       dark={props.darkThemeStyle ?? tailwind(props.lock === true ? 'bg-white' : 'bg-dfxblue-800')}
       style={tailwind(
         'flex flex-row ' + (props.lock === true ? 'rounded-md justify-evenly' : 'rounded-2xl justify-between'),
-        { 'border border-gray-200': props.lock },
+        { 'border border-lockGray-200': props.lock },
       )}
       testID={props.testID}
       {...props.containerThemedProps}
@@ -79,9 +79,9 @@ function ButtonGroupItem(props: ButtonGroupItemProps): JSX.Element {
         ? 'bg-white'
         : 'bg-dfxblue-800'
       : props.lock === true
-      ? 'bg-lock-800'
+      ? 'bg-lock-200'
       : 'bg-dfxblue-900');
-  const textDark = props.isActive ? 'text-white' : props.lock === true ? 'text-lock-800' : 'text-dfxgray-300';
+  const textDark = props.isActive ? 'text-white' : props.lock === true ? 'text-lock-200' : 'text-dfxgray-300';
 
   return (
     <View style={tailwind(props.lock === true ? 'flex-1' : 'flex-shrink')}>

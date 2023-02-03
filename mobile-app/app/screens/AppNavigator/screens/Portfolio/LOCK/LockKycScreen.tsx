@@ -81,17 +81,17 @@ export function LockKycScreen({ route }: Props): JSX.Element {
   };
 
   return (
-    <View style={tailwind('flex-1 bg-gray-200 border-t border-dfxgray-500')}>
+    <View style={tailwind('flex-1 bg-lockGray-100')}>
       <ScrollView contentContainerStyle={tailwind('flex-grow flex-col p-8')}>
         {hasKyc ? (
           <>
             <View style={tailwind('bg-white rounded-md p-2')}>
-              <View style={tailwind('flex-row pb-2 mb-4 border-b border-gray-200')}>
+              <View style={tailwind('flex-row pb-2 mb-4 border-b border-lockGray-100')}>
                 <Checkbox
                   value={handoverKyc}
                   onValueChange={toggleHandover}
                   style={tailwind('h-6 w-6 rounded self-center ml-2 mr-3')}
-                  color={handoverKyc ? getColor('lock-800') : undefined}
+                  color={handoverKyc ? getColor('lock-200') : undefined}
                 />
                 <TouchableOpacity onPress={toggleHandover} style={tailwind('flex-col')}>
                   <Text style={tailwind('text-lg font-bold')}>
@@ -121,7 +121,7 @@ export function LockKycScreen({ route }: Props): JSX.Element {
                   value={newKyc}
                   onValueChange={toggleNew}
                   style={tailwind('h-6 w-6 rounded self-center ml-2 mr-3')}
-                  color={newKyc ? getColor('lock-800') : undefined}
+                  color={newKyc ? getColor('lock-200') : undefined}
                 />
                 <TouchableOpacity onPress={toggleNew} style={tailwind('flex-col')}>
                   <Text style={tailwind('text-lg font-bold')}>
@@ -160,7 +160,7 @@ export function LockKycScreen({ route }: Props): JSX.Element {
           onPress={async () => await Linking.openURL('https://lock.space/terms')}
         >
           <MaterialCommunityIcons
-            style={tailwind('mr-2 text-lock-800 self-center')}
+            style={tailwind('mr-2 text-lock-200 self-center')}
             iconType="MaterialCommunityIcons"
             name="information-outline"
             size={24}

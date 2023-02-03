@@ -26,7 +26,7 @@ export function ListItem({ title, value, style, header }: ListItemProp): JSX.Ele
       case ListItemStyle.ACTIVE_ICON:
         return 'text-base font-medium pl-1';
       case ListItemStyle.PENDING:
-        return 'text-gray-300 text-base font-medium';
+        return 'text-lockGray-300 text-sm font-medium';
     }
   }
 
