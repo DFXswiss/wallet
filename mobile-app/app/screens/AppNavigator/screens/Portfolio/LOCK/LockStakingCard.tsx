@@ -16,7 +16,7 @@ import {
 } from '@shared-api/dfx/ApiService';
 import { WalletAlertErrorApi } from '@components/WalletAlert';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
-import { useLock } from './LockContextProvider';
+import { useLock } from '../../../../../contexts/LOCK/LockContextProvider';
 import { useTokenPrice } from '../hooks/TokenPrice';
 import { BalanceText } from '../components/BalanceText';
 import NumberFormat from 'react-number-format';
@@ -95,7 +95,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
 
   return (
     <>
-      <View style={tailwind('m-4 px-4 pt-4 pb-2 bg-lock-100 rounded-lg')}>
+      <View style={tailwind('m-4 px-4 pt-4 pb-2 bg-lock-150 rounded-lg')}>
         <TouchableOpacity
           onPress={loggedIn ? navigateToLock : enterLOCK}
           disabled={isLoading}
@@ -104,17 +104,13 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
           <View style={tailwind('flex-row items-center')}>
             <LOCKunlockedIcon height={48} width={48} />
             <View style={tailwind('mx-3 flex-auto')}>
-              <ThemedText
-                dark={tailwind('text-lockGray-200')}
-                light={tailwind('text-black')}
-                style={tailwind('font-medium')}
-              >
+              <ThemedText dark={tailwind('text-white')} light={tailwind('text-white')} style={tailwind('font-medium')}>
                 {translate('LOCK/LockCard', 'Interests by LOCK')}
               </ThemedText>
               {analytics != null && (
                 <ThemedText
-                  dark={tailwind('text-lockGray-200')}
-                  light={tailwind('text-lockGray-200')}
+                  dark={tailwind('text-white')}
+                  light={tailwind('text-white')}
                   numberOfLines={1}
                   style={tailwind('text-xs')}
                 >
@@ -143,8 +139,8 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
                   <>
                     <View style={tailwind('flex leading-6 items-end')}>
                       <BalanceText
-                        dark={tailwind('text-lockGray-200')}
-                        light={tailwind('text-black')}
+                        dark={tailwind('text-white')}
+                        light={tailwind('text-white')}
                         style={tailwind('flex-wrap')}
                         value={value}
                       />
@@ -166,7 +162,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
         )}
         {isBreakdownExpanded && (
           <View style={tailwind('mx-2 pt-4 pb-3')}>
-            <ThemedTextBasic style={tailwind('text-sm')}>
+            <ThemedTextBasic style={tailwind('text-sm')} dark={tailwind('text-white')} light={tailwind('text-white')}>
               {translate(
                 'LOCK/LockCard',
                 "The custodial service powered by LOCK invests customers' assets into the DeFiChain, a decentralized protocol, to earn interests via Staking.",
@@ -177,8 +173,8 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
         <View style={tailwind('flex-row justify-center items-center')}>
           <TouchableOpacity onPress={() => setIsBreakdownExpanded(!isBreakdownExpanded)} testID="details_dfi">
             <ThemedIcon
-              light={tailwind('text-lockGray-300')}
-              dark={tailwind('text-lockGray-300')}
+              light={tailwind('text-white')}
+              dark={tailwind('text-white')}
               iconType="MaterialIcons"
               name={!isBreakdownExpanded ? 'expand-more' : 'expand-less'}
               size={24}

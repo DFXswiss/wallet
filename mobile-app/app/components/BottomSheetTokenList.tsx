@@ -210,8 +210,7 @@ export const BottomSheetTokenList = ({
         keyExtractor={(item) => item.tokenId}
         style={tailwind({
           'bg-dfxblue-800': !isLight,
-          'bg-white': isLight,
-          'bg-gray-100': lock,
+          'bg-white': isLight || lock,
         })}
       />
     );

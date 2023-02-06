@@ -14,7 +14,7 @@ import Rabbit from '@assets/LOCK/Rabbit.svg';
 import Snail from '@assets/LOCK/Snail.svg';
 import { getUser, LOCKpostKyc, transferKyc } from '@shared-api/dfx/ApiService';
 import { WalletAlertErrorApi } from '@components/WalletAlert';
-import { useLock } from './LockContextProvider';
+import { useLock } from '../../../../../contexts/LOCK/LockContextProvider';
 import { kycCompleted } from '@shared-api/dfx/models/User';
 import { openURL } from '@api/linking';
 import { getEnvironment } from '@environment';

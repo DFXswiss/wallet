@@ -16,6 +16,8 @@ interface ButtonGroupProps {
   customActiveStyle?: ThemedProps;
   inverted?: boolean;
   lock?: boolean;
+  inline?: boolean;
+  disabled?: boolean;
 }
 
 interface Buttons {
@@ -51,6 +53,8 @@ export function ButtonGroup(props: ButtonGroupProps): JSX.Element {
           customActiveStyle={props.customActiveStyle}
           inverted={props.inverted}
           lock={props.lock}
+          inline={props.inline}
+          disabled={props.disabled}
         />
       ))}
     </ThemedView>
@@ -69,6 +73,8 @@ interface ButtonGroupItemProps {
   customActiveStyle?: ThemedProps;
   inverted?: boolean;
   lock?: boolean;
+  inline?: boolean;
+  disabled?: boolean;
 }
 
 function ButtonGroupItem(props: ButtonGroupItemProps): JSX.Element {
@@ -92,16 +98,17 @@ function ButtonGroupItem(props: ButtonGroupItemProps): JSX.Element {
         {...(props.isActive && props.customActiveStyle)}
         style={
           props.customButtonGroupStyle ?? [
-            tailwind('m-0.5 py-2 px-3'),
+            tailwind('m-0.5 py-2 px-3', { 'py-0.5': props.inline }),
             props.lock === true ? { borderRadius: 4 } : { borderRadius: 14 },
           ]
         }
         // TODO: (thabrad) check, from LW (somehow isn't working, maybe bc of below Text style) --> style={props.customButtonGroupStyle ?? [tailwind(['rounded-2xl break-words justify-center py-2 px-3']), { width: `${props.width.toFixed(2)}%` }]}
         testID={`${props.testID}${props.isActive ? '_active' : ''}`}
+        disabled={props.disabled}
       >
         <ThemedText
           light={tailwind({ 'text-primary-500': props.isActive, 'text-gray-900': !props.isActive })}
-          dark={tailwind(textDark)}
+          dark={tailwind(textDark, { 'text-lockGray-200': props.disabled && !props.isActive })}
           style={props.modalStyle ?? tailwind('font-medium text-sm text-center', { 'font-bold': props.lock })}
         >
           {props.label}

@@ -9,23 +9,14 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useSelector } from 'react-redux';
 import { ThemedActivityIndicator } from '@components/themed';
 import { RootState } from '@store';
-import { firstTransactionSelector } from '@store/ocean';
 import { tailwind } from '@tailwind';
 import { translate } from '@translations';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav';
 import { Button } from '@components/Button';
-import {
-  LOCKdeposit,
-  LOCKgetAllAnalytics,
-  LOCKgetAllStaking,
-  StakingAnalyticsOutputDto,
-  StakingOutputDto,
-  StakingStrategy,
-} from '@shared-api/dfx/ApiService';
-import { WalletAlertErrorApi } from '@components/WalletAlert';
+import { StakingOutputDto, StakingStrategy } from '@shared-api/dfx/ApiService';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
-import { useLock } from './LockContextProvider';
+import { useLock } from '../../../../../contexts/LOCK/LockContextProvider';
 import { openURL } from 'expo-linking';
 import { getEnvironment } from '@environment';
 import { getReleaseChannel } from '@api/releaseChannel';
@@ -39,47 +30,44 @@ import { BottomSheetToken, BottomSheetTokenList, TokenType } from '@components/B
 import { BottomSheetStaking } from '@components/LOCK/BottomSheetStaking';
 import { StakingCard } from '@components/LOCK/StakingCard';
 import { StakingAction } from '@constants/LOCK/StakingAction';
-import { TransactionCache } from '@constants/LOCK/TransactionCache';
-import { useTokenPrice } from '../hooks/TokenPrice';
-
-enum TabKey {
-  Staking = 'STAKING',
-  YieldMachine = 'YIELD_MACHINE',
-}
+import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
+import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
 
 export function LockDashboardScreen(): JSX.Element {
-  const transaction = useSelector((state: RootState) => firstTransactionSelector(state.ocean));
   const { openCfpVoting } = useLock();
   const { address } = useWalletContext();
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [stakingInfo, setStakingInfo] = useState<StakingOutputDto>();
-  const [stakingAnalytics, setStakingAnalytics] = useState<StakingAnalyticsOutputDto[]>();
-  const [yieldMachineInfo, setYieldMachineInfo] = useState<StakingOutputDto>();
-  const [yieldMachineAnalytics, setYieldMachineAnalytics] = useState<StakingAnalyticsOutputDto[]>();
+  const {
+    isLoading,
+    fetch,
+    activeTab,
+    setActiveTab,
+    info,
+    setInfo,
+    analytics,
+    setTransactionCache,
+    calculateBalance,
+    editRewardRoutes,
+    setEditRewardRoutes,
+  } = useLockStakingContext();
 
   const email = 'support@lock.space';
 
   // tabbing
-  const [activeButton, setActiveButton] = useState<string>(TabKey.Staking);
   const buttonGroup = [
     {
-      id: TabKey.Staking,
+      id: LockStakingTab.Staking,
       label: translate('LOCK/LockDashboardScreen', 'STAKING'),
-      handleOnPress: () => setActiveButton(TabKey.Staking),
+      handleOnPress: () => setActiveTab(LockStakingTab.Staking),
     },
     {
-      id: TabKey.YieldMachine,
+      id: LockStakingTab.YieldMachine,
       label: translate('LOCK/LockDashboardScreen', 'YIELD MACHINE'),
-      handleOnPress: () => setActiveButton(TabKey.YieldMachine),
+      handleOnPress: () => setActiveTab(LockStakingTab.YieldMachine),
     },
   ];
 
-  const title = activeButton === TabKey.Staking ? 'Total staked {{balance}} DFI' : 'Total deposited {{balance}} USDT';
-  const info = activeButton === TabKey.Staking ? stakingInfo : yieldMachineInfo;
-  const setInfo = (info: StakingOutputDto): void =>
-    activeButton === TabKey.Staking ? setStakingInfo(info) : setYieldMachineInfo(info);
-  const analytics = activeButton === TabKey.Staking ? stakingAnalytics : yieldMachineAnalytics;
+  const title =
+    activeTab === LockStakingTab.Staking ? 'Total staked {{balance}} DFI' : 'Total deposited {{balance}} USDT';
 
   // Bottom sheet
   const [isModalDisplayed, setIsModalDisplayed] = useState(false);
@@ -104,11 +92,16 @@ export function LockDashboardScreen(): JSX.Element {
   const { signMessage } = useDFXAPIContext();
   const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const walletTokens = useSelector((state: RootState) => tokensSelector(state.wallet));
-  const [transactionCache, setTransactionCache] = useState<TransactionCache>();
-  const { getTokenPrice } = useTokenPrice('USDT');
 
-  const openModal = (action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData): void => {
-    if (info.strategy === StakingStrategy.LIQUIDITY_MINING) {
+  const openModal = (
+    action: StakingAction,
+    info: StakingOutputDto,
+    token: WalletToken | TokenData,
+    screens?: BottomSheetNavScreen[],
+  ): void => {
+    if (screens) {
+      setBottomSheetScreen(screens);
+    } else if (info.strategy === StakingStrategy.LIQUIDITY_MINING) {
       setTokenSelectionBottomSheet(action, info);
     } else {
       setStakingBottomSheet(action, info, token);
@@ -137,7 +130,7 @@ export function LockDashboardScreen(): JSX.Element {
         },
       ]);
     },
-    [activeButton],
+    [activeTab],
   );
 
   const setStakingBottomSheet = useCallback(
@@ -172,83 +165,30 @@ export function LockDashboardScreen(): JSX.Element {
         },
       ]);
     },
-    [activeButton],
+    [activeTab],
   );
-
-  useEffect(() => fetch(), []);
 
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
-    fetch();
+    await fetch();
     setRefreshing(false);
   }, []);
-
-  const fetch = (): void => {
-    fetchStakingInfo();
-    fetchAnalytics();
-  };
-
-  const fetchStakingInfo = async (): Promise<void> => {
-    setIsLoading(true);
-
-    await LOCKgetAllStaking()
-      .then(([stkInfo, ymInfo]) => {
-        setStakingInfo(stkInfo);
-        setYieldMachineInfo(ymInfo);
-      })
-      .catch(WalletAlertErrorApi)
-      .finally(() => setIsLoading(false));
-  };
-
-  const fetchAnalytics = async (): Promise<void> => {
-    await LOCKgetAllAnalytics()
-      .then((analytics) => {
-        setStakingAnalytics(analytics.filter((a) => a.strategy === StakingStrategy.MASTERNODE));
-        setYieldMachineAnalytics(analytics.filter((a) => a.strategy === StakingStrategy.LIQUIDITY_MINING));
-      })
-      .catch(WalletAlertErrorApi);
-  };
 
   const onCsvExport = useCallback(async () => {
     const baseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl;
     await openURL(`${baseUrl}/analytics/history/ChainReport?userAddress=${address ?? ''}&type=csv`);
   }, [address]);
 
-  // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
-  // TODO: check for possible refactor to dispatch / component lifecycle-independence
-  useEffect(() => {
-    if (transaction?.tx?.txId != null && transactionCache != null) {
-      LOCKdeposit(info?.id ?? 0, {
-        asset: transactionCache.token.symbol,
-        amount: transactionCache.amount,
-        txId: transaction.tx.txId,
-      })
-        .then(setInfo)
-        .then(() => setTransactionCache(undefined))
-        .catch(WalletAlertErrorApi);
-    }
-  }, [transaction, transactionCache]);
-
   // announcements
   const [announcementDelayFinished, setAnnouncementDelayFinished] = useState(false);
   useEffect(() => {
+    setEditRewardRoutes(false);
     setTimeout(() => {
       setAnnouncementDelayFinished(true);
     }, ANNOUNCEMENTCHANNELDELAY);
   }, []);
-
-  const calculateBalanceOf = (active: TabKey): number => {
-    switch (active) {
-      case TabKey.Staking:
-        return stakingAnalytics?.map((a) => a.tvl).reduce((prev, curr) => prev + curr) ?? 0;
-      case TabKey.YieldMachine:
-        return BigNumber.sum(
-          ...(yieldMachineAnalytics?.map((a) => getTokenPrice(a.asset, new BigNumber(a.tvl))) ?? [new BigNumber(0)]),
-        ).toNumber();
-    }
-  };
 
   return (
     <View style={tailwind('h-full bg-lockGray-100')}>
@@ -261,10 +201,10 @@ export function LockDashboardScreen(): JSX.Element {
         <View style={tailwind('bg-lock-200')}>
           <View style={tailwind('self-center mt-4')}>
             <View style={tailwind('flex-row self-center')}>
-              {activeButton === TabKey.Staking ? <LOCKStaking /> : <LOCKYieldMachine />}
+              {activeTab === LockStakingTab.Staking ? <LOCKStaking /> : <LOCKYieldMachine />}
             </View>
             <NumberFormat
-              value={calculateBalanceOf(activeButton as TabKey)}
+              value={calculateBalance()}
               thousandSeparator
               decimalScale={2}
               displayType="text"
@@ -278,7 +218,13 @@ export function LockDashboardScreen(): JSX.Element {
         </View>
 
         <View style={tailwind('flex-grow m-4')}>
-          <ButtonGroup buttons={buttonGroup} activeButtonGroupItem={activeButton} testID="dex_button_group" lock />
+          <ButtonGroup
+            buttons={buttonGroup}
+            activeButtonGroupItem={activeTab}
+            testID="dex_button_group"
+            lock
+            disabled={editRewardRoutes}
+          />
           {info == null ? (
             <View style={tailwind('flex-grow  justify-center')}>
               <ThemedActivityIndicator size="large" lock />
@@ -286,7 +232,13 @@ export function LockDashboardScreen(): JSX.Element {
           ) : (
             <>
               <View style={tailwind('bg-white rounded-md my-4')}>
-                <StakingCard info={info} analytics={analytics} isLoading={isLoading} openModal={openModal} />
+                <StakingCard
+                  info={info}
+                  analytics={analytics}
+                  isLoading={isLoading}
+                  openModal={openModal}
+                  dismissModal={dismissModal}
+                />
               </View>
 
               <View style={tailwind('h-8')} />
