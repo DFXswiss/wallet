@@ -3,11 +3,6 @@ import * as React from 'react';
 import { tailwind } from '@tailwind';
 import { Text, View } from 'react-native';
 
-export enum TokenType {
-  BottomSheetToken = 'BottomSheetToken',
-  CollateralItem = 'CollateralItem',
-}
-
 export const RewardStrategyInfo = (): React.MemoExoticComponent<() => JSX.Element> =>
   memo(() => {
     return (

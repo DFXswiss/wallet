@@ -17,7 +17,6 @@ interface ButtonProps extends React.PropsWithChildren<TouchableOpacityProps> {
   isSubmitting?: boolean;
   submittingLabel?: string;
   lock?: boolean;
-  secondary?: boolean;
   grow?: boolean;
 }
 
@@ -31,7 +30,6 @@ export function Button(props: ButtonProps): JSX.Element {
     padding = 'p-3',
     isSubmitting = false,
     lock = false,
-    secondary = false,
     grow = false,
   } = props;
   const { isLight } = useThemeContext();
@@ -55,13 +53,24 @@ export function Button(props: ButtonProps): JSX.Element {
           props.disabled === true ? disabledStyle : ''
         }`,
         { 'flex-grow': grow },
-        { 'border-1.5 border-lock-400 bg-transparent': secondary },
+        { 'bg-lock-500': lock && fill === 'fill' && color === 'secondary' },
+        { 'border-1.5 border-lock-400 bg-transparent': lock && fill === 'outline' && color === 'secondary' },
       )}
     >
       {text !== undefined && (
         <>
           {isSubmitting && <ThemedActivityIndicator lock={props.lock} />}
-          <Text style={tailwind(`${textStyle} font-bold text-center`, { 'text-lock-200': secondary })}>{text}</Text>
+          <Text
+            style={tailwind(
+              `${textStyle} font-bold text-center`,
+              { 'text-lock-100': lock && fill === 'fill' && color === 'secondary' },
+              {
+                'text-lock-200': fill === 'outline' && color === 'secondary',
+              },
+            )}
+          >
+            {text}
+          </Text>
         </>
       )}
 

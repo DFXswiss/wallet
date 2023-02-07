@@ -247,7 +247,8 @@ export function LockDashboardScreen(): JSX.Element {
                 onPress={onCsvExport}
                 margin={''}
                 lock
-                secondary
+                fill="outline"
+                color="secondary"
               />
               <View style={tailwind('h-4')} />
               <Button
@@ -255,7 +256,8 @@ export function LockDashboardScreen(): JSX.Element {
                 onPress={openCfpVoting}
                 margin={''}
                 lock
-                secondary
+                fill="outline"
+                color="secondary"
               />
               <View style={tailwind('h-8')} />
             </>

@@ -11,15 +11,12 @@ import BigNumber from 'bignumber.js';
 import { useCallback, useEffect, useState } from 'react';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { ListItem, ListItemStyle } from './ListItem';
+import { RewardRouteDelete } from './modals/RewardRouteDelete';
 import { RewardStrategyInfo } from './modals/RewardStrategyInfo';
 
 interface RewardStrategyProps {
   openModal: (screens: BottomSheetNavScreen[]) => void;
   dismissModal: () => void;
-}
-
-enum RewardStrategyAction {
-  INFO,
 }
 
 export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps): JSX.Element {
@@ -81,8 +78,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         title: route.targetAsset,
         value: `${route.rewardPercent * 100}%`,
         style: editRewardRoutes ? ListItemStyle.ACTIVE_ICON_EDIT : ListItemStyle.ACTIVE_ICON,
-        onPress: () =>
-          setEditableRewardRoutes(editableRewardRoutes?.filter((r) => r.targetAsset !== route.targetAsset)),
+        onPress: () => openDelete(route),
       })),
       {
         title: translate('LOCK/LockDashboardScreen', 'Reinvest, {{asset}}', { asset: getReinvestAsset() }),
@@ -93,10 +89,30 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     ];
   }, [editRewardRoutes, rewardRoutes, editableRewardRoutes, activeStrategyType]);
 
+  function openDelete(route: RewardRoute): void {
+    openModal([
+      {
+        stackScreenName: 'RewardRouteDelete',
+        component: RewardRouteDelete({
+          route,
+          onConfirm: () => {
+            setEditableRewardRoutes(editableRewardRoutes?.filter((r) => r.targetAsset !== route.targetAsset));
+            dismissModal();
+          },
+          onCancel: dismissModal,
+        }),
+        option: {
+          header: () => null,
+          headerBackTitleVisible: false,
+        },
+      },
+    ]);
+  }
+
   function openInfo(): void {
     openModal([
       {
-        stackScreenName: 'TokenList',
+        stackScreenName: 'RewardStrategyInfo',
         component: RewardStrategyInfo(),
         option: {
           header: () => {
