@@ -18,6 +18,7 @@ import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/Tok
 import { getActivePrice } from '@screens/AppNavigator/screens/Auctions/helpers/ActivePrice';
 import { WalletToken } from '@store/wallet';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
+import { PoolPairIcon } from './icons/PoolPairIcon';
 
 interface BottomSheetTokenListProps {
   headerLabel: string;
@@ -120,12 +121,20 @@ export const BottomSheetTokenList = ({
                 }
               }}
               style={tailwind('px-4 py-3 flex flex-row items-center justify-between')}
-              light={tailwind({ 'text-black border-b border-gray-200': lock })}
-              dark={tailwind({ 'text-black border-b border-gray-200': lock })}
+              light={tailwind({ 'text-black bg-lockGray-100 border-b border-lockGray-200': lock })}
+              dark={tailwind({ 'text-black bg-lockGray-100 border-b border-lockGray-200': lock })}
               testID={`select_${item.token.displaySymbol}`}
             >
               <View style={tailwind('flex flex-row items-center')}>
-                <SymbolIcon symbol={item.token.displaySymbol} styleProps={tailwind('w-6 h-6')} />
+                {item.token.displaySymbol.includes('-') ? (
+                  <PoolPairIcon
+                    symbolA={item.token.displaySymbol.split('-')?.[0] ?? ''}
+                    symbolB={item.token.displaySymbol.split('-')?.[1] ?? ''}
+                  />
+                ) : (
+                  <SymbolIcon symbol={item.token.displaySymbol} styleProps={tailwind('w-6 h-6')} />
+                )}
+
                 <View style={tailwind('ml-2')}>
                   <ThemedText
                     light={tailwind(lock ? 'text-black' : 'text-dfxgray-500')}
@@ -170,8 +179,8 @@ export const BottomSheetTokenList = ({
                   </View>
                 )}
                 <ThemedIcon
-                  light={tailwind({ 'text-black': lock })}
-                  dark={tailwind({ 'text-black': lock })}
+                  light={tailwind({ 'text-lock-200': lock })}
+                  dark={tailwind({ 'text-lock-200': lock })}
                   iconType="MaterialIcons"
                   name="chevron-right"
                   size={20}
@@ -182,8 +191,8 @@ export const BottomSheetTokenList = ({
         }}
         ListHeaderComponent={
           <ThemedView
-            light={tailwind(lock ? 'bg-gray-100 border-gray-200' : 'bg-white border-gray-200')}
-            dark={tailwind(lock ? 'bg-gray-100 border-gray-200' : 'bg-dfxblue-800 border-dfxblue-900')}
+            light={tailwind(lock ? 'bg-lockGray-100 border-lockGray-200' : 'bg-white border-gray-200')}
+            dark={tailwind(lock ? 'bg-lockGray-100 border-lockGray-200' : 'bg-dfxblue-800 border-dfxblue-900')}
             style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b', {
               'py-3.5 border-t -mb-px': Platform.OS === 'android',
             })} // border top on android to handle 1px of horizontal transparent line when scroll past header
@@ -210,7 +219,8 @@ export const BottomSheetTokenList = ({
         keyExtractor={(item) => item.tokenId}
         style={tailwind({
           'bg-dfxblue-800': !isLight,
-          'bg-white': isLight || lock,
+          'bg-white': isLight,
+          'bg-lockGray-100': lock,
         })}
       />
     );

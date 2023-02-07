@@ -139,10 +139,21 @@ export interface StakingBalance {
 export interface RewardRoute {
   id: number;
   label: string;
+  rewardAsset: string;
   rewardPercent: number;
   targetAsset: string;
   targetAddress: string;
   targetBlockchain: string;
+  isReinvest: boolean;
+}
+
+export interface NewRewardRoute {
+  label?: string;
+  rewardPercent?: number;
+  targetAsset: string;
+  targetAddress: string;
+  targetBlockchain: string;
+  isReinvest: boolean;
 }
 
 export interface StakingOutputDto {
@@ -268,6 +279,14 @@ export const LOCKwithdrawalSign = async (
     'PATCH',
     { signature: withdrawal.signMessage },
   );
+};
+
+export const LOCKrewardRoutes = async (
+  stakingId: number,
+  rewardRoutes: (RewardRoute | NewRewardRoute)[],
+): Promise<StakingOutputDto> => {
+  console.log(rewardRoutes);
+  return await fetchFromLOCK<StakingOutputDto>(`${LOCKStakingUrl}/${stakingId}/reward-routes`, 'PUT', rewardRoutes);
 };
 
 const fetchFromLOCK = async <T>(

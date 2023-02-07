@@ -1,15 +1,23 @@
+import { BottomSheetToken, BottomSheetTokenList, TokenType } from '@components/BottomSheetTokenList';
 import { BottomSheetNavScreen } from '@components/BottomSheetWithNav';
+import { Button } from '@components/Button';
 import { IconButton } from '@components/IconButton';
 import { ThemedIcon, ThemedView } from '@components/themed';
 import { RewardStrategyType } from '@constants/LOCK/RewardStrategyType';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 import { ButtonGroup } from '@screens/AppNavigator/screens/Dex/components/ButtonGroup';
-import { RewardRoute, StakingStrategy } from '@shared-api/dfx/ApiService';
+import { NewRewardRoute, RewardRoute, StakingStrategy } from '@shared-api/dfx/ApiService';
+import { useWalletContext } from '@shared-contexts/WalletContext';
+import { RootState } from '@store';
+import { allTokens, AssociatedToken } from '@store/wallet';
 import { tailwind } from '@tailwind';
 import { translate } from '@translations';
 import BigNumber from 'bignumber.js';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useForm, useWatch } from 'react-hook-form';
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { useSelector } from 'react-redux';
+import { EditButton } from './EditButton';
 import { ListItem, ListItemStyle } from './ListItem';
 import { RewardRouteDelete } from './modals/RewardRouteDelete';
 import { RewardStrategyInfo } from './modals/RewardStrategyInfo';
@@ -28,9 +36,14 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     activeStrategyType,
     setActiveStrategyType,
     rewardRoutes,
+    isSubmitting,
   } = useLockStakingContext();
+  const { control, setValue, formState, reset } = useForm({ mode: 'onChange' });
+  const watcher = useWatch({ control });
   const [showsRewardStrategy, setShowsRewardStrategy] = useState(false);
-  const [editableRewardRoutes, setEditableRewardRoutes] = useState<RewardRoute[]>();
+  const [editableRewardRoutes, setEditableRewardRoutes] = useState<(RewardRoute | NewRewardRoute)[]>();
+  const tokens = useSelector((state: RootState) => allTokens(state.wallet));
+  const { address } = useWalletContext();
 
   const buttonGroup = [
     {
@@ -53,16 +66,20 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     return info?.strategy === StakingStrategy.MASTERNODE;
   }
 
-  const getFilteredRewardRoutes = useCallback(() => {
-    return (editRewardRoutes ? editableRewardRoutes : rewardRoutes) ?? [];
+  const filteredRewardRoutes = useMemo(() => {
+    return (editableRewardRoutes ? editableRewardRoutes : rewardRoutes)?.filter((r) => !r.isReinvest) ?? [];
   }, [editableRewardRoutes, rewardRoutes]);
 
-  function getReinvestPercent(): number {
+  const reinvestPercent = useMemo(() => {
     return new BigNumber(1)
-      .minus(BigNumber.sum(...getFilteredRewardRoutes().map((r) => new BigNumber(r.rewardPercent))))
+      .minus(
+        filteredRewardRoutes.length > 0
+          ? BigNumber.sum(...filteredRewardRoutes.map((r) => new BigNumber(r.rewardPercent ?? 0)))
+          : 0,
+      )
       .multipliedBy(100)
       .toNumber();
-  }
+  }, [filteredRewardRoutes, watcher]);
 
   function getReinvestAsset(): string | undefined {
     return info?.strategy === StakingStrategy.LIQUIDITY_MINING ? activeStrategyType : info?.asset;
@@ -74,22 +91,22 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
 
   const listItems = useCallback(() => {
     return [
-      ...getFilteredRewardRoutes().map((route) => ({
+      ...filteredRewardRoutes.map((route) => ({
         title: route.targetAsset,
-        value: `${route.rewardPercent * 100}%`,
+        value: route.rewardPercent ? '' + route.rewardPercent * 100 : undefined,
         style: editRewardRoutes ? ListItemStyle.ACTIVE_ICON_EDIT : ListItemStyle.ACTIVE_ICON,
         onPress: () => openDelete(route),
       })),
       {
         title: translate('LOCK/LockDashboardScreen', 'Reinvest, {{asset}}', { asset: getReinvestAsset() }),
-        value: `${getReinvestPercent()}%`,
+        value: '' + reinvestPercent,
         style: ListItemStyle.ACTIVE,
         onPress: undefined,
       },
     ];
-  }, [editRewardRoutes, rewardRoutes, editableRewardRoutes, activeStrategyType]);
+  }, [editRewardRoutes, filteredRewardRoutes, editableRewardRoutes, activeStrategyType, reinvestPercent]);
 
-  function openDelete(route: RewardRoute): void {
+  function openDelete(route: RewardRoute | NewRewardRoute): void {
     openModal([
       {
         stackScreenName: 'RewardRouteDelete',
@@ -145,6 +162,45 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     ]);
   }
 
+  function openTokenList(): void {
+    openModal([
+      {
+        stackScreenName: 'RewardRouteToken',
+        component: BottomSheetTokenList({
+          lock: true,
+          simple: true,
+          tokens: getBottomSheetToken(tokens),
+          tokenType: TokenType.BottomSheetToken,
+          headerLabel: translate('LOCK/LockDashboardScreen', 'Select your payout asset'),
+          onCloseButtonPress: dismissModal,
+          onTokenPress: (item) => {
+            dismissModal();
+            setTimeout(() => {
+              setEditableRewardRoutes(
+                editableRewardRoutes?.concat({
+                  targetAsset: item.token.symbol,
+                  targetAddress: address,
+                  targetBlockchain: 'DeFiChain',
+                  isReinvest: false,
+                }),
+              );
+            }, 500);
+          },
+        }),
+        option: {
+          header: () => null,
+          headerBackTitleVisible: false,
+        },
+      },
+    ]);
+  }
+
+  function submit(): void {
+    saveRewardRoutes(editableRewardRoutes ?? [], reinvestPercent / 100);
+    reset();
+    console.log(watcher);
+  }
+
   return (
     <View style={tailwind('px-4 py-2 flex flex-col')}>
       <View style={tailwind('flex-row justify-between')}>
@@ -177,6 +233,21 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         </View>
       </View>
 
+      {editRewardRoutes && (
+        <View style={tailwind('py-2')}>
+          <Button
+            label={translate('LOCK/LockDashboardScreen', '+ ADD ASSET')}
+            onPress={openTokenList}
+            margin="m-0"
+            padding="p-2"
+            color="primary"
+            fill="flat"
+            lock
+            grow
+          />
+        </View>
+      )}
+
       {showsRewardStrategy && shouldShowAdditionalElements() && (
         <View style={tailwind('py-1')}>
           <ButtonGroup
@@ -191,48 +262,52 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
       {showsRewardStrategy && (
         <>
           {listItems().map((item, index) => (
-            <ListItem key={index} title={item.title} value={item.value} style={item.style} onPress={item.onPress} />
+            <ListItem
+              key={index}
+              title={item.title}
+              value={item.value}
+              style={item.style}
+              onPress={item.onPress}
+              control={control}
+              onPercentChange={async (name, token, percentage) => {
+                const route = filteredRewardRoutes?.find((r) => r.targetAsset === token);
+                if (route) route.rewardPercent = Number(percentage) / 100;
+                setValue(name, percentage, { shouldValidate: true });
+              }}
+              showsPercent
+            />
           ))}
           <View style={tailwind('py-2')}>
-            <TouchableOpacity
-              style={tailwind('flex-row rounded h-8 bg-lock-600 items-center justify-center', {
-                'bg-lockGray-100': !isEditAvailable(),
-                'bg-lock-200': editRewardRoutes,
-              })}
-              onPress={() =>
-                editRewardRoutes ? saveRewardRoutes(editableRewardRoutes ?? []) : setEditRewardRoutes(true)
-              }
-              disabled={!isEditAvailable()}
-            >
-              {!editRewardRoutes && (
-                <ThemedIcon
-                  style={tailwind('px-1')}
-                  light={tailwind('text-lock-100', { 'text-lockGray-200': !isEditAvailable() })}
-                  dark={tailwind('text-lock-100', { 'text-lockGray-200': !isEditAvailable() })}
-                  iconType="MaterialIcons"
-                  name="edit"
-                  size={18}
-                />
-              )}
-              <Text
-                style={tailwind('text-sm font-bold text-lock-100', {
-                  'text-lockGray-200': !isEditAvailable(),
-                  'text-white': editRewardRoutes,
-                })}
-              >
-                {editRewardRoutes
-                  ? translate('LOCK/LockDashboardScreen', 'SAVE')
-                  : translate('LOCK/LockDashboardScreen', 'EDIT')}
-              </Text>
-              {!isEditAvailable() && (
-                <Text style={tailwind('text-xs font-normal text-lockGray-200 pl-0.5')}>
-                  {translate('LOCK/LockDashboardScreen', 'coming soon')}
-                </Text>
-              )}
-            </TouchableOpacity>
+            {editRewardRoutes ? (
+              <Button
+                label={translate('LOCK/LockDashboardScreen', 'SAVE')}
+                onPress={submit}
+                margin="m-0"
+                padding="p-1.5"
+                lock
+                grow
+                disabled={!formState.isValid || reinvestPercent < 0}
+                isSubmitting={isSubmitting}
+              />
+            ) : (
+              <EditButton onPress={() => setEditRewardRoutes(true)} disabled={!isEditAvailable()} />
+            )}
           </View>
         </>
       )}
     </View>
   );
+}
+
+function getBottomSheetToken(tokens: AssociatedToken): BottomSheetToken[] {
+  return Object.values(tokens).map((t) => ({
+    tokenId: t.id,
+    available: new BigNumber(0),
+    token: {
+      name: t.name,
+      displaySymbol: t.displaySymbol,
+      symbol: t.symbol,
+      isLPS: t.isLPS,
+    },
+  }));
 }

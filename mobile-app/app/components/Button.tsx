@@ -55,6 +55,7 @@ export function Button(props: ButtonProps): JSX.Element {
         { 'flex-grow': grow },
         { 'bg-lock-500': lock && fill === 'fill' && color === 'secondary' },
         { 'border-1.5 border-lock-400 bg-transparent': lock && fill === 'outline' && color === 'secondary' },
+        { 'border-0 bg-transparent': lock && fill === 'flat' && color === 'primary' },
       )}
     >
       {text !== undefined && (
@@ -67,6 +68,7 @@ export function Button(props: ButtonProps): JSX.Element {
               {
                 'text-lock-200': fill === 'outline' && color === 'secondary',
               },
+              { 'text-lock-200 text-base font-medium': lock && fill === 'flat' && color === 'primary' },
             )}
           >
             {text}

@@ -7,6 +7,8 @@ import {
   LOCKdeposit,
   LOCKgetAllAnalytics,
   LOCKgetAllStaking,
+  LOCKrewardRoutes,
+  NewRewardRoute,
   RewardRoute,
   StakingAnalyticsOutputDto,
   StakingOutputDto,
@@ -37,9 +39,10 @@ interface LockStakingInterface {
   activeStrategyType: RewardStrategyType;
   setActiveStrategyType: (type: RewardStrategyType) => void;
 
+  isSubmitting: boolean;
   editRewardRoutes: boolean;
   setEditRewardRoutes: (edit: boolean) => void;
-  saveRewardRoutes: (rewardRoutes: RewardRoute[]) => void;
+  saveRewardRoutes: (rewardRoutes: (RewardRoute | NewRewardRoute)[], reinvestPercent: number) => Promise<void>;
 }
 
 const LockStakingContext = createContext<LockStakingInterface>(undefined as any);
@@ -61,6 +64,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   const [yieldMachineInfo, setYieldMachineInfo] = useState<StakingOutputDto>();
   const [yieldMachineAnalytics, setYieldMachineAnalytics] = useState<StakingAnalyticsOutputDto[]>();
 
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [editRewardRoutes, setEditRewardRoutes] = useState(false);
 
   const { getTokenPrice } = useTokenPrice('USDT');
@@ -130,6 +134,34 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     }
   }
 
+  async function saveRewardRoutes(
+    rewardRoutes: (RewardRoute | NewRewardRoute)[],
+    reinvestPercent: number,
+  ): Promise<void> {
+    if (!info) return;
+    setIsSubmitting(true);
+    const reinvestRoute = rewardRoutes.find((r) => r.isReinvest);
+    if (reinvestRoute) {
+      reinvestRoute.rewardPercent = reinvestPercent;
+    } else {
+      rewardRoutes.concat({
+        isReinvest: true,
+        label: 'Reinvest',
+        rewardPercent: reinvestPercent,
+        targetAddress: info.depositAddress,
+        targetAsset: info.asset,
+        targetBlockchain: 'DeFiChain',
+      });
+    }
+    return LOCKrewardRoutes(info.id, rewardRoutes)
+      .then(setInfo)
+      .catch(WalletAlertErrorApi)
+      .finally(() => {
+        setEditRewardRoutes(false);
+        setIsSubmitting(false);
+      });
+  }
+
   const context: LockStakingInterface = {
     isLoading,
     fetch,
@@ -142,13 +174,11 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     calculateBalance,
     editRewardRoutes,
     setEditRewardRoutes,
-    saveRewardRoutes: (rewardRoutes: RewardRoute[]) => {
-      console.log(rewardRoutes);
-      setEditRewardRoutes(false);
-    },
+    saveRewardRoutes,
     activeStrategyType,
     setActiveStrategyType,
     rewardRoutes,
+    isSubmitting,
   };
 
   return <LockStakingContext.Provider value={context}>{props.children}</LockStakingContext.Provider>;
