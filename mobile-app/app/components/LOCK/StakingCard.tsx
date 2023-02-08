@@ -72,6 +72,7 @@ export function StakingCard({ info, analytics, isLoading, openModal, dismissModa
                     displayType="text"
                     renderText={(value) => (
                       <ListItem
+                        id={0}
                         title={translate('LOCK/LockDashboardScreen', 'Total deposited')}
                         value={`≈${value} USDT`}
                         style={ListItemStyle.ACTIVE}
@@ -151,6 +152,7 @@ export function StakingCard({ info, analytics, isLoading, openModal, dismissModa
                 displayType="text"
                 renderText={(value) => (
                   <ListItem
+                    id={0}
                     title={translate('LOCK/LockDashboardScreen', 'Pending Deposits')}
                     value={`+${value} ${balance.asset}`}
                     style={ListItemStyle.PENDING}
@@ -166,6 +168,7 @@ export function StakingCard({ info, analytics, isLoading, openModal, dismissModa
                 displayType="text"
                 renderText={(value) => (
                   <ListItem
+                    id={0}
                     title={translate('LOCK/LockDashboardScreen', 'Pending Withdrawals')}
                     value={`-${value} ${balance.asset}`}
                     style={ListItemStyle.PENDING}

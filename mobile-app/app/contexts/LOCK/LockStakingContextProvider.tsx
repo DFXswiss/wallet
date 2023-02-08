@@ -150,7 +150,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     if (reinvestRoute) {
       reinvestRoute.rewardPercent = reinvestPercent;
     } else {
-      rewardRoutes.concat({
+      rewardRoutes = rewardRoutes.concat({
         isReinvest: true,
         label: 'Reinvest',
         rewardPercent: reinvestPercent,
