@@ -32,6 +32,7 @@ import { StakingCard } from '@components/LOCK/StakingCard';
 import { StakingAction } from '@constants/LOCK/StakingAction';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 
 export function LockDashboardScreen(): JSX.Element {
   const { openCfpVoting } = useLock();
@@ -192,7 +193,7 @@ export function LockDashboardScreen(): JSX.Element {
 
   return (
     <View style={tailwind('h-full bg-lockGray-100')}>
-      <ScrollView
+      <KeyboardAwareScrollView
         contentContainerStyle={tailwind('flex-grow flex-col')}
         refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
       >
@@ -311,7 +312,7 @@ export function LockDashboardScreen(): JSX.Element {
         )}
 
         {Platform.OS !== 'web' && <BottomSheetWithNav modalRef={bottomSheetRef} screenList={bottomSheetScreen} />}
-      </ScrollView>
+      </KeyboardAwareScrollView>
     </View>
   );
 }

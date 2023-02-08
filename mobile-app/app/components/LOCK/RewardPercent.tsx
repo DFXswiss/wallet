@@ -15,6 +15,12 @@ export function RewardPercent({ control, token, initialValue, onPercentChange }:
   const [isFocused, setIsFocused] = useState(false);
   const defaultValue = initialValue ?? '';
   const name = `${token}-percentage`;
+  const max = 100;
+
+  function keepValueInRange(value: string): string {
+    return '' + Math.min(+value, max);
+  }
+
   return (
     <>
       <Controller
@@ -35,7 +41,7 @@ export function RewardPercent({ control, token, initialValue, onPercentChange }:
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onChange={onChange}
-                onChangeText={(text) => onPercentChange(name, token, text)}
+                onChangeText={(text) => onPercentChange(name, token, keepValueInRange(text))}
                 selectionColor={theme.extend.colors.lock[200]}
                 placeholderTextColor={theme.extend.colors.lockGray[200]}
                 placeholder={'0'}
@@ -50,7 +56,7 @@ export function RewardPercent({ control, token, initialValue, onPercentChange }:
         rules={{
           required: true,
           pattern: /^\d*\.?\d*$/,
-          max: 100,
+          max,
           validate: {
             greaterThanZero: (value: string) => Number(value) > 0,
           },

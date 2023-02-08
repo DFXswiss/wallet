@@ -9,6 +9,7 @@ import { PoolPairIcon } from '@components/icons/PoolPairIcon';
 
 export enum ListItemStyle {
   ACTIVE,
+  ACTIVE_INVALID,
   ACTIVE_ICON,
   ACTIVE_ICON_EDIT,
   PENDING,
@@ -40,6 +41,7 @@ export function ListItem({
   function fieldStyle(): string {
     switch (style) {
       case ListItemStyle.ACTIVE:
+      case ListItemStyle.ACTIVE_INVALID:
         return 'text-base';
       case ListItemStyle.ACTIVE_ICON:
         return 'text-base pl-1';
@@ -83,7 +85,12 @@ export function ListItem({
       {style === ListItemStyle.ACTIVE_ICON_EDIT && control && onPercentChange ? (
         <RewardPercent control={control} token={title} initialValue={value} onPercentChange={onPercentChange} />
       ) : (
-        <Text style={tailwind('font-normal', fieldStyle(), { 'font-medium': header })}>
+        <Text
+          style={tailwind('font-normal', fieldStyle(), {
+            'font-medium': header,
+            'text-red-500': style === ListItemStyle.ACTIVE_INVALID,
+          })}
+        >
           {translate('LOCK/LockDashboardScreen', `${value ?? ''}${showsPercent ? '%' : ''}`)}
         </Text>
       )}

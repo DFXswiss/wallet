@@ -100,7 +100,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
       {
         title: translate('LOCK/LockDashboardScreen', 'Reinvest, {{asset}}', { asset: getReinvestAsset() }),
         value: '' + reinvestPercent,
-        style: ListItemStyle.ACTIVE,
+        style: reinvestPercent < 0 ? ListItemStyle.ACTIVE_INVALID : ListItemStyle.ACTIVE,
         onPress: undefined,
       },
     ];
@@ -169,7 +169,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         component: BottomSheetTokenList({
           lock: true,
           simple: true,
-          tokens: getBottomSheetToken(tokens),
+          tokens: getBottomSheetToken(tokens, filteredRewardRoutes),
           tokenType: TokenType.BottomSheetToken,
           headerLabel: translate('LOCK/LockDashboardScreen', 'Select your payout asset'),
           onCloseButtonPress: dismissModal,
@@ -299,15 +299,22 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
   );
 }
 
-function getBottomSheetToken(tokens: AssociatedToken): BottomSheetToken[] {
-  return Object.values(tokens).map((t) => ({
-    tokenId: t.id,
-    available: new BigNumber(0),
-    token: {
-      name: t.name,
-      displaySymbol: t.displaySymbol,
-      symbol: t.symbol,
-      isLPS: t.isLPS,
-    },
-  }));
+function getBottomSheetToken(
+  tokens: AssociatedToken,
+  rewardRoutes: (RewardRoute | NewRewardRoute)[],
+): BottomSheetToken[] {
+  // TODO (Krysh) as soon as targetAddress or bank account can be used, remove this filter
+  const alreadyAddedTokens = rewardRoutes.map((r) => r.targetAsset);
+  return Object.values(tokens)
+    .filter((t) => !alreadyAddedTokens.includes(t.symbol))
+    .map((t) => ({
+      tokenId: t.id,
+      available: new BigNumber(0),
+      token: {
+        name: t.name,
+        displaySymbol: t.displaySymbol,
+        symbol: t.symbol,
+        isLPS: t.isLPS,
+      },
+    }));
 }
