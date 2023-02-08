@@ -23,7 +23,7 @@ export const RewardRouteDelete = ({
       <View style={tailwind('bg-white px-4 py-8 h-full flex-col items-center')}>
         <TrashIcon height={25.2} width={19.6} />
         <Text style={tailwind('text-base font-bold text-lock-200 py-2')}>
-          {translate('LOCK/LockDashboardScreen', 'Remove {{asset}} as reward asset?', { asset: route.targetAsset })}
+          {translate('LOCK/LockDashboardScreen', 'Remove {{asset}} as reward asset?', { asset: route.displayLabel })}
         </Text>
         <View style={tailwind('flex-row')}>
           <Button
