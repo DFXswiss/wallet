@@ -6,7 +6,7 @@ import { ThemedIcon, ThemedView } from '@components/themed';
 import { RewardStrategyType } from '@constants/LOCK/RewardStrategyType';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 import { ButtonGroup } from '@screens/AppNavigator/screens/Dex/components/ButtonGroup';
-import { NewRewardRoute, RewardRoute, StakingStrategy } from '@shared-api/dfx/ApiService';
+import { RewardRouteDto, StakingStrategy } from '@shared-api/dfx/ApiService';
 import { useWalletContext } from '@shared-contexts/WalletContext';
 import { RootState } from '@store';
 import { allTokens, AssociatedToken } from '@store/wallet';
@@ -41,7 +41,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
   const { control, setValue, formState, reset } = useForm({ mode: 'onChange' });
   const watcher = useWatch({ control });
   const [showsRewardStrategy, setShowsRewardStrategy] = useState(false);
-  const [editableRewardRoutes, setEditableRewardRoutes] = useState<(RewardRoute | NewRewardRoute)[]>();
+  const [editableRewardRoutes, setEditableRewardRoutes] = useState<RewardRouteDto[]>();
   const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const { address } = useWalletContext();
 
@@ -87,12 +87,13 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
 
   useEffect(() => {
     setEditableRewardRoutes(editRewardRoutes ? rewardRoutes : undefined);
+    reset();
   }, [editRewardRoutes]);
 
   const listItems = useCallback(() => {
     return [
       ...filteredRewardRoutes.map((route) => ({
-        title: route.targetAsset,
+        title: route.displayLabel,
         value: route.rewardPercent ? '' + route.rewardPercent * 100 : undefined,
         style: editRewardRoutes ? ListItemStyle.ACTIVE_ICON_EDIT : ListItemStyle.ACTIVE_ICON,
         onPress: () => openDelete(route),
@@ -106,7 +107,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     ];
   }, [editRewardRoutes, filteredRewardRoutes, editableRewardRoutes, activeStrategyType, reinvestPercent]);
 
-  function openDelete(route: RewardRoute | NewRewardRoute): void {
+  function openDelete(route: RewardRouteDto): void {
     openModal([
       {
         stackScreenName: 'RewardRouteDelete',
@@ -114,6 +115,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
           route,
           onConfirm: () => {
             setEditableRewardRoutes(editableRewardRoutes?.filter((r) => r.targetAsset !== route.targetAsset));
+            reset();
             dismissModal();
           },
           onCancel: dismissModal,
@@ -178,6 +180,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
             setTimeout(() => {
               setEditableRewardRoutes(
                 editableRewardRoutes?.concat({
+                  displayLabel: item.token.displaySymbol,
                   targetAsset: item.token.symbol,
                   targetAddress: address,
                   targetBlockchain: 'DeFiChain',
@@ -198,7 +201,6 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
   function submit(): void {
     saveRewardRoutes(editableRewardRoutes ?? [], reinvestPercent / 100);
     reset();
-    console.log(watcher);
   }
 
   return (
@@ -264,13 +266,14 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
           {listItems().map((item, index) => (
             <ListItem
               key={index}
+              id={index}
               title={item.title}
               value={item.value}
               style={item.style}
               onPress={item.onPress}
               control={control}
-              onPercentChange={async (name, token, percentage) => {
-                const route = filteredRewardRoutes?.find((r) => r.targetAsset === token);
+              onPercentChange={async (name, id, percentage) => {
+                const route = filteredRewardRoutes?.[id];
                 if (route) route.rewardPercent = Number(percentage) / 100;
                 setValue(name, percentage, { shouldValidate: true });
               }}
@@ -299,10 +302,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
   );
 }
 
-function getBottomSheetToken(
-  tokens: AssociatedToken,
-  rewardRoutes: (RewardRoute | NewRewardRoute)[],
-): BottomSheetToken[] {
+function getBottomSheetToken(tokens: AssociatedToken, rewardRoutes: RewardRouteDto[]): BottomSheetToken[] {
   // TODO (Krysh) as soon as targetAddress or bank account can be used, remove this filter
   const alreadyAddedTokens = rewardRoutes.map((r) => r.targetAsset);
   return Object.values(tokens)

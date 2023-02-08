@@ -7,14 +7,15 @@ import { theme } from '../../tailwind.config';
 interface PercentForm {
   control: Control;
   token: string;
+  id: number;
   initialValue?: string;
-  onPercentChange: (name: string, token: string, percentage: string) => void;
+  onPercentChange: (name: string, id: number, percentage: string) => void;
 }
 
-export function RewardPercent({ control, token, initialValue, onPercentChange }: PercentForm): JSX.Element {
+export function RewardPercent({ control, token, id, initialValue, onPercentChange }: PercentForm): JSX.Element {
   const [isFocused, setIsFocused] = useState(false);
   const defaultValue = initialValue ?? '';
-  const name = `${token}-percentage`;
+  const name = `${id}-percentage`;
   const max = 100;
 
   function keepValueInRange(value: string): string {
@@ -41,7 +42,7 @@ export function RewardPercent({ control, token, initialValue, onPercentChange }:
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onChange={onChange}
-                onChangeText={(text) => onPercentChange(name, token, keepValueInRange(text))}
+                onChangeText={(text) => onPercentChange(name, id, keepValueInRange(text))}
                 selectionColor={theme.extend.colors.lock[200]}
                 placeholderTextColor={theme.extend.colors.lockGray[200]}
                 placeholder={'0'}

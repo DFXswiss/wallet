@@ -5,10 +5,10 @@ import { Text, View } from 'react-native';
 import { translate } from '@translations';
 import { Button } from '@components/Button';
 import TrashIcon from '@assets/LOCK/Trash.svg';
-import { NewRewardRoute, RewardRoute } from '@shared-api/dfx/ApiService';
+import { RewardRouteDto } from '@shared-api/dfx/ApiService';
 
 interface RewardRouteDeleteProps {
-  route: RewardRoute | NewRewardRoute;
+  route: RewardRouteDto;
   onCancel: () => void;
   onConfirm: () => void;
 }

@@ -16,6 +16,7 @@ export enum ListItemStyle {
 }
 
 interface ListItemProp {
+  id: number;
   title: string;
   value?: string;
   style: ListItemStyle;
@@ -23,10 +24,11 @@ interface ListItemProp {
   showsPercent?: boolean;
   onPress?: () => void;
   control?: Control;
-  onPercentChange?: (name: string, token: string, percentage: string) => void;
+  onPercentChange?: (name: string, id: number, percentage: string) => void;
 }
 
 export function ListItem({
+  id,
   title,
   value,
   style,
@@ -83,7 +85,7 @@ export function ListItem({
         )}
       </View>
       {style === ListItemStyle.ACTIVE_ICON_EDIT && control && onPercentChange ? (
-        <RewardPercent control={control} token={title} initialValue={value} onPercentChange={onPercentChange} />
+        <RewardPercent control={control} token={title} id={id} initialValue={value} onPercentChange={onPercentChange} />
       ) : (
         <Text
           style={tailwind('font-normal', fieldStyle(), {

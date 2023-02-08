@@ -2,20 +2,21 @@ import { WalletAlertErrorApi } from '@components/WalletAlert';
 import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
 import { RewardStrategyType } from '@constants/LOCK/RewardStrategyType';
 import { TransactionCache } from '@constants/LOCK/TransactionCache';
+import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice';
 import {
   LOCKdeposit,
   LOCKgetAllAnalytics,
   LOCKgetAllStaking,
   LOCKrewardRoutes,
-  NewRewardRoute,
-  RewardRoute,
+  RewardRouteDto,
   StakingAnalyticsOutputDto,
   StakingOutputDto,
   StakingStrategy,
 } from '@shared-api/dfx/ApiService';
 import { RootState } from '@store';
 import { firstTransactionSelector } from '@store/ocean';
+import { allTokens } from '@store/wallet';
 import BigNumber from 'bignumber.js';
 import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
 import { useSelector } from 'react-redux';
@@ -30,7 +31,7 @@ interface LockStakingInterface {
   info?: StakingOutputDto;
   setInfo: (info: StakingOutputDto) => void;
   analytics?: StakingAnalyticsOutputDto[];
-  rewardRoutes?: RewardRoute[];
+  rewardRoutes?: RewardRouteDto[];
 
   setTransactionCache: (cache: TransactionCache) => void;
 
@@ -42,7 +43,7 @@ interface LockStakingInterface {
   isSubmitting: boolean;
   editRewardRoutes: boolean;
   setEditRewardRoutes: (edit: boolean) => void;
-  saveRewardRoutes: (rewardRoutes: (RewardRoute | NewRewardRoute)[], reinvestPercent: number) => Promise<void>;
+  saveRewardRoutes: (rewardRoutes: RewardRouteDto[], reinvestPercent: number) => Promise<void>;
 }
 
 const LockStakingContext = createContext<LockStakingInterface>(undefined as any);
@@ -67,11 +68,19 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editRewardRoutes, setEditRewardRoutes] = useState(false);
 
+  const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const { getTokenPrice } = useTokenPrice('USDT');
 
   const info = activeTab === LockStakingTab.Staking ? stakingInfo : yieldMachineInfo;
   const analytics = activeTab === LockStakingTab.Staking ? stakingAnalytics : yieldMachineAnalytics;
-  const rewardRoutes = info?.rewardRoutes;
+  const rewardRoutes = info?.rewardRoutes.map((r) => ({
+    ...r,
+    displayLabel: retrieveTokenWithSymbol(r.targetAsset)?.displaySymbol ?? '',
+  }));
+
+  function retrieveTokenWithSymbol(symbol: string): TokenData | undefined {
+    return Object.values(tokens).find((t) => t.symbol === symbol);
+  }
 
   function setInfo(info: StakingOutputDto) {
     activeTab === LockStakingTab.Staking ? setStakingInfo(info) : setYieldMachineInfo(info);
@@ -134,10 +143,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     }
   }
 
-  async function saveRewardRoutes(
-    rewardRoutes: (RewardRoute | NewRewardRoute)[],
-    reinvestPercent: number,
-  ): Promise<void> {
+  async function saveRewardRoutes(rewardRoutes: RewardRouteDto[], reinvestPercent: number): Promise<void> {
     if (!info) return;
     setIsSubmitting(true);
     const reinvestRoute = rewardRoutes.find((r) => r.isReinvest);
@@ -151,9 +157,13 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
         targetAddress: info.depositAddress,
         targetAsset: info.asset,
         targetBlockchain: 'DeFiChain',
+        displayLabel: '',
       });
     }
-    return LOCKrewardRoutes(info.id, rewardRoutes)
+    return LOCKrewardRoutes(
+      info.id,
+      rewardRoutes.filter((r) => !r.isReinvest || (r.isReinvest && reinvestPercent > 0)),
+    )
       .then(setInfo)
       .catch(WalletAlertErrorApi)
       .finally(() => {

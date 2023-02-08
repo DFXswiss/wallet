@@ -147,13 +147,15 @@ export interface RewardRoute {
   isReinvest: boolean;
 }
 
-export interface NewRewardRoute {
+export interface RewardRouteDto {
   label?: string;
   rewardPercent?: number;
   targetAsset: string;
   targetAddress: string;
   targetBlockchain: string;
   isReinvest: boolean;
+
+  displayLabel: string;
 }
 
 export interface StakingOutputDto {
@@ -283,9 +285,8 @@ export const LOCKwithdrawalSign = async (
 
 export const LOCKrewardRoutes = async (
   stakingId: number,
-  rewardRoutes: (RewardRoute | NewRewardRoute)[],
+  rewardRoutes: RewardRouteDto[],
 ): Promise<StakingOutputDto> => {
-  console.log(rewardRoutes);
   return await fetchFromLOCK<StakingOutputDto>(`${LOCKStakingUrl}/${stakingId}/reward-routes`, 'PUT', rewardRoutes);
 };
 
