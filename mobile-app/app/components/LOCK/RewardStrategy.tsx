@@ -7,6 +7,7 @@ import { RewardStrategyType } from '@constants/LOCK/RewardStrategyType';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 import { ButtonGroup } from '@screens/AppNavigator/screens/Dex/components/ButtonGroup';
 import { RewardRouteDto, StakingStrategy } from '@shared-api/dfx/ApiService';
+import { Asset } from '@shared-api/dfx/models/Asset';
 import { useWalletContext } from '@shared-contexts/WalletContext';
 import { RootState } from '@store';
 import { allTokens, AssociatedToken } from '@store/wallet';
@@ -37,6 +38,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     setActiveStrategyType,
     rewardRoutes,
     isSubmitting,
+    assets,
   } = useLockStakingContext();
   const { control, setValue, formState, reset } = useForm({ mode: 'onChange' });
   const watcher = useWatch({ control });
@@ -171,7 +173,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         component: BottomSheetTokenList({
           lock: true,
           simple: true,
-          tokens: getBottomSheetToken(tokens, filteredRewardRoutes),
+          tokens: getBottomSheetToken(tokens, filteredRewardRoutes, assets),
           tokenType: TokenType.BottomSheetToken,
           headerLabel: translate('LOCK/LockDashboardScreen', 'Select your payout asset'),
           onCloseButtonPress: dismissModal,
@@ -302,11 +304,16 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
   );
 }
 
-function getBottomSheetToken(tokens: AssociatedToken, rewardRoutes: RewardRouteDto[]): BottomSheetToken[] {
+function getBottomSheetToken(
+  tokens: AssociatedToken,
+  rewardRoutes: RewardRouteDto[],
+  assets?: Asset[],
+): BottomSheetToken[] {
   // TODO (Krysh) as soon as targetAddress or bank account can be used, remove this filter
   const alreadyAddedTokens = rewardRoutes.map((r) => r.targetAsset);
   return Object.values(tokens)
     .filter((t) => !alreadyAddedTokens.includes(t.symbol))
+    .filter((t) => assets?.find((a) => a.name === t.symbol)?.buyable)
     .map((t) => ({
       tokenId: t.id,
       available: new BigNumber(0),

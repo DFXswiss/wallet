@@ -80,6 +80,7 @@ const LockBaseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl;
 const LOCKanalytics = 'analytics/staking';
 const LOCKKycUrl = 'kyc';
 const LOCKStakingUrl = 'staking';
+const LOCKAssetUrl = 'asset';
 
 export enum StakingStrategy {
   MASTERNODE = 'Masternode',
@@ -288,6 +289,10 @@ export const LOCKrewardRoutes = async (
   rewardRoutes: RewardRouteDto[],
 ): Promise<StakingOutputDto> => {
   return await fetchFromLOCK<StakingOutputDto>(`${LOCKStakingUrl}/${stakingId}/reward-routes`, 'PUT', rewardRoutes);
+};
+
+export const LOCKgetAssets = async (): Promise<Asset[]> => {
+  return await fetchFromLOCK<Asset[]>(`${LOCKAssetUrl}`, 'GET');
 };
 
 const fetchFromLOCK = async <T>(

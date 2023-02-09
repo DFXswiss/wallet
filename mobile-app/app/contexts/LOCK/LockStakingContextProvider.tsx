@@ -5,6 +5,7 @@ import { TransactionCache } from '@constants/LOCK/TransactionCache';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice';
 import {
+  LOCKgetAssets,
   LOCKdeposit,
   LOCKgetAllAnalytics,
   LOCKgetAllStaking,
@@ -14,6 +15,7 @@ import {
   StakingOutputDto,
   StakingStrategy,
 } from '@shared-api/dfx/ApiService';
+import { Asset } from '@shared-api/dfx/models/Asset';
 import { RootState } from '@store';
 import { firstTransactionSelector } from '@store/ocean';
 import { allTokens } from '@store/wallet';
@@ -44,6 +46,8 @@ interface LockStakingInterface {
   editRewardRoutes: boolean;
   setEditRewardRoutes: (edit: boolean) => void;
   saveRewardRoutes: (rewardRoutes: RewardRouteDto[], reinvestPercent: number) => Promise<void>;
+
+  assets?: Asset[];
 }
 
 const LockStakingContext = createContext<LockStakingInterface>(undefined as any);
@@ -70,6 +74,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
 
   const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const { getTokenPrice } = useTokenPrice('USDT');
+  const [assets, setAssets] = useState<Asset[]>();
 
   const info = activeTab === LockStakingTab.Staking ? stakingInfo : yieldMachineInfo;
   const analytics = activeTab === LockStakingTab.Staking ? stakingAnalytics : yieldMachineAnalytics;
@@ -93,7 +98,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   }, []);
 
   async function fetch(): Promise<void> {
-    await Promise.all([fetchStakingInfo(), fetchAnalytics()]);
+    await Promise.all([fetchStakingInfo(), fetchAnalytics(), fetchAssets()]);
   }
 
   async function fetchStakingInfo(): Promise<void> {
@@ -115,6 +120,10 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
         setYieldMachineAnalytics(analytics.filter((a) => a.strategy === StakingStrategy.LIQUIDITY_MINING));
       })
       .catch(WalletAlertErrorApi);
+  }
+
+  async function fetchAssets(): Promise<void> {
+    await LOCKgetAssets().then(setAssets).catch(WalletAlertErrorApi);
   }
 
   // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
@@ -189,6 +198,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     setActiveStrategyType,
     rewardRoutes,
     isSubmitting,
+    assets,
   };
 
   return <LockStakingContext.Provider value={context}>{props.children}</LockStakingContext.Provider>;
