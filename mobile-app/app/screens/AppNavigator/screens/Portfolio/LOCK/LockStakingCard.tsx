@@ -65,15 +65,16 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
 
     const getUser = loggedIn
       ? LOCKgetUser()
-          .then((user) => setKycComplete(user))
-          .catch(WalletAlertErrorApi)
-      : Promise.resolve();
-
-    const getStakingInfo = loggedIn
-      ? LOCKgetAllStaking()
-          .then(([stkInfo, ymInfo]) => {
-            setStakingInfo(stkInfo);
-            setYieldInfo(ymInfo);
+          .then((user) => {
+            const isComplete = setKycComplete(user);
+            if (isComplete) {
+              LOCKgetAllStaking()
+                .then(([stkInfo, ymInfo]) => {
+                  setStakingInfo(stkInfo);
+                  setYieldInfo(ymInfo);
+                })
+                .catch(WalletAlertErrorApi);
+            }
           })
           .catch(WalletAlertErrorApi)
       : Promise.resolve();
@@ -84,7 +85,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
       })
       .catch(console.error);
 
-    Promise.all([getUser, getStakingInfo, getAnalytics]).finally(() => setIsLoading(false));
+    Promise.all([getUser, getAnalytics]).finally(() => setIsLoading(false));
   };
 
   useEffect(() => fetchLockData(loggedIn), [refreshTrigger]);

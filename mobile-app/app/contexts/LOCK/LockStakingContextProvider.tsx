@@ -93,10 +93,6 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
 
   const [activeStrategyType, setActiveStrategyType] = useState<RewardStrategyType>(RewardStrategyType.DFI);
 
-  useEffect(() => {
-    fetch();
-  }, []);
-
   async function fetch(): Promise<void> {
     await Promise.all([fetchStakingInfo(), fetchAnalytics(), fetchAssets()]);
   }

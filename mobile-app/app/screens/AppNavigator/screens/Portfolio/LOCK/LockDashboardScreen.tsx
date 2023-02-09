@@ -169,6 +169,10 @@ export function LockDashboardScreen(): JSX.Element {
     [activeTab],
   );
 
+  useEffect(() => {
+    fetch();
+  }, []);
+
   const [refreshing, setRefreshing] = useState(false);
 
   const onRefresh = useCallback(async () => {

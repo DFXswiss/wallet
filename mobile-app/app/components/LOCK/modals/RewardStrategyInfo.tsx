@@ -7,11 +7,10 @@ import { translate } from '@translations';
 export const RewardStrategyInfo = (): React.MemoExoticComponent<() => JSX.Element> =>
   memo(() => {
     const depositToRewards = [
-      translate('LOCK/LockDashboardScreen', 'Deposit = Rewards'),
-      translate('LOCK/LockDashboardScreen', 'DFI = DFI+dUSD'),
-      translate('LOCK/LockDashboardScreen', 'dUSD = DFI+dUSD'),
-      translate('LOCK/LockDashboardScreen', 'dBTC/dETH/dUSDT/dUSDC* = DFI+dUSD'),
-      translate('LOCK/LockDashboardScreen', 'dToken (dSPY, dQQQ, d...)* = DFI'),
+      translate('LOCK/LockDashboardScreen', 'Deposit -> Rewards'),
+      translate('LOCK/LockDashboardScreen', 'DFI+dUSD -> DFI+dUSD'),
+      translate('LOCK/LockDashboardScreen', 'dBTC/dETH/dUSDT/dUSDC* -> DFI+dUSD'),
+      translate('LOCK/LockDashboardScreen', 'dToken (dSPY, dQQQ, d...)* -> DFI'),
     ];
 
     return (

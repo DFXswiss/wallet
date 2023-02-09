@@ -13,7 +13,7 @@ export function useLock(): LockKycContextI {
 
 interface LockKycContextI {
   isKycComplete: boolean;
-  setKycComplete: (lockUserDto?: LockUserDto) => void;
+  setKycComplete: (lockUserDto?: LockUserDto) => boolean;
   openCfpVoting: () => void;
 }
 
@@ -25,8 +25,10 @@ export function LockContextProvider(props: PropsWithChildren<any>): JSX.Element 
    * @return boolean
    */
 
-  const setKycComplete = useCallback((lockUserDto?: LockUserDto): void => {
-    setIsKycComplete(lockUserDto === undefined || ['Light', 'Full'].includes(lockUserDto?.kycStatus));
+  const setKycComplete = useCallback((lockUserDto?: LockUserDto): boolean => {
+    const isComplete = lockUserDto === undefined || ['Light', 'Full'].includes(lockUserDto?.kycStatus);
+    setIsKycComplete(isComplete);
+    return isComplete;
   }, []);
 
   const openCfpVoting = useCallback((): void => {
