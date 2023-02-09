@@ -121,9 +121,8 @@ export const BottomSheetTokenList = ({
                 }
               }}
               style={tailwind('px-4 py-3 flex flex-row items-center justify-between')}
-              light={tailwind({ 'text-black bg-lockGray-100 border-b border-lockGray-200': lock })}
-              dark={tailwind({ 'text-black bg-lockGray-100 border-b border-lockGray-200': lock })}
               testID={`select_${item.token.displaySymbol}`}
+              lock={lock}
             >
               <View style={tailwind('flex flex-row items-center')}>
                 {item.token.displaySymbol.includes('-') ? (
@@ -178,13 +177,7 @@ export const BottomSheetTokenList = ({
                     />
                   </View>
                 )}
-                <ThemedIcon
-                  light={tailwind({ 'text-lock-200': lock })}
-                  dark={tailwind({ 'text-lock-200': lock })}
-                  iconType="MaterialIcons"
-                  name="chevron-right"
-                  size={20}
-                />
+                <ThemedIcon iconType="MaterialIcons" name="chevron-right" size={20} lock={lock} primary />
               </View>
             </ThemedTouchableOpacity>
           );
@@ -197,21 +190,11 @@ export const BottomSheetTokenList = ({
               'py-3.5 border-t -mb-px': Platform.OS === 'android',
             })} // border top on android to handle 1px of horizontal transparent line when scroll past header
           >
-            <ThemedText
-              light={tailwind({ 'text-black': lock })}
-              dark={tailwind({ 'text-black': lock })}
-              style={tailwind('text-lg font-medium')}
-            >
+            <ThemedText style={tailwind('text-lg font-medium')} lock={lock}>
               {headerLabel}
             </ThemedText>
             <TouchableOpacity onPress={onCloseButtonPress}>
-              <ThemedIcon
-                light={tailwind({ 'text-black': lock })}
-                dark={tailwind({ 'text-black': lock })}
-                iconType="MaterialIcons"
-                name="close"
-                size={20}
-              />
+              <ThemedIcon iconType="MaterialIcons" name="close" size={20} lock={lock} />
             </TouchableOpacity>
           </ThemedView>
         }
