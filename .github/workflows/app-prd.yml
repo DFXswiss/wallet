@@ -1,13 +1,13 @@
-name: APP DEV CI/CD
+name: APP PRD CI/CD
 
 on:
   push:
-    branches: [develop]
+    branches: [main]
   workflow_dispatch:
 
 env:
   NODE_VERSION: '16.x'
-  RELEASE_CHANNEL: 'default'
+  RELEASE_CHANNEL: 'production'
 
 jobs:
   publish:
