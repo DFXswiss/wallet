@@ -8,7 +8,8 @@ export const RewardStrategyInfo = (): React.MemoExoticComponent<() => JSX.Elemen
   memo(() => {
     const depositToRewards = [
       translate('LOCK/LockDashboardScreen', 'Deposit -> Rewards'),
-      translate('LOCK/LockDashboardScreen', 'DFI+dUSD -> DFI+dUSD'),
+      translate('LOCK/LockDashboardScreen', 'DFI -> DFI+dUSD'),
+      translate('LOCK/LockDashboardScreen', 'dUSD -> DFI+dUSD'),
       translate('LOCK/LockDashboardScreen', 'dBTC/dETH/dUSDT/dUSDC* -> DFI+dUSD'),
       translate('LOCK/LockDashboardScreen', 'dToken (dSPY, dQQQ, d...)* -> DFI'),
     ];
@@ -18,7 +19,7 @@ export const RewardStrategyInfo = (): React.MemoExoticComponent<() => JSX.Elemen
         <Text style={tailwind('text-black text-base font-normal')}>
           {translate(
             'LOCK/LockDashboardScreen',
-            'Depending on the asset you deposited into the Yield Machine, you will receive DFI or DFI and dUSD as rewards.',
+            'Depending on the asset you deposited into the Yield Machine, you will receive DFI or DFI+dUSD as rewards.',
           )}
         </Text>
         <View style={tailwind('pt-2')}>
