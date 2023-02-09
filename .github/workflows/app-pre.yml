@@ -7,6 +7,7 @@ on:
 
 env:
   NODE_VERSION: '16.x'
+  RELEASE_CHANNEL: 'preview'
 
 jobs:
   publish:
@@ -14,10 +15,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Setup Node ${{ env.NODE_VERSION }}
-        uses: actions/setup-node@v2
+        uses: actions/setup-node@v3
         with:
           node-version: ${{ env.NODE_VERSION }}
 
@@ -28,5 +29,10 @@ jobs:
           packager: npm
           token: ${{ secrets.EXPO_TOKEN }}
 
-      - run: npm ci
-      - run: expo publish --release-channel=preview
+      - name: Install packages
+        run: |
+          npm ci
+
+      - name: Publish ${{ env.RELEASE_CHANNEL }}
+        run: |
+          expo publish --release-channel=${{ env.RELEASE_CHANNEL }}
