@@ -8,8 +8,6 @@ import { useThemeContext } from '@shared-contexts/ThemeProvider'
 import { Fiat } from '@shared-api/dfx/models/Fiat'
 import { Country } from '@shared-api/dfx/models/Country'
 
-// export type FiatType = 'EUR' | 'CHF' | 'USD' | 'GBP'
-
 interface BottomSheetFiatPickerProps {
   onFiatPress: (fiatType: Fiat) => void
   onCloseModal: () => void
@@ -30,12 +28,7 @@ export const BottomSheetFiatPicker = ({
   }
   const FlatList = Platform.OS === 'web' ? flatListComponents.web : flatListComponents.mobile
 
-  const liveFiats = fiats?.filter((item) => item.enable)
-  // TODO: refactor for generic use (-> UserDetailsScreen)
-  // const liveData = paramData?.filter((item) => item.enable).map((item) => item.name)
-  // const data = liveData ?? liveFiats
-  const data = liveFiats
-  data ?? onCloseModal()
+  fiats ?? onCloseModal()
 
   return (
     <FlatList
@@ -44,7 +37,7 @@ export const BottomSheetFiatPicker = ({
         'bg-dfxblue-800': !isLight,
         'bg-white': isLight
       })}
-      data={data}
+      data={fiats}
       renderItem={({ item }: { item: Fiat }) => (
         <ListItem item={item.name} onPress={() => onFiatPress(item)} />
       )}

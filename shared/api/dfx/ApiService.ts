@@ -60,7 +60,10 @@ const LOCKanalytics = 'analytics/staking'
 const LOCKKycUrl = 'kyc'
 const LOCKStakingUrl = 'staking'
 
-export type StakingStrategy = 'Masternode' | 'LiquidityMining'
+export enum StakingStrategy {
+  MASTERNODE = 'Masternode',
+  LIQUIDITY_MINING = 'LiquidityMining',
+}
 
 export interface LockSignMessageResponse {
   message: string
@@ -79,6 +82,7 @@ export interface StakingAnalyticsOutputDto {
   apr: number
   tvl: number
   asset: string
+  strategy: StakingStrategy
 }
 
 export interface LockKYC {
@@ -99,9 +103,16 @@ export interface LockUserDto {
 }
 
 export interface StakingQueryDto {
-  asset: string
-  blockchain: Blockchain
+  asset?: string
+  blockchain?: Blockchain
   strategy: StakingStrategy
+}
+
+export interface StakingBalance {
+  asset: string
+  balance: number
+  pendingDeposits: number
+  pendingWithdrawals: number
 }
 
 export interface StakingOutputDto {
@@ -111,12 +122,12 @@ export interface StakingOutputDto {
   minimalStake: number
   minimalDeposit: number
   fee: number
-  balance: number
-  pendingDeposits: number
-  pendingWithdrawals: number
+  balances: StakingBalance[]
+  strategy: StakingStrategy
 }
 
 export interface CreateDepositDto {
+  asset: string
   amount: number
   txId: string
 }
@@ -154,13 +165,14 @@ export const LOCKgetUser = async (): Promise<LockUserDto> => {
 }
 
 // --- STAKING --- //
-const stakingTypes: StakingQueryDto[] = [
-  { asset: 'DFI', blockchain: 'DeFiChain', strategy: 'Masternode' },
-  { asset: 'DUSD', blockchain: 'DeFiChain', strategy: 'LiquidityMining' }
+const analyticTypes: StakingQueryDto[] = [
+  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.MASTERNODE },
+  { asset: 'DUSD', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
+  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING }
 ]
 
 export const LOCKgetAllAnalytics = async (): Promise<StakingAnalyticsOutputDto[]> => {
-  return await Promise.all(stakingTypes.map(LOCKgetAnalytics))
+  return await Promise.all(analyticTypes.map(LOCKgetAnalytics))
 }
 
 export const LOCKgetAnalytics = async (query: StakingQueryDto): Promise<StakingAnalyticsOutputDto> => {
@@ -179,19 +191,19 @@ const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalytic
 const round = (amount: number, decimals: number): number => Math.round(amount * Math.pow(10, decimals)) / Math.pow(10, decimals)
 
 export const LOCKgetAllStaking = async (): Promise<StakingOutputDto[]> => {
-  return await Promise.all(stakingTypes.map(LOCKgetStaking))
+  return await Promise.all(Object.values(StakingStrategy).map(LOCKgetStaking))
 }
 
-export const LOCKgetStaking = async (query: StakingQueryDto): Promise<StakingOutputDto> => {
-  return await fetchFromLOCK<StakingOutputDto>(LOCKStakingUrl, undefined, undefined, { queryParams: query })
+export const LOCKgetStaking = async (strategy: StakingStrategy): Promise<StakingOutputDto> => {
+  return await fetchFromLOCK<StakingOutputDto>(LOCKStakingUrl, undefined, undefined, { queryParams: { strategy, blockchain: 'DeFiChain' } })
 }
 
 export const LOCKdeposit = async (stakingId: number, deposit: CreateDepositDto): Promise<StakingOutputDto> => {
   return await fetchFromLOCK<StakingOutputDto>(`${LOCKStakingUrl}/${stakingId}/deposit`, 'POST', deposit)
 }
 
-export const LOCKwithdrawal = async (stakingId: number, amount: number): Promise<WithdrawalDraftOutputDto> => {
-  return await fetchFromLOCK<WithdrawalDraftOutputDto>(`${LOCKStakingUrl}/${stakingId}/withdrawal`, 'POST', { amount })
+export const LOCKwithdrawal = async (stakingId: number, amount: number, asset: string): Promise<WithdrawalDraftOutputDto> => {
+  return await fetchFromLOCK<WithdrawalDraftOutputDto>(`${LOCKStakingUrl}/${stakingId}/withdrawal`, 'POST', { amount, asset })
 }
 
 export const LOCKwithdrawalDrafts = async (stakingId: number): Promise<WithdrawalDraftOutputDto[]> => {

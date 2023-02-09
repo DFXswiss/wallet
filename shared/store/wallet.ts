@@ -5,7 +5,7 @@ import { TokenData } from '@defichain/whale-api-client/dist/api/tokens'
 import { createAsyncThunk, createSelector, createSlice, PayloadAction } from '@reduxjs/toolkit'
 import BigNumber from 'bignumber.js'
 
-interface AssociatedToken {
+export interface AssociatedToken {
   [key: string]: TokenData
 }
 
@@ -278,4 +278,8 @@ export const tokenSelectorByDisplaySymbol = createSelector([(state: WalletState)
  */
 export const dexPricesSelectorByDenomination = createSelector([(state: WalletState) => state.dexPrices, selectTokenId], (dexPrices, denomination) => {
   return dexPrices[denomination] ?? {}
+})
+
+export const allTokens = createSelector([(state: WalletState) => state.allTokens], (allTokens) => {
+  return allTokens
 })

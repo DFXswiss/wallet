@@ -12,7 +12,7 @@ import { isValidIBAN } from 'ibantools'
 import { Control, Controller, useForm } from 'react-hook-form'
 import { WalletTextInput } from '@components/WalletTextInput'
 import { BottomSheetFiatPicker } from './BottomSheetFiatPicker'
-import { Fiat } from '@shared-api/dfx/models/Fiat'
+import { DefaultFiat, Fiat } from '@shared-api/dfx/models/Fiat'
 import { useLogger } from '@shared-contexts/NativeLoggingProvider'
 import { getFiats, postBankAccount, putBankAccount } from '@shared-api/dfx/ApiService'
 import { WalletAlertErrorApi } from '@components/WalletAlert'
@@ -41,14 +41,8 @@ export const BottomSheetFiatAccountCreate = ({
     trigger
   } = useForm({ mode: 'onChange' })
 
-  const initialFiat: Fiat = {
-    id: 2,
-    name: 'EUR',
-    enable: true
-  }
-
   // returned from picker
-  const [selectedFiat, setSelectedFiat] = useState<Fiat>(initialFiat)
+  const [selectedFiat, setSelectedFiat] = useState<Fiat>(DefaultFiat)
   const [sepaInstantAccount, setSepaInstantAccount] = useState<BankAccount>()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
@@ -180,7 +174,7 @@ export const BottomSheetFiatAccountCreate = ({
           <FiatPickerRow
             fiat={selectedFiat}
             openFiatBottomSheet={(fiats) => {
-              setBottomSheet(fiats)
+              setBottomSheet(fiats.filter((f) => f.buyable || f.sellable))
               expandModal()
             }}
             invertedColor
