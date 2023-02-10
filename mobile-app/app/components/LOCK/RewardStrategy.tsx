@@ -20,6 +20,7 @@ import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { EditButton } from './EditButton';
 import { ListItem, ListItemStyle } from './ListItem';
+import { RewardFilterSelection } from './modals/RewardFilterSelection';
 import { RewardRouteDelete } from './modals/RewardRouteDelete';
 import { RewardStrategyInfo } from './modals/RewardStrategyInfo';
 
@@ -166,16 +167,18 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     ]);
   }
 
-  function openTokenList(): void {
+  const bottomSheetTokens = useMemo(
+    () => getBottomSheetToken(tokens, filteredRewardRoutes, assets),
+    [tokens, filteredRewardRoutes, assets],
+  );
+
+  function openTokenFilter(): void {
     openModal([
       {
-        stackScreenName: 'RewardRouteToken',
-        component: BottomSheetTokenList({
-          lock: true,
-          simple: true,
-          tokens: getBottomSheetToken(tokens, filteredRewardRoutes, assets),
-          tokenType: TokenType.BottomSheetToken,
-          headerLabel: translate('LOCK/LockDashboardScreen', 'Select your payout asset'),
+        stackScreenName: 'RewardFilterSelection',
+        component: RewardFilterSelection({
+          tokens: bottomSheetTokens,
+          headerLabel: translate('LOCK/LockDashboardScreen', `Select your payout asset`),
           onCloseButtonPress: dismissModal,
           onTokenPress: (item) => {
             dismissModal();
@@ -242,7 +245,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         <View style={tailwind('py-2')}>
           <Button
             label={translate('LOCK/LockDashboardScreen', '+ ADD ASSET')}
-            onPress={openTokenList}
+            onPress={openTokenFilter}
             margin="m-0"
             padding="p-2"
             color="primary"
