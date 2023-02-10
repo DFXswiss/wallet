@@ -158,6 +158,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
       rewardRoutes = rewardRoutes.concat({
         isReinvest: true,
         label: 'Reinvest',
+        rewardAsset: 'DFI',
         rewardPercent: reinvestPercent,
         targetAddress: info.depositAddress,
         targetAsset: info.asset,

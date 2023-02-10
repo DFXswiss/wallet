@@ -150,6 +150,7 @@ export interface RewardRoute {
 
 export interface RewardRouteDto {
   label?: string;
+  rewardAsset?: string;
   rewardPercent?: number;
   targetAsset: string;
   targetAddress: string;
