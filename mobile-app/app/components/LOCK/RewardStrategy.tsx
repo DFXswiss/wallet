@@ -182,6 +182,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
             setTimeout(() => {
               setEditableRewardRoutes(
                 editableRewardRoutes?.concat({
+                  rewardAsset: 'DFI',
                   displayLabel: item.token.displaySymbol,
                   targetAsset: item.token.symbol,
                   targetAddress: address,
