@@ -1,11 +1,9 @@
-import { BottomSheetToken, BottomSheetTokenList, TokenType } from '@components/BottomSheetTokenList';
+import { BottomSheetToken } from '@components/BottomSheetTokenList';
 import { BottomSheetNavScreen } from '@components/BottomSheetWithNav';
 import { Button } from '@components/Button';
 import { IconButton } from '@components/IconButton';
 import { ThemedIcon, ThemedView } from '@components/themed';
-import { RewardStrategyType } from '@constants/LOCK/RewardStrategyType';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
-import { ButtonGroup } from '@screens/AppNavigator/screens/Dex/components/ButtonGroup';
 import { RewardRouteDto, StakingStrategy } from '@shared-api/dfx/ApiService';
 import { Asset } from '@shared-api/dfx/models/Asset';
 import { useWalletContext } from '@shared-contexts/WalletContext';
@@ -20,6 +18,7 @@ import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { EditButton } from './EditButton';
 import { ListItem, ListItemStyle } from './ListItem';
+import { RewardDestinationSelection } from './modals/RewardDestinationSelection';
 import { RewardFilterSelection } from './modals/RewardFilterSelection';
 import { RewardRouteDelete } from './modals/RewardRouteDelete';
 import { RewardStrategyInfo } from './modals/RewardStrategyInfo';
@@ -30,44 +29,14 @@ interface RewardStrategyProps {
 }
 
 export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps): JSX.Element {
-  const {
-    info,
-    editRewardRoutes,
-    setEditRewardRoutes,
-    saveRewardRoutes,
-    activeStrategyType,
-    setActiveStrategyType,
-    rewardRoutes,
-    isSubmitting,
-    assets,
-  } = useLockStakingContext();
+  const { info, editRewardRoutes, setEditRewardRoutes, saveRewardRoutes, rewardRoutes, isSubmitting, assets } =
+    useLockStakingContext();
   const { control, setValue, formState, reset } = useForm({ mode: 'onChange' });
   const watcher = useWatch({ control });
   const [showsRewardStrategy, setShowsRewardStrategy] = useState(false);
   const [editableRewardRoutes, setEditableRewardRoutes] = useState<RewardRouteDto[]>();
   const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const { address } = useWalletContext();
-
-  const buttonGroup = [
-    {
-      id: RewardStrategyType.DFI,
-      label: translate('LOCK/LockDashboardScreen', 'DFI rewards'),
-      handleOnPress: () => setActiveStrategyType(RewardStrategyType.DFI),
-    },
-    {
-      id: RewardStrategyType.DUSD,
-      label: translate('LOCK/LockDashboardScreen', 'dUSD rewards'),
-      handleOnPress: () => setActiveStrategyType(RewardStrategyType.DUSD),
-    },
-  ];
-
-  function shouldShowAdditionalElements(): boolean {
-    return info?.strategy === StakingStrategy.LIQUIDITY_MINING;
-  }
-
-  function isEditAvailable(): boolean {
-    return info?.strategy === StakingStrategy.MASTERNODE;
-  }
 
   const filteredRewardRoutes = useMemo(() => {
     return (editableRewardRoutes ? editableRewardRoutes : rewardRoutes)?.filter((r) => !r.isReinvest) ?? [];
@@ -84,10 +53,6 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
       .toNumber();
   }, [filteredRewardRoutes, watcher]);
 
-  function getReinvestAsset(): string | undefined {
-    return info?.strategy === StakingStrategy.LIQUIDITY_MINING ? activeStrategyType : info?.asset;
-  }
-
   useEffect(() => {
     setEditableRewardRoutes(editRewardRoutes ? rewardRoutes : undefined);
     reset();
@@ -102,13 +67,13 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         onPress: () => openDelete(route),
       })),
       {
-        title: translate('LOCK/LockDashboardScreen', 'Reinvest, {{asset}}', { asset: getReinvestAsset() }),
+        title: translate('LOCK/LockDashboardScreen', 'Reinvest, {{asset}}', { asset: 'DFI' }),
         value: '' + reinvestPercent,
         style: reinvestPercent < 0 ? ListItemStyle.ACTIVE_INVALID : ListItemStyle.ACTIVE,
         onPress: undefined,
       },
     ];
-  }, [editRewardRoutes, filteredRewardRoutes, editableRewardRoutes, activeStrategyType, reinvestPercent]);
+  }, [editRewardRoutes, filteredRewardRoutes, editableRewardRoutes, reinvestPercent]);
 
   function openDelete(route: RewardRouteDto): void {
     openModal([
@@ -167,10 +132,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     ]);
   }
 
-  const bottomSheetTokens = useMemo(
-    () => getBottomSheetToken(tokens, filteredRewardRoutes, assets),
-    [tokens, filteredRewardRoutes, assets],
-  );
+  const bottomSheetTokens = useMemo(() => getBottomSheetToken(tokens, assets), [tokens, assets]);
 
   function openTokenFilter(): void {
     openModal([
@@ -180,7 +142,26 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
           tokens: bottomSheetTokens,
           headerLabel: translate('LOCK/LockDashboardScreen', `Select your payout asset`),
           onCloseButtonPress: dismissModal,
-          onTokenPress: (item) => {
+          onTokenPress: (token) => openDestinationSelection(token),
+        }),
+        option: {
+          header: () => null,
+          headerBackTitleVisible: false,
+        },
+      },
+    ]);
+  }
+
+  function openDestinationSelection(token: BottomSheetToken) {
+    openModal([
+      {
+        stackScreenName: 'RewardDestinationSelection',
+        component: RewardDestinationSelection({
+          token,
+          headerLabel: translate('LOCK/LockDashboardScreen', `Select your payout asset`),
+          onCloseButtonPress: dismissModal,
+          onSelection: (item, destination) => {
+            console.log('destination is', destination);
             dismissModal();
             setTimeout(() => {
               setEditableRewardRoutes(
@@ -198,7 +179,6 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         }),
         option: {
           header: () => null,
-          headerBackTitleVisible: false,
         },
       },
     ]);
@@ -216,18 +196,16 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
           <Text style={tailwind('text-base font-bold')}>
             {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
           </Text>
-          {shouldShowAdditionalElements() && (
-            <View style={tailwind('p-0.5')}>
-              <IconButton
-                iconName="info-outline"
-                iconType="MaterialIcons"
-                iconSize={16}
-                onPress={() => openInfo()}
-                lock
-                outline
-              />
-            </View>
-          )}
+          <View style={tailwind('p-0.5')}>
+            <IconButton
+              iconName="info-outline"
+              iconType="MaterialIcons"
+              iconSize={16}
+              onPress={() => openInfo()}
+              lock
+              outline
+            />
+          </View>
         </View>
         <View style={tailwind('py-1')}>
           <IconButton
@@ -256,22 +234,11 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         </View>
       )}
 
-      {showsRewardStrategy && shouldShowAdditionalElements() && (
-        <View style={tailwind('py-1')}>
-          <ButtonGroup
-            buttons={buttonGroup}
-            activeButtonGroupItem={activeStrategyType}
-            testID="reward_strategy_button_group"
-            lock
-            inline
-          />
-        </View>
-      )}
       {showsRewardStrategy && (
         <>
           {listItems().map((item, index) => (
             <ListItem
-              key={index}
+              key={`${index}-${item.title}`}
               id={index}
               title={item.title}
               value={item.value}
@@ -299,7 +266,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
                 isSubmitting={isSubmitting}
               />
             ) : (
-              <EditButton onPress={() => setEditRewardRoutes(true)} disabled={!isEditAvailable()} />
+              <EditButton onPress={() => setEditRewardRoutes(true)} />
             )}
           </View>
         </>
@@ -308,15 +275,8 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
   );
 }
 
-function getBottomSheetToken(
-  tokens: AssociatedToken,
-  rewardRoutes: RewardRouteDto[],
-  assets?: Asset[],
-): BottomSheetToken[] {
-  // TODO (Krysh) as soon as targetAddress or bank account can be used, remove this filter
-  const alreadyAddedTokens = rewardRoutes.map((r) => r.targetAsset);
+function getBottomSheetToken(tokens: AssociatedToken, assets?: Asset[]): BottomSheetToken[] {
   return Object.values(tokens)
-    .filter((t) => !alreadyAddedTokens.includes(t.symbol))
     .filter((t) => assets?.find((a) => a.name === t.symbol)?.buyable)
     .map((t) => ({
       tokenId: t.id,

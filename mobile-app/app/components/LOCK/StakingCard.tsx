@@ -14,7 +14,6 @@ import { ListItem, ListItemStyle } from './ListItem';
 import { SymbolIcon } from '@components/SymbolIcon';
 import { useState } from 'react';
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice';
-import { RewardStrategy } from './RewardStrategy';
 import { BottomSheetNavScreen } from '@components/BottomSheetWithNav';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 
@@ -28,10 +27,9 @@ interface StakingCardProps {
     token: WalletToken | TokenData,
     screens?: BottomSheetNavScreen[],
   ) => void;
-  dismissModal: () => void;
 }
 
-export function StakingCard({ info, analytics, isLoading, openModal, dismissModal }: StakingCardProps): JSX.Element {
+export function StakingCard({ info, analytics, isLoading, openModal }: StakingCardProps): JSX.Element {
   const { editRewardRoutes } = useLockStakingContext();
   const token = useSelector((state: RootState) => tokenSelectorByDisplaySymbol(state.wallet, info.asset));
   const walletToken = useSelector((state: RootState) => tokensSelector(state.wallet)).find((t) =>
@@ -39,8 +37,8 @@ export function StakingCard({ info, analytics, isLoading, openModal, dismissModa
   );
   const { getTokenPrice } = useTokenPrice();
 
-  const addAction = info.strategy === StakingStrategy.MASTERNODE ? 'STAKE' : 'DEPOSIT';
-  const removeAction = info.strategy === StakingStrategy.MASTERNODE ? 'UNSTAKE' : 'WITHDRAW';
+  const addAction = info.strategy === StakingStrategy.MASTERNODE ? 'Stake' : 'Deposit';
+  const removeAction = info.strategy === StakingStrategy.MASTERNODE ? 'Unstake' : 'Withdraw';
 
   const [showsApy, setShowsApy] = useState(true);
 
@@ -49,10 +47,6 @@ export function StakingCard({ info, analytics, isLoading, openModal, dismissModa
       ...(info.balances?.map((b) => getTokenPrice(b.asset, new BigNumber(b.balance))) ?? [new BigNumber(0)]),
     ).toNumber();
   };
-
-  function openModalWithScreens(screens: BottomSheetNavScreen[]): void {
-    openModal(addAction, info, token, screens);
-  }
 
   return (
     <>
@@ -181,7 +175,6 @@ export function StakingCard({ info, analytics, isLoading, openModal, dismissModa
       </View>
 
       {/* card content / staking details */}
-      <RewardStrategy openModal={openModalWithScreens} dismissModal={dismissModal} />
       <View style={tailwind('flex-row bg-lock-450 rounded-b-md justify-between')}>
         <Button
           label={translate('LOCK/LockDashboardScreen', addAction)}

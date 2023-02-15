@@ -33,6 +33,7 @@ import { StakingAction } from '@constants/LOCK/StakingAction';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { RewardStrategy } from '@components/LOCK/RewardStrategy';
 
 export function LockDashboardScreen(): JSX.Element {
   const { openCfpVoting } = useLock();
@@ -94,21 +95,19 @@ export function LockDashboardScreen(): JSX.Element {
   const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const walletTokens = useSelector((state: RootState) => tokensSelector(state.wallet));
 
-  const openModal = (
-    action: StakingAction,
-    info: StakingOutputDto,
-    token: WalletToken | TokenData,
-    screens?: BottomSheetNavScreen[],
-  ): void => {
-    if (screens) {
-      setBottomSheetScreen(screens);
-    } else if (info.strategy === StakingStrategy.LIQUIDITY_MINING) {
+  const openModal = (action: StakingAction, info: StakingOutputDto, token: WalletToken | TokenData): void => {
+    if (info.strategy === StakingStrategy.LIQUIDITY_MINING) {
       setTokenSelectionBottomSheet(action, info);
     } else {
       setStakingBottomSheet(action, info, token);
     }
     expandModal();
   };
+
+  function openModalWithScreens(screens: BottomSheetNavScreen[]): void {
+    setBottomSheetScreen(screens);
+    expandModal();
+  }
 
   const setTokenSelectionBottomSheet = useCallback(
     (action: StakingAction, info: StakingOutputDto) => {
@@ -223,13 +222,7 @@ export function LockDashboardScreen(): JSX.Element {
         </View>
 
         <View style={tailwind('flex-grow m-4')}>
-          <ButtonGroup
-            buttons={buttonGroup}
-            activeButtonGroupItem={activeTab}
-            testID="dex_button_group"
-            lock
-            disabled={editRewardRoutes}
-          />
+          <ButtonGroup buttons={buttonGroup} activeButtonGroupItem={activeTab} testID="dex_button_group" lock />
           {info == null ? (
             <View style={tailwind('flex-grow  justify-center')}>
               <ThemedActivityIndicator size="large" lock />
@@ -237,13 +230,11 @@ export function LockDashboardScreen(): JSX.Element {
           ) : (
             <>
               <View style={tailwind('bg-white rounded-md my-4')}>
-                <StakingCard
-                  info={info}
-                  analytics={analytics}
-                  isLoading={isLoading}
-                  openModal={openModal}
-                  dismissModal={dismissModal}
-                />
+                <StakingCard info={info} analytics={analytics} isLoading={isLoading} openModal={openModal} />
+              </View>
+
+              <View style={tailwind('bg-white rounded-md my-2')}>
+                <RewardStrategy openModal={openModalWithScreens} dismissModal={dismissModal} />
               </View>
 
               <View style={tailwind('h-8')} />

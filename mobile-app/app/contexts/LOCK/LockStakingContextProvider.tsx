@@ -1,6 +1,5 @@
 import { WalletAlertErrorApi } from '@components/WalletAlert';
 import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
-import { RewardStrategyType } from '@constants/LOCK/RewardStrategyType';
 import { TransactionCache } from '@constants/LOCK/TransactionCache';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice';
@@ -38,9 +37,6 @@ interface LockStakingInterface {
   setTransactionCache: (cache: TransactionCache) => void;
 
   calculateBalance: () => number;
-
-  activeStrategyType: RewardStrategyType;
-  setActiveStrategyType: (type: RewardStrategyType) => void;
 
   isSubmitting: boolean;
   editRewardRoutes: boolean;
@@ -90,8 +86,6 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   function setInfo(info: StakingOutputDto) {
     activeTab === LockStakingTab.Staking ? setStakingInfo(info) : setYieldMachineInfo(info);
   }
-
-  const [activeStrategyType, setActiveStrategyType] = useState<RewardStrategyType>(RewardStrategyType.DFI);
 
   async function fetch(): Promise<void> {
     await Promise.all([fetchStakingInfo(), fetchAnalytics(), fetchAssets()]);
@@ -191,8 +185,6 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     editRewardRoutes,
     setEditRewardRoutes,
     saveRewardRoutes,
-    activeStrategyType,
-    setActiveStrategyType,
     rewardRoutes,
     isSubmitting,
     assets,
