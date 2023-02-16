@@ -6,19 +6,19 @@ import { theme } from '../../tailwind.config';
 
 interface PercentForm {
   control: Control;
-  token: string;
   id: number;
   initialValue?: string;
   onPercentChange: (name: string, id: number, percentage: string) => void;
 }
 
-export function RewardPercent({ control, token, id, initialValue, onPercentChange }: PercentForm): JSX.Element {
+export function RewardPercent({ control, id, initialValue, onPercentChange }: PercentForm): JSX.Element {
   const [isFocused, setIsFocused] = useState(false);
   const defaultValue = initialValue ?? '';
   const name = `${id}-percentage`;
   const max = 100;
 
   function keepValueInRange(value: string): string {
+    if (isNaN(+value)) return '0';
     return '' + Math.min(+value, max);
   }
 

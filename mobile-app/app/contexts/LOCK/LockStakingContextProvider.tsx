@@ -1,6 +1,6 @@
 import { WalletAlertErrorApi } from '@components/WalletAlert';
 import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
-import { RewardStrategyType } from '@constants/LOCK/RewardStrategyType';
+import { RewardRouteDestination } from '@constants/LOCK/RewardRouteDestination';
 import { TransactionCache } from '@constants/LOCK/TransactionCache';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice';
@@ -14,8 +14,10 @@ import {
   StakingAnalyticsOutputDto,
   StakingOutputDto,
   StakingStrategy,
+  StakingStatus,
 } from '@shared-api/dfx/ApiService';
 import { Asset } from '@shared-api/dfx/models/Asset';
+import { useWalletContext } from '@shared-contexts/WalletContext';
 import { RootState } from '@store';
 import { firstTransactionSelector } from '@store/ocean';
 import { allTokens } from '@store/wallet';
@@ -39,15 +41,17 @@ interface LockStakingInterface {
 
   calculateBalance: () => number;
 
-  activeStrategyType: RewardStrategyType;
-  setActiveStrategyType: (type: RewardStrategyType) => void;
-
   isSubmitting: boolean;
   editRewardRoutes: boolean;
   setEditRewardRoutes: (edit: boolean) => void;
   saveRewardRoutes: (rewardRoutes: RewardRouteDto[], reinvestPercent: number) => Promise<void>;
 
   assets?: Asset[];
+
+  getAddressForDestination: (destination: RewardRouteDestination) => string | undefined;
+  descriptionForTargetAddress: (route: RewardRouteDto) => string;
+  isStakingActive(): boolean;
+  isYieldMachineActive(): boolean;
 }
 
 const LockStakingContext = createContext<LockStakingInterface>(undefined as any);
@@ -58,6 +62,7 @@ export function useLockStakingContext(): LockStakingInterface {
 
 export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
+  const { address } = useWalletContext();
 
   const transaction = useSelector((state: RootState) => firstTransactionSelector(state.ocean));
   const [transactionCache, setTransactionCache] = useState<TransactionCache>();
@@ -78,7 +83,16 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
 
   const info = activeTab === LockStakingTab.Staking ? stakingInfo : yieldMachineInfo;
   const analytics = activeTab === LockStakingTab.Staking ? stakingAnalytics : yieldMachineAnalytics;
-  const rewardRoutes = info?.rewardRoutes.map((r) => ({
+  const getActiveInfo = (): StakingOutputDto | undefined => {
+    if (stakingInfo?.status === StakingStatus.ACTIVE) {
+      return stakingInfo;
+    } else if (yieldMachineInfo?.status === StakingStatus.ACTIVE) {
+      return yieldMachineInfo;
+    } else {
+      return undefined;
+    }
+  };
+  const rewardRoutes = getActiveInfo()?.rewardRoutes.map((r) => ({
     ...r,
     displayLabel: retrieveTokenWithSymbol(r.targetAsset)?.displaySymbol ?? '',
   }));
@@ -91,12 +105,6 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     activeTab === LockStakingTab.Staking ? setStakingInfo(info) : setYieldMachineInfo(info);
   }
 
-  const [activeStrategyType, setActiveStrategyType] = useState<RewardStrategyType>(RewardStrategyType.DFI);
-
-  useEffect(() => {
-    fetch();
-  }, []);
-
   async function fetch(): Promise<void> {
     await Promise.all([fetchStakingInfo(), fetchAnalytics(), fetchAssets()]);
   }
@@ -105,9 +113,9 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     setIsLoading(true);
 
     await LOCKgetAllStaking()
-      .then(([stkInfo, ymInfo]) => {
-        setStakingInfo(stkInfo);
-        setYieldMachineInfo(ymInfo);
+      .then((infos) => {
+        setStakingInfo(infos.filter((i) => i.strategy === StakingStrategy.MASTERNODE)[0]);
+        setYieldMachineInfo(infos.filter((i) => i.strategy === StakingStrategy.LIQUIDITY_MINING)[0]);
       })
       .catch(WalletAlertErrorApi)
       .finally(() => setIsLoading(false));
@@ -153,8 +161,10 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   }
 
   async function saveRewardRoutes(rewardRoutes: RewardRouteDto[], reinvestPercent: number): Promise<void> {
-    if (!info) return;
+    const activeInfo = getActiveInfo();
+    if (!activeInfo) return;
     setIsSubmitting(true);
+    // TODO (Krysh): remove this reinvest route handling
     const reinvestRoute = rewardRoutes.find((r) => r.isReinvest);
     if (reinvestRoute) {
       reinvestRoute.rewardPercent = reinvestPercent;
@@ -162,23 +172,54 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
       rewardRoutes = rewardRoutes.concat({
         isReinvest: true,
         label: 'Reinvest',
+        rewardAsset: 'DFI',
         rewardPercent: reinvestPercent,
-        targetAddress: info.depositAddress,
-        targetAsset: info.asset,
+        targetAddress: activeInfo.depositAddress,
+        targetAsset: activeInfo.asset,
         targetBlockchain: 'DeFiChain',
         displayLabel: '',
       });
     }
     return LOCKrewardRoutes(
-      info.id,
+      activeInfo.id,
       rewardRoutes.filter((r) => !r.isReinvest || (r.isReinvest && reinvestPercent > 0)),
     )
-      .then(setInfo)
+      .then((i) => {
+        if (i.id === stakingInfo?.id) {
+          setStakingInfo(i);
+        } else if (i.id === yieldMachineInfo?.id) {
+          setYieldMachineInfo(i);
+        }
+      })
       .catch(WalletAlertErrorApi)
       .finally(() => {
         setEditRewardRoutes(false);
         setIsSubmitting(false);
       });
+  }
+
+  function getAddressForDestination(destination: RewardRouteDestination): string | undefined {
+    switch (destination) {
+      case RewardRouteDestination.WALLET:
+        return address;
+      case RewardRouteDestination.STAKING:
+        return stakingInfo?.depositAddress;
+      case RewardRouteDestination.YIELD_MACHINE:
+        return yieldMachineInfo?.depositAddress;
+    }
+  }
+
+  function descriptionForTargetAddress(route: RewardRouteDto): string {
+    switch (route.targetAddress) {
+      case stakingInfo?.depositAddress:
+        return 'Staking';
+      case yieldMachineInfo?.depositAddress:
+        return 'Yield Machine';
+      case address:
+        return 'Wallet';
+      default:
+        return `...${route.targetAddress.slice(-4)}`;
+    }
   }
 
   const context: LockStakingInterface = {
@@ -194,11 +235,13 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     editRewardRoutes,
     setEditRewardRoutes,
     saveRewardRoutes,
-    activeStrategyType,
-    setActiveStrategyType,
     rewardRoutes,
     isSubmitting,
     assets,
+    getAddressForDestination,
+    descriptionForTargetAddress,
+    isStakingActive: () => stakingInfo?.status === StakingStatus.ACTIVE,
+    isYieldMachineActive: () => yieldMachineInfo?.status === StakingStatus.ACTIVE,
   };
 
   return <LockStakingContext.Provider value={context}>{props.children}</LockStakingContext.Provider>;

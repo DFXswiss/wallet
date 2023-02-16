@@ -49,12 +49,14 @@ export function IconButton(props: IconButtonProps): JSX.Element {
             'text-dfxgray-300': disabled,
             'text-white': props.lock,
             'text-lock-200': props.lock && props.outline,
+            'text-lockGray-200': props.lock && props.outline && disabled,
           })}
           dark={tailwind({
             'text-dfxred-500': !disabled,
             'text-dfxblue-900': disabled,
             'text-white': props.lock,
             'text-lock-200': props.lock && props.outline,
+            'text-lockGray-200': props.lock && props.outline && disabled,
           })}
           iconType={props.iconType}
           name={props.iconName}

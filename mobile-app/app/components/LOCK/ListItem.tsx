@@ -6,6 +6,7 @@ import TrashIcon from '@assets/LOCK/Trash.svg';
 import { RewardPercent } from './RewardPercent';
 import { Control } from 'react-hook-form';
 import { PoolPairIcon } from '@components/icons/PoolPairIcon';
+import { ThemedIcon } from '@components/themed';
 
 export enum ListItemStyle {
   ACTIVE,
@@ -17,7 +18,9 @@ export enum ListItemStyle {
 
 interface ListItemProp {
   id: number;
+  iconName?: string;
   title: string;
+  subtitle?: string;
   value?: string;
   style: ListItemStyle;
   header?: boolean;
@@ -29,7 +32,9 @@ interface ListItemProp {
 
 export function ListItem({
   id,
+  iconName,
   title,
+  subtitle,
   value,
   style,
   header,
@@ -46,9 +51,9 @@ export function ListItem({
       case ListItemStyle.ACTIVE_INVALID:
         return 'text-base';
       case ListItemStyle.ACTIVE_ICON:
-        return 'text-base pl-1';
+        return 'text-base pl-2';
       case ListItemStyle.ACTIVE_ICON_EDIT:
-        return 'text-base pl-1';
+        return 'text-base pl-2';
       case ListItemStyle.PENDING:
         return 'text-lockGray-300 text-sm';
     }
@@ -63,21 +68,42 @@ export function ListItem({
   }
 
   function shouldDisplayIcon(): boolean {
-    return [ListItemStyle.ACTIVE_ICON, ListItemStyle.ACTIVE_ICON_EDIT].includes(style);
+    return Boolean(iconName) || [ListItemStyle.ACTIVE_ICON, ListItemStyle.ACTIVE_ICON_EDIT].includes(style);
   }
 
   return (
-    <View style={tailwind('flex-row justify-between items-center h-9', { 'py-0.5': shouldDisplayIcon() })}>
-      <View style={tailwind('flex-row items-center')}>
-        {shouldDisplayIcon() &&
-          (title.includes('-') ? (
-            <PoolPairIcon symbolA={title.split('-')?.[0] ?? ''} symbolB={title.split('-')?.[1] ?? ''} />
-          ) : (
-            <TokenIcon width={23} height={23} />
-          ))}
-        <Text style={tailwind('font-medium', fieldStyle(), { 'font-bold': header })}>
-          {translate('LOCK/LockDashboardScreen', title)}
-        </Text>
+    <View
+      style={tailwind('flex-row justify-between items-start h-10', {
+        'py-0.5': shouldDisplayIcon(),
+        'h-9 items-center': header,
+      })}
+    >
+      <View style={tailwind('flex-row items-start')}>
+        {shouldDisplayIcon() && (
+          <View style={tailwind('pt-0.5')}>
+            {iconName ? (
+              <ThemedIcon style={tailwind('pr-2')} iconType="MaterialIcons" name={iconName} size={23} lock primary />
+            ) : title.includes('-') ? (
+              <PoolPairIcon symbolA={title.split('-')?.[0] ?? ''} symbolB={title.split('-')?.[1] ?? ''} />
+            ) : (
+              <TokenIcon width={23} height={23} />
+            )}
+          </View>
+        )}
+        <View style={tailwind('flex-col')}>
+          <Text style={[tailwind('font-medium text-base', fieldStyle(), { 'font-bold': header }), { lineHeight: 20 }]}>
+            {title}
+          </Text>
+          {subtitle && (
+            <Text
+              style={tailwind(fieldStyle(), 'text-xs font-normal text-lockGray-300', {
+                'text-black': subtitle === 'Staking + Yield Machine',
+              })}
+            >
+              {subtitle}
+            </Text>
+          )}
+        </View>
         {style === ListItemStyle.ACTIVE_ICON_EDIT && (
           <TouchableOpacity style={tailwind('px-2')} onPress={onPress}>
             <TrashIcon height={14.4} width={11.2} />
@@ -85,7 +111,7 @@ export function ListItem({
         )}
       </View>
       {style === ListItemStyle.ACTIVE_ICON_EDIT && control && onPercentChange ? (
-        <RewardPercent control={control} token={title} id={id} initialValue={value} onPercentChange={onPercentChange} />
+        <RewardPercent control={control} id={id} initialValue={value} onPercentChange={onPercentChange} />
       ) : (
         <Text
           style={tailwind('font-normal', fieldStyle(), {

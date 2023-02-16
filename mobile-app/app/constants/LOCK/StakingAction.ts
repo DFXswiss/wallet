@@ -1,5 +1,5 @@
-export type StakingAction = 'STAKE' | 'UNSTAKE' | 'DEPOSIT' | 'WITHDRAW';
+export type StakingAction = 'Stake' | 'Unstake' | 'Deposit' | 'Withdraw';
 
 export function isStake(action: StakingAction): boolean {
-  return ['STAKE', 'DEPOSIT'].includes(action);
+  return ['Stake', 'Deposit'].includes(action);
 }

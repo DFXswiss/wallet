@@ -150,6 +150,7 @@ export interface RewardRoute {
 
 export interface RewardRouteDto {
   label?: string;
+  rewardAsset?: string;
   rewardPercent?: number;
   targetAsset: string;
   targetAddress: string;
@@ -159,8 +160,15 @@ export interface RewardRouteDto {
   displayLabel: string;
 }
 
+export enum StakingStatus {
+  CREATED = 'Created',
+  ACTIVE = 'Active',
+  BLOCKED = 'Blocked',
+}
+
 export interface StakingOutputDto {
   id: number;
+  status: StakingStatus;
   asset: string;
   depositAddress: string;
   minimalStake: number;
