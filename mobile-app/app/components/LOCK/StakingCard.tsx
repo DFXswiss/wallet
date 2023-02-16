@@ -58,7 +58,7 @@ export function StakingCard({ info, analytics, isLoading, openModal }: StakingCa
           <View key={index} style={tailwind('flex flex-col px-4')}>
             {info.strategy === StakingStrategy.LIQUIDITY_MINING && index === 0 && (
               <>
-                <View style={tailwind('flex-col border-b border-lockGray-100 pt-1 pb-2.5')}>
+                <View style={tailwind('flex-col border-b border-lockGray-100 pb-0.5')}>
                   <NumberFormat
                     value={getTotalBalance()}
                     decimalScale={2}

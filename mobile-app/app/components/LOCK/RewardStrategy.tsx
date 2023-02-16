@@ -4,7 +4,7 @@ import { Button } from '@components/Button';
 import { IconButton } from '@components/IconButton';
 import { ThemedIcon, ThemedView } from '@components/themed';
 import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
-import { RewardRouteDto, StakingStrategy } from '@shared-api/dfx/ApiService';
+import { RewardRouteDto } from '@shared-api/dfx/ApiService';
 import { Asset } from '@shared-api/dfx/models/Asset';
 import { useWalletContext } from '@shared-contexts/WalletContext';
 import { RootState } from '@store';
@@ -18,6 +18,7 @@ import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { EditButton } from './EditButton';
 import { ListItem, ListItemStyle } from './ListItem';
+import { RewardDestinationAddress } from './modals/RewardDestinationAddress';
 import { RewardDestinationSelection } from './modals/RewardDestinationSelection';
 import { RewardFilterSelection } from './modals/RewardFilterSelection';
 import { RewardRouteDelete } from './modals/RewardRouteDelete';
@@ -29,8 +30,15 @@ interface RewardStrategyProps {
 }
 
 export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps): JSX.Element {
-  const { info, editRewardRoutes, setEditRewardRoutes, saveRewardRoutes, rewardRoutes, isSubmitting, assets } =
-    useLockStakingContext();
+  const {
+    editRewardRoutes,
+    setEditRewardRoutes,
+    saveRewardRoutes,
+    rewardRoutes,
+    isSubmitting,
+    assets,
+    descriptionForTargetAddress,
+  } = useLockStakingContext();
   const { control, setValue, formState, reset } = useForm({ mode: 'onChange' });
   const watcher = useWatch({ control });
   const [showsRewardStrategy, setShowsRewardStrategy] = useState(false);
@@ -61,13 +69,17 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
   const listItems = useCallback(() => {
     return [
       ...filteredRewardRoutes.map((route) => ({
+        iconName: undefined,
         title: route.displayLabel,
+        subtitle: descriptionForTargetAddress(route),
         value: route.rewardPercent ? '' + route.rewardPercent * 100 : undefined,
         style: editRewardRoutes ? ListItemStyle.ACTIVE_ICON_EDIT : ListItemStyle.ACTIVE_ICON,
         onPress: () => openDelete(route),
       })),
       {
-        title: translate('LOCK/LockDashboardScreen', 'Reinvest, {{asset}}', { asset: 'DFI' }),
+        iconName: 'replay',
+        title: translate('LOCK/LockDashboardScreen', 'Reinvest'),
+        subtitle: translate('LOCK/LockDashboardScreen', 'Staking + Yield Machine'),
         value: '' + reinvestPercent,
         style: reinvestPercent < 0 ? ListItemStyle.ACTIVE_INVALID : ListItemStyle.ACTIVE,
         onPress: undefined,
@@ -112,7 +124,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
                 })} // border top on android to handle 1px of horizontal transparent line when scroll past header
               >
                 <Text style={tailwind('text-base font-medium text-black')}>
-                  {translate('LOCK/LockDashboardScreen', 'Why are there rewards in DFI and dUSD?')}
+                  {translate('LOCK/LockDashboardScreen', 'What rewards will I receive?')}
                 </Text>
                 <TouchableOpacity onPress={() => dismissModal()}>
                   <ThemedIcon
@@ -140,28 +152,8 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
         stackScreenName: 'RewardFilterSelection',
         component: RewardFilterSelection({
           tokens: bottomSheetTokens,
-          headerLabel: translate('LOCK/LockDashboardScreen', `Select your payout asset`),
           onCloseButtonPress: dismissModal,
-          onTokenPress: (token) => openDestinationSelection(token),
-        }),
-        option: {
-          header: () => null,
-          headerBackTitleVisible: false,
-        },
-      },
-    ]);
-  }
-
-  function openDestinationSelection(token: BottomSheetToken) {
-    openModal([
-      {
-        stackScreenName: 'RewardDestinationSelection',
-        component: RewardDestinationSelection({
-          token,
-          headerLabel: translate('LOCK/LockDashboardScreen', `Select your payout asset`),
-          onCloseButtonPress: dismissModal,
-          onSelection: (item, destination) => {
-            console.log('destination is', destination);
+          onSelection: (item, destinationAddress) => {
             dismissModal();
             setTimeout(() => {
               setEditableRewardRoutes(
@@ -169,7 +161,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
                   rewardAsset: 'DFI',
                   displayLabel: item.token.displaySymbol,
                   targetAsset: item.token.symbol,
-                  targetAddress: address,
+                  targetAddress: destinationAddress ?? address,
                   targetBlockchain: 'DeFiChain',
                   isReinvest: false,
                 }),
@@ -177,6 +169,21 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
             }, 500);
           },
         }),
+        option: {
+          header: () => null,
+          headerBackTitleVisible: false,
+        },
+      },
+      {
+        stackScreenName: 'RewardDestinationSelection',
+        component: RewardDestinationSelection,
+        option: {
+          header: () => null,
+        },
+      },
+      {
+        stackScreenName: 'RewardDestinationAddress',
+        component: RewardDestinationAddress,
         option: {
           header: () => null,
         },
@@ -240,7 +247,9 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
             <ListItem
               key={`${index}-${item.title}`}
               id={index}
+              iconName={item.iconName}
               title={item.title}
+              subtitle={item.subtitle}
               value={item.value}
               style={item.style}
               onPress={item.onPress}

@@ -1,8 +1,10 @@
 import { BottomSheetToken } from '@components/BottomSheetTokenList';
+import { BottomSheetWithNavRouteParam } from '@components/BottomSheetWithNav';
 import { PoolPairIcon } from '@components/icons/PoolPairIcon';
 import { SymbolIcon } from '@components/SymbolIcon';
 import { ThemedFlatList, ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedView } from '@components/themed';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ButtonGroup } from '@screens/AppNavigator/screens/Dex/components/ButtonGroup';
 import { CollateralItem } from '@screens/AppNavigator/screens/Loans/screens/EditCollateralScreen';
 import { tailwind } from '@tailwind';
@@ -17,21 +19,20 @@ enum Filter {
 }
 
 interface RewardFilterSelectionProps {
-  headerLabel: string;
-  onCloseButtonPress: () => void;
   tokens: Array<CollateralItem | BottomSheetToken>;
-  onTokenPress: (token: BottomSheetToken) => void;
+  onCloseButtonPress: () => void;
+  onSelection: (item: BottomSheetToken, address?: string) => void;
 }
 
 const cryptos = ['DFI', 'dBTC', 'dETH', 'dUSDT', 'dUSDC', 'dDOGE', 'dLTC', 'dBCH'];
 
 export const RewardFilterSelection = ({
-  headerLabel,
+  onSelection,
   onCloseButtonPress,
   tokens,
-  onTokenPress,
 }: RewardFilterSelectionProps): React.MemoExoticComponent<() => JSX.Element> =>
   memo(() => {
+    const navigation = useNavigation<NavigationProp<BottomSheetWithNavRouteParam>>();
     const flatListComponents = {
       mobile: BottomSheetFlatList,
       web: ThemedFlatList,
@@ -55,7 +56,15 @@ export const RewardFilterSelection = ({
         testID="reward_filter_selection"
         data={filteredTokens}
         renderItem={({ item }: { item: CollateralItem | BottomSheetToken }): JSX.Element => (
-          <ListItem item={item} onTokenPress={onTokenPress} />
+          <ListItem
+            item={item}
+            onTokenPress={(token) =>
+              navigation.navigate({
+                name: 'RewardDestinationSelection',
+                params: { token, onCloseButtonPress, onSelection },
+              })
+            }
+          />
         )}
         ListHeaderComponent={
           <ThemedView light={tailwind('bg-white')} dark={tailwind('bg-white')}>
@@ -71,7 +80,7 @@ export const RewardFilterSelection = ({
                 })} // border top on android to handle 1px of horizontal transparent line when scroll past header
               >
                 <ThemedText style={tailwind('text-lg font-medium')} lock>
-                  {headerLabel}
+                  {translate('LOCK/LockDashboardScreen', `Select your payout asset`)}
                 </ThemedText>
                 <TouchableOpacity onPress={onCloseButtonPress}>
                   <ThemedIcon iconType="MaterialIcons" name="close" size={20} lock />
