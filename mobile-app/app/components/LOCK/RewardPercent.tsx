@@ -19,7 +19,7 @@ export function RewardPercent({ control, id, initialValue, onPercentChange }: Pe
 
   function keepValueInRange(value: string): string {
     if (isNaN(+value)) return '0';
-    return '' + Math.min(+value, max);
+    return '' + Math.min(+value, max).toFixed(2);
   }
 
   return (
