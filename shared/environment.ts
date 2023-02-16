@@ -28,6 +28,7 @@ interface Environment {
     walletName: string
     apiUrl: string
   }
+  addressFormat: RegExp
 }
 
 export const environments: Record<EnvironmentName, Environment> = {
@@ -47,7 +48,8 @@ export const environments: Record<EnvironmentName, Environment> = {
       apiUrl: 'https://api.lock.space/v1',
       paymentUrl: 'https://kyc.lock.space',
       walletName: 'LOCK.space'
-    }
+    },
+    addressFormat: /^(8\w{33}|d\w{33}|d\w{41})$/
   },
   Preview: {
     name: EnvironmentName.Preview,
@@ -65,7 +67,8 @@ export const environments: Record<EnvironmentName, Environment> = {
       apiUrl: 'https://api.lock.space/v1',
       paymentUrl: 'https://kyc.lock.space',
       walletName: 'LOCK.space'
-    }
+    },
+    addressFormat: /^(8\w{33}|d\w{33}|d\w{41})$/
   },
   Staging: {
     name: EnvironmentName.Staging,
@@ -83,7 +86,8 @@ export const environments: Record<EnvironmentName, Environment> = {
       apiUrl: 'https://stg.api.lock.space/v1',
       paymentUrl: 'https://kyc.lock.space',
       walletName: 'LOCK.space STG'
-    }
+    },
+    addressFormat: /^(8\w{33}|d\w{33}|d\w{41})$/
   },
   Development: {
     name: EnvironmentName.Development,
@@ -102,7 +106,8 @@ export const environments: Record<EnvironmentName, Environment> = {
       apiUrl: 'https://dev.api.lock.space/v1',
       paymentUrl: 'https://dev.kyc.lock.space',
       walletName: 'LOCK.space'
-    }
+    },
+    addressFormat: /^((7|8)\w{33}|(t|d)\w{33}|(t|d)\w{41})$/
   }
 }
 

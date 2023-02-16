@@ -25,11 +25,12 @@ import { RewardRouteDelete } from './modals/RewardRouteDelete';
 import { RewardStrategyInfo } from './modals/RewardStrategyInfo';
 
 interface RewardStrategyProps {
+  disabled: boolean;
   openModal: (screens: BottomSheetNavScreen[]) => void;
   dismissModal: () => void;
 }
 
-export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps): JSX.Element {
+export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStrategyProps): JSX.Element {
   const {
     editRewardRoutes,
     setEditRewardRoutes,
@@ -200,7 +201,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
     <View style={tailwind('px-4 py-2 flex flex-col')}>
       <View style={tailwind('flex-row justify-between')}>
         <View style={tailwind('flex-row')}>
-          <Text style={tailwind('text-base font-bold')}>
+          <Text style={tailwind('text-base font-bold', { 'text-lockGray-200': disabled })}>
             {translate('LOCK/LockDashboardScreen', 'Reward strategy')}
           </Text>
           <View style={tailwind('p-0.5')}>
@@ -209,6 +210,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
               iconType="MaterialIcons"
               iconSize={16}
               onPress={() => openInfo()}
+              disabled={disabled}
               lock
               outline
             />
@@ -220,7 +222,7 @@ export function RewardStrategy({ openModal, dismissModal }: RewardStrategyProps)
             iconType="MaterialCommunityIcons"
             iconSize={20}
             onPress={() => setShowsRewardStrategy(!showsRewardStrategy)}
-            disabled={editRewardRoutes}
+            disabled={disabled || editRewardRoutes}
             lock
           />
         </View>

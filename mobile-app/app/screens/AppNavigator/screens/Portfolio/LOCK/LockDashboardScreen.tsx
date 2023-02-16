@@ -48,8 +48,9 @@ export function LockDashboardScreen(): JSX.Element {
     analytics,
     setTransactionCache,
     calculateBalance,
-    editRewardRoutes,
     setEditRewardRoutes,
+    isStakingActive,
+    isYieldMachineActive,
   } = useLockStakingContext();
 
   const email = 'support@lock.space';
@@ -234,7 +235,11 @@ export function LockDashboardScreen(): JSX.Element {
               </View>
 
               <View style={tailwind('bg-white rounded-md my-2')}>
-                <RewardStrategy openModal={openModalWithScreens} dismissModal={dismissModal} />
+                <RewardStrategy
+                  disabled={!isStakingActive() && !isYieldMachineActive()}
+                  openModal={openModalWithScreens}
+                  dismissModal={dismissModal}
+                />
               </View>
 
               <View style={tailwind('h-8')} />

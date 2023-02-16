@@ -14,7 +14,6 @@ import {
   StakingAnalyticsOutputDto,
   StakingOutputDto,
   StakingStrategy,
-  RewardRoute,
   StakingStatus,
 } from '@shared-api/dfx/ApiService';
 import { Asset } from '@shared-api/dfx/models/Asset';
@@ -51,6 +50,8 @@ interface LockStakingInterface {
 
   getAddressForDestination: (destination: RewardRouteDestination) => string | undefined;
   descriptionForTargetAddress: (route: RewardRouteDto) => string;
+  isStakingActive(): boolean;
+  isYieldMachineActive(): boolean;
 }
 
 const LockStakingContext = createContext<LockStakingInterface>(undefined as any);
@@ -112,9 +113,9 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     setIsLoading(true);
 
     await LOCKgetAllStaking()
-      .then(([stkInfo, ymInfo]) => {
-        setStakingInfo(stkInfo);
-        setYieldMachineInfo(ymInfo);
+      .then((infos) => {
+        setStakingInfo(infos.filter((i) => i.strategy === StakingStrategy.MASTERNODE)[0]);
+        setYieldMachineInfo(infos.filter((i) => i.strategy === StakingStrategy.LIQUIDITY_MINING)[0]);
       })
       .catch(WalletAlertErrorApi)
       .finally(() => setIsLoading(false));
@@ -200,13 +201,10 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   function getAddressForDestination(destination: RewardRouteDestination): string | undefined {
     switch (destination) {
       case RewardRouteDestination.WALLET:
-        console.log('selected wallet', address);
         return address;
       case RewardRouteDestination.STAKING:
-        console.log('selected staking', stakingInfo?.depositAddress);
         return stakingInfo?.depositAddress;
       case RewardRouteDestination.YIELD_MACHINE:
-        console.log('selected ym', yieldMachineInfo?.depositAddress);
         return yieldMachineInfo?.depositAddress;
     }
   }
@@ -242,6 +240,8 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     assets,
     getAddressForDestination,
     descriptionForTargetAddress,
+    isStakingActive: () => stakingInfo?.status === StakingStatus.ACTIVE,
+    isYieldMachineActive: () => yieldMachineInfo?.status === StakingStatus.ACTIVE,
   };
 
   return <LockStakingContext.Provider value={context}>{props.children}</LockStakingContext.Provider>;
