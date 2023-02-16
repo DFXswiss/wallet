@@ -24,7 +24,7 @@ export const RewardDestinationAddress = memo(
     navigation,
   }: StackScreenProps<BottomSheetWithNavRouteParam, 'RewardDestinationAddressProps'>): JSX.Element => {
     {
-      const { control, setValue, getValues, formState } = useForm({ mode: 'onChange' });
+      const { control, setValue, getValues, formState, trigger } = useForm({ mode: 'onChange' });
       const { token, onCloseButtonPress, onSelection } = route.params;
       const symbolA = token.token.displaySymbol.includes('-') ? token.token.displaySymbol.split('-')[0] : undefined;
       const symbolB = token.token.displaySymbol.includes('-') ? token.token.displaySymbol.split('-')[1] : undefined;
@@ -80,7 +80,17 @@ export const RewardDestinationAddress = memo(
             >
               {translate('LOCK/LockDashboardScreen', `Alternative DeFiChain address`)}
             </ThemedText>
-            <AddressInput control={control} onAddressChanged={(address) => setValue('address', address)} />
+            <AddressInput
+              control={control}
+              onAddressChanged={async (address) => {
+                setValue('address', address, { shouldDirty: false });
+                await trigger('address');
+              }}
+              onClearButtonPress={async () => {
+                setValue('address', '');
+                await trigger('address');
+              }}
+            />
             <ThemedView light={tailwind('bg-white')} dark={tailwind('bg-white')} style={tailwind('flex flex-row pt-2')}>
               <ThemedIcon iconType="MaterialIcons" name="info-outline" size={20} lock />
               <ThemedText

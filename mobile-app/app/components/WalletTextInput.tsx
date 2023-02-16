@@ -108,7 +108,9 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
       <ThemedView
         light={tailwind(`bg-white ${!valid ? 'border-error-500' : (isFocus ? 'border-primary-300' : 'border-dfxgray-300')}`)} // disabled border color is the same regardless of theme
         dark={tailwind(lock ? 'bg-white' : `bg-dfxblue-800 ${!valid ? 'border-darkerror-500' : (isFocus ? 'border-dfxred-500' : 'border-dfxblue-900')}`)}
-        style={tailwind(lock ? 'rounded-md' : 'border rounded', 'flex-col w-full mt-2')}
+        style={tailwind(lock ? 'rounded-md' : 'border rounded', 'flex-col w-full mt-2', {
+          'mt-0': lock && props.multiline,
+        })}
       >
         <ThemedView
           light={tailwind(`${editable ? 'bg-transparent' : 'bg-gray-200'}`)}

@@ -91,9 +91,18 @@ export function ListItem({
           </View>
         )}
         <View style={tailwind('flex-col')}>
-          <Text style={[tailwind('font-medium text-base', fieldStyle(), { 'font-bold': header }), { lineHeight: 20 }]}>
-            {title}
-          </Text>
+          <View style={tailwind('flex-row')}>
+            <Text
+              style={[tailwind('font-medium text-base', fieldStyle(), { 'font-bold': header }), { lineHeight: 20 }]}
+            >
+              {title}
+            </Text>
+            {style === ListItemStyle.ACTIVE_ICON_EDIT && (
+              <TouchableOpacity style={tailwind('px-2')} onPress={onPress}>
+                <TrashIcon height={14.4} width={11.2} />
+              </TouchableOpacity>
+            )}
+          </View>
           {subtitle && (
             <Text
               style={tailwind(fieldStyle(), 'text-xs font-normal text-lockGray-300', {
@@ -104,11 +113,6 @@ export function ListItem({
             </Text>
           )}
         </View>
-        {style === ListItemStyle.ACTIVE_ICON_EDIT && (
-          <TouchableOpacity style={tailwind('px-2')} onPress={onPress}>
-            <TrashIcon height={14.4} width={11.2} />
-          </TouchableOpacity>
-        )}
       </View>
       {style === ListItemStyle.ACTIVE_ICON_EDIT && control && onPercentChange ? (
         <RewardPercent control={control} id={id} initialValue={value} onPercentChange={onPercentChange} />
