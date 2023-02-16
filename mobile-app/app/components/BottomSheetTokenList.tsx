@@ -182,7 +182,7 @@ function ListItem({
       }}
       style={tailwind('px-4 py-3 flex flex-row items-center justify-between')}
       testID={`select_${item.token.displaySymbol}`}
-      lock={lock}
+      lockDark={lock}
     >
       <View style={tailwind('flex flex-row items-center')}>
         {symbolA && symbolB ? (

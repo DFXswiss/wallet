@@ -19,6 +19,8 @@ import { theme } from '../tailwind.config'
 import { CreateOrEditAddressLabelFormProps } from '@screens/AppNavigator/screens/Portfolio/components/CreateOrEditAddressLabelForm'
 import { getDefaultThemeV2 } from '@constants/ThemeV2'
 import { useFeatureFlagContext } from '@contexts/FeatureFlagContext'
+import { RewardDestinationSelectionProps } from './LOCK/modals/RewardDestinationSelection'
+import { RewardDestinationAddressProps } from './LOCK/modals/RewardDestinationAddress'
 
 interface BottomSheetWithNavProps {
   modalRef: React.Ref<BottomSheetModalMethods>
@@ -39,6 +41,8 @@ export interface BottomSheetNavScreen {
 export interface BottomSheetWithNavRouteParam {
   AddOrRemoveCollateralFormProps: AddOrRemoveCollateralFormProps
   CreateOrEditAddressLabelFormProps: CreateOrEditAddressLabelFormProps
+  RewardDestinationSelectionProps: RewardDestinationSelectionProps
+  RewardDestinationAddressProps: RewardDestinationAddressProps
 
   [key: string]: undefined | object
 }

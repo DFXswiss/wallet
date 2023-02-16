@@ -1,8 +1,10 @@
 import { BottomSheetToken } from '@components/BottomSheetTokenList';
+import { BottomSheetWithNavRouteParam } from '@components/BottomSheetWithNav';
 import { PoolPairIcon } from '@components/icons/PoolPairIcon';
 import { SymbolIcon } from '@components/SymbolIcon';
 import { ThemedFlatList, ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedView } from '@components/themed';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ButtonGroup } from '@screens/AppNavigator/screens/Dex/components/ButtonGroup';
 import { CollateralItem } from '@screens/AppNavigator/screens/Loans/screens/EditCollateralScreen';
 import { tailwind } from '@tailwind';
@@ -17,21 +19,20 @@ enum Filter {
 }
 
 interface RewardFilterSelectionProps {
-  headerLabel: string;
-  onCloseButtonPress: () => void;
   tokens: Array<CollateralItem | BottomSheetToken>;
-  onTokenPress: (token: BottomSheetToken) => void;
+  onCloseButtonPress: () => void;
+  onSelection: (item: BottomSheetToken, address?: string) => void;
 }
 
 const cryptos = ['DFI', 'dBTC', 'dETH', 'dUSDT', 'dUSDC', 'dDOGE', 'dLTC', 'dBCH'];
 
 export const RewardFilterSelection = ({
-  headerLabel,
+  onSelection,
   onCloseButtonPress,
   tokens,
-  onTokenPress,
 }: RewardFilterSelectionProps): React.MemoExoticComponent<() => JSX.Element> =>
   memo(() => {
+    const navigation = useNavigation<NavigationProp<BottomSheetWithNavRouteParam>>();
     const flatListComponents = {
       mobile: BottomSheetFlatList,
       web: ThemedFlatList,
@@ -52,35 +53,45 @@ export const RewardFilterSelection = ({
 
     return (
       <FlatList
-        testID="bottom_sheet_token_list"
+        testID="reward_filter_selection"
         data={filteredTokens}
         renderItem={({ item }: { item: CollateralItem | BottomSheetToken }): JSX.Element => (
-          <ListItem item={item} onTokenPress={onTokenPress} />
+          <ListItem
+            item={item}
+            onTokenPress={(token) =>
+              navigation.navigate({
+                name: 'RewardDestinationSelection',
+                params: { token, onCloseButtonPress, onSelection },
+              })
+            }
+          />
         )}
         ListHeaderComponent={
-          <ThemedView
-            light={tailwind('bg-lockGray-100 border-lockGray-200')}
-            dark={tailwind('bg-lockGray-100 border-lockGray-200')}
-          >
+          <ThemedView light={tailwind('bg-white')} dark={tailwind('bg-white')}>
             <ThemedView
               light={tailwind('bg-lockGray-100 border-lockGray-200')}
               dark={tailwind('bg-lockGray-100 border-lockGray-200')}
-              style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b', {
-                'py-3.5 border-t -mb-px': Platform.OS === 'android',
-              })} // border top on android to handle 1px of horizontal transparent line when scroll past header
             >
-              <ThemedText style={tailwind('text-lg font-medium')} lock>
-                {headerLabel}
-              </ThemedText>
-              <TouchableOpacity onPress={onCloseButtonPress}>
-                <ThemedIcon iconType="MaterialIcons" name="close" size={20} lock />
-              </TouchableOpacity>
+              <ThemedView
+                light={tailwind('bg-lockGray-100 border-lockGray-200')}
+                dark={tailwind('bg-lockGray-100 border-lockGray-200')}
+                style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b', {
+                  'py-3.5 border-t -mb-px': Platform.OS === 'android',
+                })} // border top on android to handle 1px of horizontal transparent line when scroll past header
+              >
+                <ThemedText style={tailwind('text-lg font-medium')} lock>
+                  {translate('LOCK/LockDashboardScreen', `Select your payout asset`)}
+                </ThemedText>
+                <TouchableOpacity onPress={onCloseButtonPress}>
+                  <ThemedIcon iconType="MaterialIcons" name="close" size={20} lock />
+                </TouchableOpacity>
+              </ThemedView>
             </ThemedView>
             <FilterGroup onChange={setActiveFilter} />
           </ThemedView>
         }
         stickyHeaderIndices={[0]}
-        style={tailwind('bg-lockGray-100')}
+        style={tailwind('bg-white')}
       />
     );
   });
@@ -111,11 +122,7 @@ function FilterGroup({ onChange }: { onChange: (filter: Filter) => void }): JSX.
   }
 
   return (
-    <ThemedView
-      light={tailwind('bg-lockGray-100 border-lockGray-200')}
-      dark={tailwind('bg-lockGray-100 border-lockGray-200')}
-      style={tailwind('p-4 border-b')}
-    >
+    <ThemedView light={tailwind('bg-white')} dark={tailwind('bg-white')} style={tailwind('p-4')}>
       <ButtonGroup
         buttons={buttonGroup}
         activeButtonGroupItem={activeFilter}
