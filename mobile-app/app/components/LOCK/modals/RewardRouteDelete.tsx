@@ -6,6 +6,7 @@ import { translate } from '@translations';
 import { Button } from '@components/Button';
 import TrashIcon from '@assets/LOCK/Trash.svg';
 import { RewardRouteDto } from '@shared-api/dfx/ApiService';
+import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 
 interface RewardRouteDeleteProps {
   route: RewardRouteDto;
@@ -19,11 +20,15 @@ export const RewardRouteDelete = ({
   onCancel,
 }: RewardRouteDeleteProps): React.MemoExoticComponent<() => JSX.Element> =>
   memo(() => {
+    const { descriptionForTargetAddress } = useLockStakingContext();
     return (
       <View style={tailwind('bg-white px-4 py-8 h-full flex-col items-center')}>
         <TrashIcon height={25.2} width={19.6} />
         <Text style={tailwind('text-base font-bold text-lock-200 py-2')}>
-          {translate('LOCK/LockDashboardScreen', 'Remove {{asset}} as reward asset?', { asset: route.displayLabel })}
+          {translate('LOCK/LockDashboardScreen', 'Remove {{asset}} ({{destination}}) as reward asset?', {
+            asset: route.displayLabel,
+            destination: descriptionForTargetAddress(route),
+          })}
         </Text>
         <View style={tailwind('flex-row')}>
           <Button
