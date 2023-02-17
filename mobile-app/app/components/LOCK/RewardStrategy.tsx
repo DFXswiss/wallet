@@ -73,7 +73,7 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
         iconName: undefined,
         title: route.displayLabel,
         subtitle: descriptionForTargetAddress(route),
-        value: route.rewardPercent ? '' + route.rewardPercent * 100 : undefined,
+        value: route.rewardPercent ? (route.rewardPercent * 100).toFixed(0) : undefined,
         style: editRewardRoutes ? ListItemStyle.ACTIVE_ICON_EDIT : ListItemStyle.ACTIVE_ICON,
         onPress: () => openDelete(route),
         rewardRouteId: route.internalId,
