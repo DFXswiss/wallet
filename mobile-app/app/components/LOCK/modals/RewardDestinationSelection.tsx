@@ -25,7 +25,7 @@ export const RewardDestinationSelection = memo(
   }: StackScreenProps<BottomSheetWithNavRouteParam, 'RewardDestinationSelectionProps'>): JSX.Element => {
     {
       const { token, onCloseButtonPress, onSelection } = route.params;
-      const { getAddressForDestination, isStakingActive, isYieldMachineActive } = useLockStakingContext();
+      const { getAddressForDestination, isDestinationAvailable } = useLockStakingContext();
       const flatListComponents = {
         mobile: BottomSheetFlatList,
         web: ThemedFlatList,
@@ -34,22 +34,14 @@ export const RewardDestinationSelection = memo(
       const symbolA = token.token.displaySymbol.includes('-') ? token.token.displaySymbol.split('-')[0] : undefined;
       const symbolB = token.token.displaySymbol.includes('-') ? token.token.displaySymbol.split('-')[1] : undefined;
 
-      const availableDestinations = (): RewardRouteDestination[] => {
-        const destinations = [RewardRouteDestination.WALLET, RewardRouteDestination.ADDRESS];
-        if (token.token.displaySymbol === 'DFI') {
-          isStakingActive() && destinations.push(RewardRouteDestination.STAKING);
-          isYieldMachineActive() && destinations.push(RewardRouteDestination.YIELD_MACHINE);
-        }
-        if (token.token.displaySymbol === 'DUSD') {
-          isYieldMachineActive() && destinations.push(RewardRouteDestination.YIELD_MACHINE);
-        }
-        return destinations;
+      const availableDestinations = (token: BottomSheetToken): RewardRouteDestination[] => {
+        return Object.values(RewardRouteDestination).filter((d) => isDestinationAvailable(d, token.token.symbol));
       };
 
       return (
         <FlatList
           testID="reward_filter_selection"
-          data={availableDestinations()}
+          data={availableDestinations(token)}
           renderItem={({ item }: { item: RewardRouteDestination }): JSX.Element => (
             <ListItem
               item={item}

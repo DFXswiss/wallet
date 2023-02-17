@@ -44,11 +44,14 @@ interface LockStakingInterface {
   isSubmitting: boolean;
   editRewardRoutes: boolean;
   setEditRewardRoutes: (edit: boolean) => void;
-  saveRewardRoutes: (rewardRoutes: RewardRouteDto[], reinvestPercent: number) => Promise<void>;
+  editableRewardRoutes?: RewardRouteDto[];
+  setEditableRewardRoutes: (routes?: RewardRouteDto[]) => void;
+  saveRewardRoutes: (rewardRoutes: RewardRouteDto[]) => Promise<void>;
 
   assets?: Asset[];
 
   getAddressForDestination: (destination: RewardRouteDestination) => string | undefined;
+  isDestinationAvailable: (destination: RewardRouteDestination, token: string) => boolean;
   descriptionForTargetAddress: (route: RewardRouteDto) => string;
   isStakingActive(): boolean;
   isYieldMachineActive(): boolean;
@@ -76,6 +79,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [editRewardRoutes, setEditRewardRoutes] = useState(false);
+  const [editableRewardRoutes, setEditableRewardRoutes] = useState<RewardRouteDto[]>();
 
   const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const { getTokenPrice } = useTokenPrice('USDT');
@@ -95,6 +99,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   const rewardRoutes = getActiveInfo()?.rewardRoutes.map((r) => ({
     ...r,
     displayLabel: retrieveTokenWithSymbol(r.targetAsset)?.displaySymbol ?? '',
+    internalId: `${r.id}`,
   }));
 
   function retrieveTokenWithSymbol(symbol: string): TokenData | undefined {
@@ -160,30 +165,11 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     }
   }
 
-  async function saveRewardRoutes(rewardRoutes: RewardRouteDto[], reinvestPercent: number): Promise<void> {
+  async function saveRewardRoutes(rewardRoutes: RewardRouteDto[]): Promise<void> {
     const activeInfo = getActiveInfo();
     if (!activeInfo) return;
     setIsSubmitting(true);
-    // TODO (Krysh): remove this reinvest route handling
-    const reinvestRoute = rewardRoutes.find((r) => r.isReinvest);
-    if (reinvestRoute) {
-      reinvestRoute.rewardPercent = reinvestPercent;
-    } else {
-      rewardRoutes = rewardRoutes.concat({
-        isReinvest: true,
-        label: 'Reinvest',
-        rewardAsset: 'DFI',
-        rewardPercent: reinvestPercent,
-        targetAddress: activeInfo.depositAddress,
-        targetAsset: activeInfo.asset,
-        targetBlockchain: 'DeFiChain',
-        displayLabel: '',
-      });
-    }
-    return LOCKrewardRoutes(
-      activeInfo.id,
-      rewardRoutes.filter((r) => !r.isReinvest || (r.isReinvest && reinvestPercent > 0)),
-    )
+    return LOCKrewardRoutes(activeInfo.id, rewardRoutes)
       .then((i) => {
         if (i.id === stakingInfo?.id) {
           setStakingInfo(i);
@@ -194,6 +180,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
       .catch(WalletAlertErrorApi)
       .finally(() => {
         setEditRewardRoutes(false);
+        setEditableRewardRoutes(undefined);
         setIsSubmitting(false);
       });
   }
@@ -222,6 +209,41 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     }
   }
 
+  function isStakingActive(): boolean {
+    return stakingInfo?.status === StakingStatus.ACTIVE;
+  }
+
+  function isYieldMachineActive(): boolean {
+    return yieldMachineInfo?.status === StakingStatus.ACTIVE;
+  }
+
+  function isDestinationAvailable(destination: RewardRouteDestination, token: string): boolean {
+    switch (destination) {
+      case RewardRouteDestination.STAKING:
+        return (
+          token === 'DFI' &&
+          isStakingActive() &&
+          editableRewardRoutes?.find(
+            (r) => r.targetAsset === token && r.targetAddress === stakingInfo?.depositAddress,
+          ) === undefined
+        );
+      case RewardRouteDestination.YIELD_MACHINE:
+        return (
+          ['DFI', 'DUSD'].includes(token) &&
+          isYieldMachineActive() &&
+          editableRewardRoutes?.find(
+            (r) => r.targetAsset === token && r.targetAddress === yieldMachineInfo?.depositAddress,
+          ) === undefined
+        );
+      case RewardRouteDestination.WALLET:
+        return editableRewardRoutes?.find((r) => r.targetAsset === token && r.targetAddress === address) === undefined;
+      case RewardRouteDestination.ADDRESS:
+        return true;
+      default:
+        return false;
+    }
+  }
+
   const context: LockStakingInterface = {
     isLoading,
     fetch,
@@ -233,15 +255,21 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     setTransactionCache,
     calculateBalance,
     editRewardRoutes,
-    setEditRewardRoutes,
+    setEditRewardRoutes: (edit: boolean) => {
+      edit && setEditableRewardRoutes(rewardRoutes);
+      setEditRewardRoutes(edit);
+    },
+    editableRewardRoutes,
+    setEditableRewardRoutes,
     saveRewardRoutes,
     rewardRoutes,
     isSubmitting,
     assets,
     getAddressForDestination,
     descriptionForTargetAddress,
-    isStakingActive: () => stakingInfo?.status === StakingStatus.ACTIVE,
-    isYieldMachineActive: () => yieldMachineInfo?.status === StakingStatus.ACTIVE,
+    isDestinationAvailable,
+    isStakingActive,
+    isYieldMachineActive,
   };
 
   return <LockStakingContext.Provider value={context}>{props.children}</LockStakingContext.Provider>;
