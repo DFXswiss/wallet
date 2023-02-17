@@ -1,0 +1,38 @@
+name: APP DEV CI/CD
+
+on:
+  push:
+    branches: [develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '16.x'
+  RELEASE_CHANNEL: 'default'
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup Node ${{ env.NODE_VERSION }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Setup Expo
+        uses: expo/expo-github-action@v7
+        with:
+          expo-version: 4.x
+          packager: npm
+          token: ${{ secrets.EXPO_TOKEN }}
+
+      - name: Install packages
+        run: |
+          npm ci
+
+      - name: Publish ${{ env.RELEASE_CHANNEL }}
+        run: |
+          expo publish --release-channel=${{ env.RELEASE_CHANNEL }}
