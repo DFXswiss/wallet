@@ -140,24 +140,21 @@ export interface StakingBalance {
 export interface RewardRoute {
   id: number;
   label: string;
-  rewardAsset: string;
   rewardPercent: number;
   targetAsset: string;
   targetAddress: string;
   targetBlockchain: string;
-  isReinvest: boolean;
 }
 
 export interface RewardRouteDto {
   label?: string;
-  rewardAsset?: string;
   rewardPercent?: number;
   targetAsset: string;
   targetAddress: string;
   targetBlockchain: string;
-  isReinvest: boolean;
 
   displayLabel: string;
+  internalId: string;
 }
 
 export enum StakingStatus {

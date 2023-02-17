@@ -34,6 +34,8 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
   const {
     editRewardRoutes,
     setEditRewardRoutes,
+    editableRewardRoutes,
+    setEditableRewardRoutes,
     saveRewardRoutes,
     rewardRoutes,
     isSubmitting,
@@ -43,12 +45,11 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
   const { control, setValue, formState, reset } = useForm({ mode: 'onChange' });
   const watcher = useWatch({ control });
   const [showsRewardStrategy, setShowsRewardStrategy] = useState(false);
-  const [editableRewardRoutes, setEditableRewardRoutes] = useState<RewardRouteDto[]>();
   const tokens = useSelector((state: RootState) => allTokens(state.wallet));
   const { address } = useWalletContext();
 
   const filteredRewardRoutes = useMemo(() => {
-    return (editableRewardRoutes ? editableRewardRoutes : rewardRoutes)?.filter((r) => !r.isReinvest) ?? [];
+    return (editableRewardRoutes ? editableRewardRoutes : rewardRoutes) ?? [];
   }, [editableRewardRoutes, rewardRoutes]);
 
   const reinvestPercent = useMemo(() => {
@@ -63,7 +64,6 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
   }, [filteredRewardRoutes, watcher]);
 
   useEffect(() => {
-    setEditableRewardRoutes(editRewardRoutes ? rewardRoutes : undefined);
     reset();
   }, [editRewardRoutes]);
 
@@ -76,6 +76,7 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
         value: route.rewardPercent ? '' + route.rewardPercent * 100 : undefined,
         style: editRewardRoutes ? ListItemStyle.ACTIVE_ICON_EDIT : ListItemStyle.ACTIVE_ICON,
         onPress: () => openDelete(route),
+        rewardRouteId: route.internalId,
       })),
       {
         iconName: 'replay',
@@ -84,6 +85,7 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
         value: '' + reinvestPercent,
         style: reinvestPercent < 0 ? ListItemStyle.ACTIVE_INVALID : ListItemStyle.ACTIVE,
         onPress: undefined,
+        rewardRouteId: 'Reinvest',
       },
     ];
   }, [editRewardRoutes, filteredRewardRoutes, editableRewardRoutes, reinvestPercent]);
@@ -95,7 +97,11 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
         component: RewardRouteDelete({
           route,
           onConfirm: () => {
-            setEditableRewardRoutes(editableRewardRoutes?.filter((r) => r.targetAsset !== route.targetAsset));
+            setEditableRewardRoutes(
+              editableRewardRoutes?.filter(
+                (r) => !(r.targetAsset === route.targetAsset && r.targetAddress === route.targetAddress),
+              ),
+            );
             reset();
             dismissModal();
           },
@@ -159,12 +165,11 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
             setTimeout(() => {
               setEditableRewardRoutes(
                 editableRewardRoutes?.concat({
-                  rewardAsset: 'DFI',
+                  internalId: `${item.token.symbol}-${destinationAddress ?? address}`,
                   displayLabel: item.token.displaySymbol,
                   targetAsset: item.token.symbol,
                   targetAddress: destinationAddress ?? address,
                   targetBlockchain: 'DeFiChain',
-                  isReinvest: false,
                 }),
               );
             }, 500);
@@ -193,7 +198,7 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
   }
 
   function submit(): void {
-    saveRewardRoutes(editableRewardRoutes ?? [], reinvestPercent / 100);
+    saveRewardRoutes(editableRewardRoutes ?? []);
     reset();
   }
 
@@ -247,8 +252,7 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
         <>
           {listItems().map((item, index) => (
             <ListItem
-              key={`${index}-${item.title}`}
-              id={index}
+              key={`${index}-${item.title}-${item.subtitle}`}
               iconName={item.iconName}
               title={item.title}
               subtitle={item.subtitle}
@@ -256,10 +260,11 @@ export function RewardStrategy({ disabled, openModal, dismissModal }: RewardStra
               style={item.style}
               onPress={item.onPress}
               control={control}
-              onPercentChange={async (name, id, percentage) => {
-                const route = filteredRewardRoutes?.[id];
+              rewardRouteId={item.rewardRouteId}
+              onPercentChange={async (internalId, percentage) => {
+                const route = filteredRewardRoutes?.find((r) => r.internalId === internalId);
                 if (route) route.rewardPercent = Number(percentage) / 100;
-                setValue(name, percentage, { shouldValidate: true });
+                setValue(internalId, percentage, { shouldValidate: true });
               }}
               showsPercent
             />

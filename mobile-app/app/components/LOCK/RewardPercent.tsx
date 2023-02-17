@@ -6,20 +6,19 @@ import { theme } from '../../tailwind.config';
 
 interface PercentForm {
   control: Control;
-  id: number;
+  id: string;
   initialValue?: string;
-  onPercentChange: (name: string, id: number, percentage: string) => void;
+  onPercentChange: (id: string, percentage: string) => void;
 }
 
 export function RewardPercent({ control, id, initialValue, onPercentChange }: PercentForm): JSX.Element {
   const [isFocused, setIsFocused] = useState(false);
   const defaultValue = initialValue ?? '';
-  const name = `${id}-percentage`;
   const max = 100;
 
   function keepValueInRange(value: string): string {
     if (isNaN(+value)) return '0';
-    return '' + Math.min(+value, max).toFixed(2);
+    return '' + Math.min(+value, max).toFixed(0);
   }
 
   return (
@@ -27,7 +26,7 @@ export function RewardPercent({ control, id, initialValue, onPercentChange }: Pe
       <Controller
         control={control}
         defaultValue={defaultValue}
-        name={name}
+        name={id}
         render={({ field: { onChange, value } }) => (
           <View
             style={tailwind('rounded border-2 border-lockGray-100 w-16 h-full flex justify-center', {
@@ -42,12 +41,11 @@ export function RewardPercent({ control, id, initialValue, onPercentChange }: Pe
                 onFocus={() => setIsFocused(true)}
                 onBlur={() => setIsFocused(false)}
                 onChange={onChange}
-                onChangeText={(text) => onPercentChange(name, id, keepValueInRange(text))}
+                onChangeText={(text) => onPercentChange(id, keepValueInRange(text))}
                 selectionColor={theme.extend.colors.lock[200]}
                 placeholderTextColor={theme.extend.colors.lockGray[200]}
                 placeholder={'0'}
                 value={value}
-                selection={{ start: value.length, end: value.length }}
                 autoFocus={initialValue === undefined}
               />
               <Text style={[tailwind('pr-0.5 text-black text-base font-normal'), { lineHeight: 21 }]}>%</Text>
