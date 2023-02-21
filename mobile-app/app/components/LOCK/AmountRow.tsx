@@ -38,10 +38,7 @@ export function AmountRow({
 }: AmountForm): JSX.Element {
   const reservedDFI = 0.1;
   const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
-  const minDeposit =
-    staking.strategy === StakingStrategy.MASTERNODE
-      ? staking.minimalStake
-      : staking.minimalDeposits.find((d) => d.asset === token?.symbol)?.amount ?? 1;
+  const minDeposit = staking.minimalDeposits.find((d) => d.asset === token?.symbol)?.amount ?? 1;
 
   let maxAmount =
     token?.symbol === 'DFI'

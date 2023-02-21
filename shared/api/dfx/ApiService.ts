@@ -173,7 +173,6 @@ export interface StakingOutputDto {
   status: StakingStatus;
   asset: string;
   depositAddress: string;
-  minimalStake: number;
   minimalDeposits: StakingMinimalDeposit[];
   fee: number;
   balances: StakingBalance[];
