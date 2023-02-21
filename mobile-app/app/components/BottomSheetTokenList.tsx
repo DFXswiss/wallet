@@ -191,23 +191,24 @@ function ListItem({
           <SymbolIcon symbol={item.token.displaySymbol} styleProps={tailwind('w-6 h-6')} />
         )}
 
-        <ThemedText
-          style={tailwind('ml-2')}
-          light={tailwind(lock ? 'text-black' : 'text-dfxgray-500')}
-          dark={tailwind(lock ? 'text-black' : 'text-dfxgray-400')}
-          testID={`token_symbol_${item.token.displaySymbol}`}
-        >
-          {item.token.displaySymbol}
-        </ThemedText>
-        {!lock && (
+        <View style={tailwind('flex flex-col ml-2')}>
           <ThemedText
             light={tailwind(lock ? 'text-black' : 'text-dfxgray-500')}
             dark={tailwind(lock ? 'text-black' : 'text-dfxgray-400')}
-            style={tailwind(['text-xs', { hidden: item.token.name === '' }])}
+            testID={`token_symbol_${item.token.displaySymbol}`}
           >
-            {item.token.name}
+            {item.token.displaySymbol}
           </ThemedText>
-        )}
+          {!lock && (
+            <ThemedText
+              light={tailwind(lock ? 'text-black' : 'text-dfxgray-500')}
+              dark={tailwind(lock ? 'text-black' : 'text-dfxgray-400')}
+              style={tailwind(['text-xs', { hidden: item.token.name === '' }])}
+            >
+              {item.token.name}
+            </ThemedText>
+          )}
+        </View>
       </View>
       <View style={tailwind('flex flex-row items-center')}>
         {!simple && activePrice && (
