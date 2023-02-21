@@ -73,8 +73,9 @@ export function ListItem({
 
   return (
     <View
-      style={tailwind('flex-row justify-between items-start h-10', {
+      style={tailwind('flex-row justify-between items-start', {
         'py-0.5': shouldDisplayIcon(),
+        'h-10': style !== ListItemStyle.PENDING,
         'h-9 items-center': header,
       })}
     >

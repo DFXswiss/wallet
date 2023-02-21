@@ -3,7 +3,7 @@ import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { StakingAction } from '@constants/LOCK/StakingAction';
 import { StakingAnalyticsOutputDto, StakingOutputDto, StakingStrategy } from '@shared-api/dfx/ApiService';
 import { RootState } from '@store';
-import { tokenSelectorByDisplaySymbol, tokensSelector, allTokens, WalletToken } from '@store/wallet';
+import { tokensSelector, allTokens, WalletToken } from '@store/wallet';
 import { tailwind } from '@tailwind';
 import { translate } from '@translations';
 import BigNumber from 'bignumber.js';
@@ -31,7 +31,6 @@ interface StakingCardProps {
 
 export function StakingCard({ info, analytics, isLoading, openModal }: StakingCardProps): JSX.Element {
   const { editRewardRoutes } = useLockStakingContext();
-  const token = useSelector((state: RootState) => tokenSelectorByDisplaySymbol(state.wallet, info.asset));
   const walletToken = useSelector((state: RootState) => tokensSelector(state.wallet)).find((t) =>
     info.balances.map((b) => b.asset).includes(t.displaySymbol),
   );
@@ -202,10 +201,10 @@ export function StakingCard({ info, analytics, isLoading, openModal }: StakingCa
           label={translate('LOCK/LockDashboardScreen', removeAction)}
           margin="my-3 mr-3"
           padding="p-1"
-          onPress={() => token != null && openModal(removeAction, info, token)}
+          onPress={() => walletToken != null && openModal(removeAction, info, walletToken)}
           lock
           grow
-          disabled={isLoading || editRewardRoutes || token == null || !info?.balances.some((b) => b.balance > 0)}
+          disabled={isLoading || editRewardRoutes || walletToken == null || !info?.balances.some((b) => b.balance > 0)}
           isSubmitting={isLoading}
         />
       </View>

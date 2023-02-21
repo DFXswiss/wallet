@@ -93,7 +93,7 @@ export const BottomSheetStaking = ({
       if (isStake(action)) {
         stake(amount);
       } else {
-        unstake(amount, token.displaySymbol);
+        unstake(amount, token.symbolKey);
       }
     }
 
@@ -205,7 +205,7 @@ export const BottomSheetStaking = ({
             token={token}
             action={action}
             staking={stakingInfo}
-            balance={stakingInfo.balances.find((b) => b.asset === token?.displaySymbol)}
+            balance={stakingInfo.balances.find((b) => b.asset === token?.symbolKey)}
             showMinDeposit
           />
 

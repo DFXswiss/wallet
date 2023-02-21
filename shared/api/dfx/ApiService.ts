@@ -77,7 +77,7 @@ const SettingUrl = 'setting/frontend';
 // -----------------LOCK - API---------------------------
 // ------------------------------------------------------
 const LockBaseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl;
-const LOCKanalytics = 'analytics/staking';
+const LOCKanalytics = 'analytics/staking/filter';
 const LOCKKycUrl = 'kyc';
 const LOCKStakingUrl = 'staking';
 const LOCKAssetUrl = 'asset';
@@ -225,25 +225,11 @@ export const LOCKgetUser = async (): Promise<LockUserDto> => {
 };
 
 // --- STAKING --- //
-const analyticTypes: StakingQueryDto[] = [
-  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.MASTERNODE },
-  { asset: 'DUSD', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-  { asset: 'BTC', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-  { asset: 'ETH', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-  { asset: 'USDT', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-  { asset: 'USDC', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-];
-
 export const LOCKgetAllAnalytics = async (): Promise<StakingAnalyticsOutputDto[]> => {
-  return await Promise.all(analyticTypes.map(LOCKgetAnalytics));
-};
-
-export const LOCKgetAnalytics = async (query: StakingQueryDto): Promise<StakingAnalyticsOutputDto> => {
-  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics, undefined, undefined, {
-    queryParams: query,
+  return await fetchFromLOCK<StakingAnalyticsOutputDto[]>(LOCKanalytics, undefined, undefined, {
+    queryParams: { blockchain: 'DeFiChain' },
     withoutJWT: true,
-  }).then(fromAnalyticsDto);
+  }).then((analytics) => analytics.map(fromAnalyticsDto));
 };
 
 const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalyticsOutputDto => {

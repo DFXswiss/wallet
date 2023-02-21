@@ -128,7 +128,7 @@ export function AmountRow({
       {showMinDeposit && (
         <InputHelperText
           testID="min_value"
-          label={translate('LOCK/LockDashboardScreen', 'Min. Deposit: ')}
+          label={translate('LOCK/LockDashboardScreen', 'Min. {{action}}: ', { action })}
           content={'' + minDeposit}
           suffix={` ${token?.displaySymbol}`}
           withoutTopMargins
