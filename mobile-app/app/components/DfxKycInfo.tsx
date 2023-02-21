@@ -18,7 +18,7 @@ interface DfxKycInfoProps {
   }
 }
 
-const KYC_MAX_AMOUNT = 1000
+const KYC_MAX_AMOUNT = 990
 
 export function DfxKycInfo (props: DfxKycInfoProps): JSX.Element {
   const amount = new BigNumber(props.calcKyc?.amount ?? 0)

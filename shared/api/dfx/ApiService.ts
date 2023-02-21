@@ -77,7 +77,7 @@ const SettingUrl = 'setting/frontend';
 // -----------------LOCK - API---------------------------
 // ------------------------------------------------------
 const LockBaseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl;
-const LOCKanalytics = 'analytics/staking';
+const LOCKanalytics = 'analytics/staking/filter';
 const LOCKKycUrl = 'kyc';
 const LOCKStakingUrl = 'staking';
 const LOCKAssetUrl = 'asset';
@@ -163,13 +163,17 @@ export enum StakingStatus {
   BLOCKED = 'Blocked',
 }
 
+export interface StakingMinimalDeposit {
+  asset: string;
+  amount: number;
+}
+
 export interface StakingOutputDto {
   id: number;
   status: StakingStatus;
   asset: string;
   depositAddress: string;
-  minimalStake: number;
-  minimalDeposit: number;
+  minimalDeposits: StakingMinimalDeposit[];
   fee: number;
   balances: StakingBalance[];
   strategy: StakingStrategy;
@@ -220,21 +224,11 @@ export const LOCKgetUser = async (): Promise<LockUserDto> => {
 };
 
 // --- STAKING --- //
-const analyticTypes: StakingQueryDto[] = [
-  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.MASTERNODE },
-  { asset: 'DUSD', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-  { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
-];
-
 export const LOCKgetAllAnalytics = async (): Promise<StakingAnalyticsOutputDto[]> => {
-  return await Promise.all(analyticTypes.map(LOCKgetAnalytics));
-};
-
-export const LOCKgetAnalytics = async (query: StakingQueryDto): Promise<StakingAnalyticsOutputDto> => {
-  return await fetchFromLOCK<StakingAnalyticsOutputDto>(LOCKanalytics, undefined, undefined, {
-    queryParams: query,
+  return await fetchFromLOCK<StakingAnalyticsOutputDto[]>(LOCKanalytics, undefined, undefined, {
+    queryParams: { blockchain: 'DeFiChain' },
     withoutJWT: true,
-  }).then(fromAnalyticsDto);
+  }).then((analytics) => analytics.map(fromAnalyticsDto));
 };
 
 const fromAnalyticsDto = (analytics: StakingAnalyticsOutputDto): StakingAnalyticsOutputDto => {
