@@ -206,6 +206,7 @@ export const BottomSheetStaking = ({
             action={action}
             staking={stakingInfo}
             balance={stakingInfo.balances.find((b) => b.asset === token?.displaySymbol)}
+            showMinDeposit
           />
 
           <View style={tailwind('my-6')}>

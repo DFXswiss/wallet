@@ -14,14 +14,18 @@ interface InputHelperTextProps extends React.PropsWithChildren<ViewProps>{
   styleProps?: StyleProp<TextProps>
   labelStyleProps?: StyleProp<TextProps>
   lock?: boolean
+  withoutBottomMargins?: boolean
+  withoutTopMargins?: boolean
 }
 export function InputHelperText (props: InputHelperTextProps): JSX.Element {
   return (
     <ThemedView
       light={tailwind('bg-transparent')}
       dark={tailwind('bg-transparent')}
-      style={tailwind('flex-1 flex-row flex-wrap mt-1 mb-4 text-sm')}
-    >
+      style={tailwind('flex-1 flex-row flex-wrap mt-1 mb-4 text-sm', {
+      'mb-0': props.withoutBottomMargins,
+      'mt-0': props.withoutTopMargins,
+    })}>
       <ThemedText
         light={tailwind('text-dfxgray-400')}
         dark={tailwind(props.lock === true ? 'text-black' : 'text-dfxgray-500')}

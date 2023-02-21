@@ -23,6 +23,7 @@ interface AmountForm {
   action: StakingAction;
   staking: StakingOutputDto;
   balance?: StakingBalance;
+  showMinDeposit?: boolean;
 }
 
 export function AmountRow({
@@ -33,9 +34,14 @@ export function AmountRow({
   action,
   staking,
   balance,
+  showMinDeposit,
 }: AmountForm): JSX.Element {
   const reservedDFI = 0.1;
   const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
+  const minDeposit =
+    staking.strategy === StakingStrategy.MASTERNODE
+      ? staking.minimalStake
+      : staking.minimalDeposits.find((d) => d.asset === token?.symbol)?.amount ?? 1;
 
   let maxAmount =
     token?.symbol === 'DFI'
@@ -103,10 +109,7 @@ export function AmountRow({
           required: true,
           pattern: /^\d*\.?\d*$/,
           max: maxAmount,
-          min:
-            staking.strategy === StakingStrategy.MASTERNODE
-              ? staking.minimalStake
-              : staking.minimalDeposits.find((d) => d.asset === token?.symbol)?.amount ?? 1,
+          min: minDeposit,
           validate: {
             greaterThanZero: (value: string) =>
               new BigNumber(value !== undefined && value !== '' ? value : 0).isGreaterThan(0),
@@ -119,8 +122,19 @@ export function AmountRow({
         label={`${translate('LOCK/LockDashboardScreen', 'Available to {{action}}', { action })}: `}
         content={maxAmount}
         suffix={` ${token?.displaySymbol}`}
+        withoutBottomMargins={showMinDeposit}
         lock
       />
+      {showMinDeposit && (
+        <InputHelperText
+          testID="min_value"
+          label={translate('LOCK/LockDashboardScreen', 'Min. Deposit: ')}
+          content={'' + minDeposit}
+          suffix={` ${token?.displaySymbol}`}
+          withoutTopMargins
+          lock
+        />
+      )}
     </>
   );
 }
