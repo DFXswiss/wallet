@@ -118,7 +118,7 @@ export function LockDashboardScreen(): JSX.Element {
           component: BottomSheetTokenList({
             lock: true,
             simple: true,
-            tokens: getBottomSheetToken(tokens, walletTokens, info, action),
+            tokens: getBottomSheetToken(tokens, walletTokens, info),
             tokenType: TokenType.BottomSheetToken,
             headerLabel: translate('LOCK/LockDashboardScreen', `Select token to ${action.toLowerCase()}`),
             onCloseButtonPress: dismissModal,
@@ -331,9 +331,10 @@ function getBottomSheetToken(
   tokens: AssociatedToken,
   walletTokens: WalletToken[],
   info: StakingOutputDto,
-  action: StakingAction,
 ): BottomSheetToken[] {
-  const tokenData = info.balances.map((b) => tokens[b.asset]);
+  const tokenData = info.balances.map(
+    (b) => Object.values(tokens).find((t) => t.symbolKey === b.asset) ?? tokens[b.asset],
+  );
   return tokenData.map((t) => {
     const displaySymbol = t.displaySymbol.replace(' (UTXO)', '');
     const walletToken = getWalletToken(walletTokens, t.id);

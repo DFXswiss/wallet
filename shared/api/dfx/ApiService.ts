@@ -224,6 +224,10 @@ const analyticTypes: StakingQueryDto[] = [
   { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.MASTERNODE },
   { asset: 'DUSD', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
   { asset: 'DFI', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
+  { asset: 'BTC', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
+  { asset: 'ETH', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
+  { asset: 'USDT', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
+  { asset: 'USDC', blockchain: 'DeFiChain', strategy: StakingStrategy.LIQUIDITY_MINING },
 ];
 
 export const LOCKgetAllAnalytics = async (): Promise<StakingAnalyticsOutputDto[]> => {
