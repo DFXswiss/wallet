@@ -163,13 +163,18 @@ export enum StakingStatus {
   BLOCKED = 'Blocked',
 }
 
+export interface StakingMinimalDeposit {
+  asset: string;
+  amount: number;
+}
+
 export interface StakingOutputDto {
   id: number;
   status: StakingStatus;
   asset: string;
   depositAddress: string;
   minimalStake: number;
-  minimalDeposit: number;
+  minimalDeposits: StakingMinimalDeposit[];
   fee: number;
   balances: StakingBalance[];
   strategy: StakingStrategy;

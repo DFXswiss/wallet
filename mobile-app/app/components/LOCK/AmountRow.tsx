@@ -4,7 +4,7 @@ import { ThemedView } from '@components/themed';
 import { WalletTextInput } from '@components/WalletTextInput';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { isStake, StakingAction } from '@constants/LOCK/StakingAction';
-import { StakingBalance, StakingOutputDto } from '@shared-api/dfx/ApiService';
+import { StakingBalance, StakingOutputDto, StakingStrategy } from '@shared-api/dfx/ApiService';
 import { RootState } from '@store';
 import { DFIUtxoSelector, WalletToken } from '@store/wallet';
 import { tailwind } from '@tailwind';
@@ -51,14 +51,8 @@ export function AmountRow({
   if (maxAmount === 'NaN' || maxAmount === undefined) {
     maxAmount = '0';
   }
-  // cap amount with maxAmount before setting the setValue('amount', amount) field
   const onAmountChangeCAPPED = (amount: string): void => {
     const base = new BigNumber(amount);
-    const max = new BigNumber(maxAmount);
-    base.isGreaterThan(max) && (amount = maxAmount);
-    const min = new BigNumber(staking.minimalStake);
-    base.isLessThan(min) && (amount = min.toString());
-
     return onAmountChange(base.isNaN() ? '' : amount);
   };
 
@@ -109,6 +103,10 @@ export function AmountRow({
           required: true,
           pattern: /^\d*\.?\d*$/,
           max: maxAmount,
+          min:
+            staking.strategy === StakingStrategy.MASTERNODE
+              ? staking.minimalStake
+              : staking.minimalDeposits.find((d) => d.asset === token?.symbol)?.amount ?? 1,
           validate: {
             greaterThanZero: (value: string) =>
               new BigNumber(value !== undefined && value !== '' ? value : 0).isGreaterThan(0),

@@ -144,6 +144,7 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
               <ClearButton
                 onPress={onClearButtonPress}
                 testID={props.testID !== undefined ? `${props.testID}_clear_button` : undefined}
+                lock={lock}
               />
           }
           {children}
@@ -197,8 +198,8 @@ export function ClearButton (props: {onPress?: () => void, testID?: string, icon
         iconType='MaterialIcons'
         name='cancel'
         size={28}
-        light={tailwind('text-gray-100')}
-        dark={tailwind('text-dfxblue-900')}
+        light={tailwind('text-gray-100', { 'text-lock-200': props.lock })}
+        dark={tailwind('text-dfxblue-900', { 'text-lock-200': props.lock })}
         {...props.iconThemedProps}
       />
 
