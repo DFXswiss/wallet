@@ -229,7 +229,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
         );
       case RewardRouteDestination.YIELD_MACHINE:
         return (
-          ['DFI', 'DUSD'].includes(token) &&
+          (yieldMachineInfo?.balances.map((b) => b.asset) ?? []).includes(token) &&
           isYieldMachineActive() &&
           editableRewardRoutes?.find(
             (r) => r.targetAsset === token && r.targetAddress === yieldMachineInfo?.depositAddress,

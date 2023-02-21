@@ -150,7 +150,7 @@ export function StakingCard({ info, analytics, isLoading, openModal }: StakingCa
               <NumberFormat
                 value={balance.pendingDeposits}
                 thousandSeparator
-                decimalScale={2}
+                decimalScale={4}
                 displayType="text"
                 renderText={(value) => (
                   <ListItem
@@ -165,7 +165,7 @@ export function StakingCard({ info, analytics, isLoading, openModal }: StakingCa
               <NumberFormat
                 value={balance.pendingWithdrawals}
                 thousandSeparator
-                decimalScale={2}
+                decimalScale={4}
                 displayType="text"
                 renderText={(value) => (
                   <ListItem
