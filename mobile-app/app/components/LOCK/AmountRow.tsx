@@ -4,7 +4,7 @@ import { ThemedView } from '@components/themed';
 import { WalletTextInput } from '@components/WalletTextInput';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { isStake, StakingAction } from '@constants/LOCK/StakingAction';
-import { StakingBalance, StakingOutputDto } from '@shared-api/dfx/ApiService';
+import { StakingBalance, StakingOutputDto, StakingStrategy } from '@shared-api/dfx/ApiService';
 import { RootState } from '@store';
 import { DFIUtxoSelector, WalletToken } from '@store/wallet';
 import { tailwind } from '@tailwind';
@@ -23,6 +23,7 @@ interface AmountForm {
   action: StakingAction;
   staking: StakingOutputDto;
   balance?: StakingBalance;
+  showMinDeposit?: boolean;
 }
 
 export function AmountRow({
@@ -33,9 +34,11 @@ export function AmountRow({
   action,
   staking,
   balance,
+  showMinDeposit,
 }: AmountForm): JSX.Element {
   const reservedDFI = 0.1;
   const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
+  const minDeposit = staking.minimalDeposits.find((d) => d.asset === token?.symbol)?.amount ?? 1;
 
   let maxAmount =
     token?.symbol === 'DFI'
@@ -51,14 +54,8 @@ export function AmountRow({
   if (maxAmount === 'NaN' || maxAmount === undefined) {
     maxAmount = '0';
   }
-  // cap amount with maxAmount before setting the setValue('amount', amount) field
   const onAmountChangeCAPPED = (amount: string): void => {
     const base = new BigNumber(amount);
-    const max = new BigNumber(maxAmount);
-    base.isGreaterThan(max) && (amount = maxAmount);
-    const min = new BigNumber(staking.minimalStake);
-    base.isLessThan(min) && (amount = min.toString());
-
     return onAmountChange(base.isNaN() ? '' : amount);
   };
 
@@ -109,6 +106,7 @@ export function AmountRow({
           required: true,
           pattern: /^\d*\.?\d*$/,
           max: maxAmount,
+          min: minDeposit,
           validate: {
             greaterThanZero: (value: string) =>
               new BigNumber(value !== undefined && value !== '' ? value : 0).isGreaterThan(0),
@@ -121,8 +119,19 @@ export function AmountRow({
         label={`${translate('LOCK/LockDashboardScreen', 'Available to {{action}}', { action })}: `}
         content={maxAmount}
         suffix={` ${token?.displaySymbol}`}
+        withoutBottomMargins={showMinDeposit}
         lock
       />
+      {showMinDeposit && (
+        <InputHelperText
+          testID="min_value"
+          label={translate('LOCK/LockDashboardScreen', 'Min. {{action}}: ', { action })}
+          content={'' + minDeposit}
+          suffix={` ${token?.displaySymbol}`}
+          withoutTopMargins
+          lock
+        />
+      )}
     </>
   );
 }

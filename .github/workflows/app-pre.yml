@@ -2,7 +2,7 @@ name: APP PRE CI/CD
 
 on:
   push:
-    branches: [preview]
+    branches: [develop]
   workflow_dispatch:
 
 env:

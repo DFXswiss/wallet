@@ -1,8 +1,6 @@
 name: APP DEV CI/CD
 
 on:
-  push:
-    branches: [develop]
   workflow_dispatch:
 
 env:
