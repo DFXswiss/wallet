@@ -39,12 +39,6 @@ import { fetchExecutionBlock, fetchFutureSwaps, hasFutureSwap } from '@store/fut
 import { useDenominationCurrency } from './hooks/PortfolioCurrency'
 import { BottomSheetAssetSortList, PortfolioSortType } from './components/BottomSheetAssetSortList'
 import { useAppDispatch } from '@hooks/useAppDispatch'
-import { getUserDetail } from '@shared-api/dfx/ApiService'
-import { useDebounce } from '@hooks/useDebounce'
-
-import { from, defer } from 'rxjs'
-import { delay, map, retryWhen } from 'rxjs/operators'
-import { useNetworkContext } from '@shared-contexts/NetworkContext'
 import { LockStakingCard } from './LOCK/LockStakingCard'
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>
@@ -90,7 +84,7 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
   const ref = useRef(null)
   useScrollToTop(ref)
 
-  // DFX Staking Balance
+  // TODO: LOCK staking balance
   const [staked, setStaked] = useState(0)
   const [hasFetchedStakingBalance, setHasFetchedStakingBalance] = useState(false)
 
@@ -130,55 +124,6 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
       dispatch(fetchLoanTokens({ client }))
     })
   }, [])
-
-  function getUserDetailWithRetry () {
-    defer(() => {
-      return from(getUserDetail())
-    }).pipe(
-      map((userDetail) => {
-        if (userDetail === undefined || userDetail.stakingBalance === undefined) {
-          throw new Error('userdetail undefined')
-        }
-        return userDetail
-      }),
-      retryWhen((error) => {
-        return error.pipe(
-          delay(3000)
-        )
-      })).subscribe({
-        next: (result) => {
-          // console.log(result)
-
-          setStaked(result?.stakingBalance ?? 0)
-          setHasFetchedStakingBalance(true)
-        },
-        error: () => {
-          // console.log(err)
-        }
-      })
-  }
-
-  function fetchDfxStakingBalance (): void {
-    setHasFetchedStakingBalance(false)
-
-    getUserDetailWithRetry()
-  }
-
-  useEffect(() => {
-    fetchDfxStakingBalance()
-  }, [])
-
-  // debounce address change 2s --> 2s because dfxApiContextProvider debounces after 500ms (=> new webToken)
-  const debouncedAddress = useDebounce(address, 2000)
-  const { networkName } = useNetworkContext()
-
-  useEffect(() => {
-    fetchDfxStakingBalance()
-
-    setTimeout(() => {
-      fetchDfxStakingBalance()
-    }, 5000)
-  }, [debouncedAddress, networkName])
 
   const fetchPortfolioData = (): void => {
     batch(() => {
@@ -521,7 +466,7 @@ export function PortfolioScreen ({ navigation }: Props): JSX.Element {
   const onRefresh = useCallback(async () => {
     setRefreshing(true)
     fetchPortfolioData()
-    fetchDfxStakingBalance()
+    // TODO: fetch LOCK staking balance
     setLockRefetchTrigger((value) => !value)
     setRefreshing(false)
   }, [address, client, dispatch])
