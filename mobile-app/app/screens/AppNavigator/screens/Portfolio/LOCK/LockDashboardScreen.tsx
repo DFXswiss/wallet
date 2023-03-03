@@ -24,7 +24,7 @@ import { ButtonGroup } from '../../Dex/components/ButtonGroup';
 import { useWalletContext } from '@shared-contexts/WalletContext';
 import { ANNOUNCEMENTCHANNELDELAY, AnnouncementChannel } from '@shared-types/website';
 import { Announcements } from '../components/Announcements';
-import NumberFormat from 'react-number-format';
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { BottomSheetToken, BottomSheetTokenList, TokenType } from '@components/BottomSheetTokenList';
 import { BottomSheetStaking } from '@components/LOCK/BottomSheetStaking';

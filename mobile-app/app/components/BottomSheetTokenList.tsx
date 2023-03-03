@@ -2,7 +2,6 @@ import { memo } from 'react';
 import * as React from 'react';
 import { tailwind } from '@tailwind';
 import { Platform, TouchableOpacity, View } from 'react-native';
-import NumberFormat from 'react-number-format';
 import BigNumber from 'bignumber.js';
 import { SymbolIcon } from './SymbolIcon';
 import { ThemedFlatList, ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedView } from './themed';
@@ -19,6 +18,7 @@ import { getActivePrice } from '@screens/AppNavigator/screens/Auctions/helpers/A
 import { WalletToken } from '@store/wallet';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { PoolPairIcon } from './icons/PoolPairIcon';
+import { NumericFormat as NumberFormat } from 'react-number-format';
 
 interface BottomSheetTokenListProps {
   headerLabel: string;
