@@ -19,7 +19,7 @@ import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { useLock } from '../../../../../contexts/LOCK/LockContextProvider';
 import { useTokenPrice } from '../hooks/TokenPrice';
 import { BalanceText } from '../components/BalanceText';
-import NumberFormat from 'react-number-format';
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { getPrecisedTokenValue } from '../../Auctions/helpers/precision-token-value';
 import { PortfolioButtonGroupTabKey } from '../components/TotalPortfolio';
 

@@ -1,66 +1,60 @@
-import * as React from 'react'
-import { memo } from 'react'
-import { TouchableOpacity } from 'react-native'
-import { ThemedText, ThemedView, ThemedIcon, IconName } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { View } from '@components'
-import { translate } from '@translations'
-import { IconButton } from '@components/IconButton'
-import { LoanVaultLiquidationBatch, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan'
-import { getNativeIcon } from '@components/icons/assets'
-import NumberFormat from 'react-number-format'
-import { useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { AuctionTimeProgress } from './AuctionTimeProgress'
-import { AuctionsParamList } from '../AuctionNavigator'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { CollateralTokenIconGroup } from './CollateralTokenIconGroup'
-import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext'
-import { openURL } from '@api/linking'
-import { useAuctionBidValue } from '../hooks/AuctionBidValue'
-import { useWalletContext } from '@shared-contexts/WalletContext'
-import { MinNextBidTextRow } from './MinNextBidTextRow'
-import { onQuickBidProps } from './BrowseAuctions'
+import * as React from 'react';
+import { memo } from 'react';
+import { TouchableOpacity } from 'react-native';
+import { ThemedText, ThemedView, ThemedIcon, IconName } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { View } from '@components';
+import { translate } from '@translations';
+import { IconButton } from '@components/IconButton';
+import { LoanVaultLiquidationBatch, LoanVaultLiquidated } from '@defichain/whale-api-client/dist/api/loan';
+import { getNativeIcon } from '@components/icons/assets';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store';
+import { AuctionTimeProgress } from './AuctionTimeProgress';
+import { AuctionsParamList } from '../AuctionNavigator';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { CollateralTokenIconGroup } from './CollateralTokenIconGroup';
+import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext';
+import { openURL } from '@api/linking';
+import { useAuctionBidValue } from '../hooks/AuctionBidValue';
+import { useWalletContext } from '@shared-contexts/WalletContext';
+import { MinNextBidTextRow } from './MinNextBidTextRow';
+import { onQuickBidProps } from './BrowseAuctions';
 
 export interface BatchCardProps {
-  vault: LoanVaultLiquidated
-  batch: LoanVaultLiquidationBatch
-  testID: string
-  onQuickBid: (props: onQuickBidProps) => void
-  isVaultOwner: boolean
+  vault: LoanVaultLiquidated;
+  batch: LoanVaultLiquidationBatch;
+  testID: string;
+  onQuickBid: (props: onQuickBidProps) => void;
+  isVaultOwner: boolean;
 }
 
-export function BatchCard (props: BatchCardProps): JSX.Element {
-  const navigation = useNavigation<NavigationProp<AuctionsParamList>>()
-  const { address } = useWalletContext()
-  const { getVaultsUrl } = useDeFiScanContext()
-  const {
+export function BatchCard(props: BatchCardProps): JSX.Element {
+  const navigation = useNavigation<NavigationProp<AuctionsParamList>>();
+  const { address } = useWalletContext();
+  const { getVaultsUrl } = useDeFiScanContext();
+  const { batch, testID, vault } = props;
+  const LoanIcon = getNativeIcon(batch.loan.displaySymbol);
+  const blockCount = useSelector((state: RootState) => state.block.count) ?? 0;
+  const { minNextBidInToken, totalCollateralsValueInUSD, hasFirstBid, minNextBidInUSD } = useAuctionBidValue(
     batch,
-    testID,
-    vault
-  } = props
-  const LoanIcon = getNativeIcon(batch.loan.displaySymbol)
-  const blockCount = useSelector((state: RootState) => state.block.count) ?? 0
-  const {
-    minNextBidInToken,
-    totalCollateralsValueInUSD,
-    hasFirstBid,
-    minNextBidInUSD
-  } = useAuctionBidValue(batch, vault.liquidationPenalty)
+    vault.liquidationPenalty,
+  );
 
   const onCardPress = (): void => {
     navigation.navigate('AuctionDetailScreen', {
       batch,
-      vault
-    })
-  }
+      vault,
+    });
+  };
 
   const onPlaceBid = (): void => {
     navigation.navigate('PlaceBidScreen', {
       batch,
-      vault
-    })
-  }
+      vault,
+    });
+  };
 
   const onQuickBid = (): void => {
     props.onQuickBid({
@@ -68,9 +62,9 @@ export function BatchCard (props: BatchCardProps): JSX.Element {
       vaultId: vault.vaultId,
       minNextBidInToken,
       minNextBidInUSD,
-      vaultLiquidationHeight: vault.liquidationHeight
-    })
-  }
+      vaultLiquidationHeight: vault.liquidationHeight,
+    });
+  };
 
   return (
     <ThemedView
@@ -78,10 +72,7 @@ export function BatchCard (props: BatchCardProps): JSX.Element {
       dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
       style={tailwind('rounded mb-2 border p-4')}
     >
-      <TouchableOpacity
-        testID={testID}
-        onPress={onCardPress}
-      >
+      <TouchableOpacity testID={testID} onPress={onCardPress}>
         <View style={tailwind('flex-row w-full items-center justify-between')}>
           <View style={tailwind('flex flex-row items-center')}>
             <ThemedView
@@ -92,19 +83,22 @@ export function BatchCard (props: BatchCardProps): JSX.Element {
               <LoanIcon height={17} width={17} />
             </ThemedView>
             <View style={tailwind('flex flex-row items-center justify-center ml-2')}>
-              <ThemedText testID={`batch_${batch.index}_${batch.loan.displaySymbol}`} style={tailwind('font-semibold flex-shrink')}>
+              <ThemedText
+                testID={`batch_${batch.index}_${batch.loan.displaySymbol}`}
+                style={tailwind('font-semibold flex-shrink')}
+              >
                 {batch.loan.displaySymbol}
               </ThemedText>
               <TouchableOpacity
                 onPress={async () => await openURL(getVaultsUrl(vault.vaultId))}
-                testID='ocean_vault_explorer'
+                testID="ocean_vault_explorer"
               >
                 <ThemedIcon
                   style={tailwind('ml-2')}
                   dark={tailwind('text-dfxred-500')}
-                  iconType='MaterialIcons'
+                  iconType="MaterialIcons"
                   light={tailwind('text-primary-500')}
-                  name='open-in-new'
+                  name="open-in-new"
                   size={18}
                 />
               </TouchableOpacity>
@@ -112,13 +106,13 @@ export function BatchCard (props: BatchCardProps): JSX.Element {
           </View>
           <View style={tailwind('flex flex-row items-center justify-center')}>
             <CollateralTokenIconGroup
-              symbols={batch.collaterals.map(collateral => collateral.displaySymbol)}
+              symbols={batch.collaterals.map((collateral) => collateral.displaySymbol)}
               maxIconToDisplay={3}
             />
             <ThemedIcon
               size={24}
-              name='chevron-right'
-              iconType='MaterialIcons'
+              name="chevron-right"
+              iconType="MaterialIcons"
               style={tailwind('ml-1')}
               dark={tailwind('text-gray-200')}
               light={tailwind('text-gray-700')}
@@ -126,10 +120,14 @@ export function BatchCard (props: BatchCardProps): JSX.Element {
           </View>
         </View>
         <View style={tailwind('flex flex-row', { 'mt-0.5': props.isVaultOwner || !hasFirstBid })}>
-          {props.isVaultOwner && <BatchCardInfo testID={`${testID}_owned_vault`} iconName='account-circle' text='From your vault' />}
-          {!hasFirstBid && <BatchCardInfo testID={`${testID}_no_bid`} iconName='hourglass-top' text='Waiting for first bid' />}
+          {props.isVaultOwner && (
+            <BatchCardInfo testID={`${testID}_owned_vault`} iconName="account-circle" text="From your vault" />
+          )}
+          {!hasFirstBid && (
+            <BatchCardInfo testID={`${testID}_no_bid`} iconName="hourglass-top" text="Waiting for first bid" />
+          )}
         </View>
-        {batch?.highestBid?.owner === address && <AuctionBidStatus testID={testID} type='highest' />}
+        {batch?.highestBid?.owner === address && <AuctionBidStatus testID={testID} type="highest" />}
         <View style={tailwind('flex-row w-full items-center justify-between my-2')}>
           <View style={tailwind('flex flex-row')}>
             <ThemedText
@@ -142,8 +140,8 @@ export function BatchCard (props: BatchCardProps): JSX.Element {
           </View>
           <View style={tailwind('flex flex-row items-center')}>
             <NumberFormat
-              displayType='text'
-              prefix='$'
+              displayType="text"
+              prefix="$"
               decimalScale={2}
               renderText={(value: string) => (
                 <ThemedText
@@ -170,24 +168,20 @@ export function BatchCard (props: BatchCardProps): JSX.Element {
       <AuctionTimeProgress
         liquidationHeight={vault.liquidationHeight}
         blockCount={blockCount}
-        label='Auction time remaining'
+        label="Auction time remaining"
       />
-      <BatchCardButtons
-        onPlaceBid={onPlaceBid}
-        onQuickBid={onQuickBid}
-        testID={testID}
-      />
+      <BatchCardButtons onPlaceBid={onPlaceBid} onQuickBid={onQuickBid} testID={testID} />
     </ThemedView>
-  )
+  );
 }
 
-const BatchCardInfo = memo((props: { iconName: IconName, text: string, testID: string }): JSX.Element => {
+const BatchCardInfo = memo((props: { iconName: IconName; text: string; testID: string }): JSX.Element => {
   return (
     <View style={tailwind('flex flex-row items-center')}>
       <ThemedIcon
         size={12}
         name={props.iconName}
-        iconType='MaterialIcons'
+        iconType="MaterialIcons"
         style={tailwind('mr-1')}
         dark={tailwind('text-gray-200')}
         light={tailwind('text-gray-700')}
@@ -197,51 +191,54 @@ const BatchCardInfo = memo((props: { iconName: IconName, text: string, testID: s
         dark={tailwind('text-dfxgray-400')}
         style={tailwind('text-2xs mr-2 leading-3')}
         testID={props.testID}
-      >{translate('components/BatchCard', props.text)}
+      >
+        {translate('components/BatchCard', props.text)}
       </ThemedText>
     </View>
-  )
-})
+  );
+});
 
-const BatchCardButtons = memo((props: { onPlaceBid: () => void, onQuickBid: () => void, testID: string }): JSX.Element => {
-  return (
-    <ThemedView
-      light={tailwind('border-gray-200')}
-      dark={tailwind('border-dfxblue-900')}
-      style={tailwind('flex flex-row mt-4 flex-wrap -mb-2')}
-    >
-      <IconButton
-        iconLabel={translate('components/BatchCard', 'PLACE BID')}
-        iconSize={16}
-        style={tailwind('mr-2 mb-2')}
-        onPress={props.onPlaceBid}
-        testID={`${props.testID}_place_bid_button`}
-      />
-      <IconButton
-        iconLabel={translate('components/QuickBid', 'QUICK BID')}
-        iconSize={16}
-        style={tailwind('mr-2 mb-2')}
-        onPress={props.onQuickBid}
-        testID={`${props.testID}_quick_bid_button`}
-      />
-    </ThemedView>
-  )
-})
+const BatchCardButtons = memo(
+  (props: { onPlaceBid: () => void; onQuickBid: () => void; testID: string }): JSX.Element => {
+    return (
+      <ThemedView
+        light={tailwind('border-gray-200')}
+        dark={tailwind('border-dfxblue-900')}
+        style={tailwind('flex flex-row mt-4 flex-wrap -mb-2')}
+      >
+        <IconButton
+          iconLabel={translate('components/BatchCard', 'PLACE BID')}
+          iconSize={16}
+          style={tailwind('mr-2 mb-2')}
+          onPress={props.onPlaceBid}
+          testID={`${props.testID}_place_bid_button`}
+        />
+        <IconButton
+          iconLabel={translate('components/QuickBid', 'QUICK BID')}
+          iconSize={16}
+          style={tailwind('mr-2 mb-2')}
+          onPress={props.onQuickBid}
+          testID={`${props.testID}_quick_bid_button`}
+        />
+      </ThemedView>
+    );
+  },
+);
 
-type AuctionBidStatusType = 'lost' | 'highest'
+type AuctionBidStatusType = 'lost' | 'highest';
 
-export const AuctionBidStatus = memo(({ type, testID }: { type: AuctionBidStatusType, testID: string }): JSX.Element => {
-  return (
-    <View style={tailwind('flex-row w-full items-center justify-between')}>
-      <View style={tailwind('flex flex-row items-center justify-between')}>
-        {type === 'lost'
-          ? (
+export const AuctionBidStatus = memo(
+  ({ type, testID }: { type: AuctionBidStatusType; testID: string }): JSX.Element => {
+    return (
+      <View style={tailwind('flex-row w-full items-center justify-between')}>
+        <View style={tailwind('flex flex-row items-center justify-between')}>
+          {type === 'lost' ? (
             <>
               <ThemedIcon
                 light={tailwind('text-warning-500')}
                 dark={tailwind('text-dfxyellow-500')}
-                iconType='MaterialIcons'
-                name='not-interested'
+                iconType="MaterialIcons"
+                name="not-interested"
                 size={12}
               />
               <ThemedText
@@ -253,14 +250,13 @@ export const AuctionBidStatus = memo(({ type, testID }: { type: AuctionBidStatus
                 {translate('components/BatchCard', 'Your placed bid lost')}
               </ThemedText>
             </>
-          )
-          : (
+          ) : (
             <>
               <ThemedIcon
                 light={tailwind('text-blue-500')}
                 dark={tailwind('text-dfxblue-500')}
-                iconType='MaterialIcons'
-                name='person-pin'
+                iconType="MaterialIcons"
+                name="person-pin"
                 size={12}
                 style={tailwind('mr-1 mt-0.5')}
               />
@@ -274,7 +270,8 @@ export const AuctionBidStatus = memo(({ type, testID }: { type: AuctionBidStatus
               </ThemedText>
             </>
           )}
+        </View>
       </View>
-    </View>
-  )
-})
+    );
+  },
+);

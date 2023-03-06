@@ -2,7 +2,7 @@ import { memo } from 'react';
 import * as React from 'react';
 import { tailwind } from '@tailwind';
 import { Platform, TouchableOpacity, View } from 'react-native';
-import NumberFormat from 'react-number-format';
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import BigNumber from 'bignumber.js';
 import { SymbolIcon } from './SymbolIcon';
 import { ThemedFlatList, ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedView } from './themed';

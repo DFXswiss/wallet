@@ -1,10 +1,10 @@
-import { ThemedText, ThemedView } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import BigNumber from 'bignumber.js'
-import NumberFormat from 'react-number-format'
+import { ThemedText, ThemedView } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import BigNumber from 'bignumber.js';
+import { NumericFormat as NumberFormat } from 'react-number-format';
 
-export function TotalValueLocked (props: {tvl: number}): JSX.Element {
+export function TotalValueLocked(props: { tvl: number }): JSX.Element {
   return (
     <ThemedView
       light={tailwind('bg-gray-50 border-gray-200')}
@@ -18,14 +18,14 @@ export function TotalValueLocked (props: {tvl: number}): JSX.Element {
       >
         {translate('screens/DexScreen', 'Total Value Locked in pool pairs (USD): ')}
         <NumberFormat
-          displayType='text'
-          prefix='$'
+          displayType="text"
+          prefix="$"
           renderText={(val: string) => (
             <ThemedText
               dark={tailwind('text-gray-50')}
               light={tailwind('text-gray-900')}
               style={tailwind('text-xs text-left font-medium')}
-              testID='DEX_TVL'
+              testID="DEX_TVL"
             >
               {val}
             </ThemedText>
@@ -35,5 +35,5 @@ export function TotalValueLocked (props: {tvl: number}): JSX.Element {
         />
       </ThemedText>
     </ThemedView>
-  )
+  );
 }
