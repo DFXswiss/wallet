@@ -1,11 +1,12 @@
 // import { Logging } from '@api'
-import { Alert, AlertButton, AlertOptions, Platform } from 'react-native'
+import { Logging } from '@api';
+import { Alert, AlertButton, AlertOptions, Platform } from 'react-native';
 
 export interface CustomAlertOption {
-  title: string
-  message?: string
-  buttons?: AlertButton[]
-  options?: AlertOptions
+  title: string;
+  message?: string;
+  buttons?: AlertButton[];
+  options?: AlertOptions;
 }
 
 /**
@@ -28,32 +29,26 @@ export interface CustomAlertOption {
  *
  * @reference https://github.com/necolas/react-native-web/issues/1026#issuecomment-687572134
  */
-export function WalletAlert (option: CustomAlertOption): void {
+export function WalletAlert(option: CustomAlertOption): void {
   if (Platform.OS !== 'web') {
-    Alert.alert(option.title, option.message, option.buttons, option.options)
-  } else if ((option.buttons === undefined || option.buttons.length === 0)) {
-    window.alert([option.title, option.message].filter(Boolean).join('\n'))
+    Alert.alert(option.title, option.message, option.buttons, option.options);
+  } else if (option.buttons === undefined || option.buttons.length === 0) {
+    window.alert([option.title, option.message].filter(Boolean).join('\n'));
   } else {
-    const result = window.confirm([option.title, option.message].filter(Boolean).join('\n'))
+    const result = window.confirm([option.title, option.message].filter(Boolean).join('\n'));
 
     if (result) {
-      const confirm = option.buttons.find(({ style }) => style !== 'cancel')
-      confirm?.onPress?.()
+      const confirm = option.buttons.find(({ style }) => style !== 'cancel');
+      confirm?.onPress?.();
     }
 
-    const cancel = option.buttons.find(({ style }) => style === 'cancel')
-    cancel?.onPress?.()
+    const cancel = option.buttons.find(({ style }) => style === 'cancel');
+    cancel?.onPress?.();
   }
 }
 
-export function WalletAlertErrorApi (apiResponseError: any): void {
-  // TODO: (thabrad) need to be refactored to be able to be used outside of react hook / provider context
-  // mobile-app/app/api/local_storage/provider/provider.native.ts
-  // const logger = Logging
-  // logger.error(apiResponseError)
-
-  // eslint-disable-next-line no-console
-  console.log(apiResponseError)
+export function WalletAlertErrorApi(apiResponseError: any): void {
+  Logging.info(apiResponseError);
 
   // TODO: (thabrad) check why this throws an exeption
   //   [Unhandled promise rejection: Error: Invalid hook call.Hooks can only be called inside of the body of a function component. This could happen for one of the following reasons:]
@@ -64,21 +59,21 @@ export function WalletAlertErrorApi (apiResponseError: any): void {
   // logger.info(apiResponseError)
   // -------------------------------
 
-  const errorName = safeAnyUsageStringArrayJsonEmtpyString(apiResponseError?.error)
-  const errorMsg = safeAnyUsageStringArrayJsonEmtpyString(apiResponseError?.message)
+  const errorName = safeAnyUsageStringArrayJsonEmtpyString(apiResponseError?.error);
+  const errorMsg = safeAnyUsageStringArrayJsonEmtpyString(apiResponseError?.message);
 
-  WalletAlert({ title: errorName, message: errorMsg })
+  WalletAlert({ title: errorName, message: errorMsg });
 }
 
 // TODO: (thabrad) move to a Utils lib
-export function safeAnyUsageStringArrayJsonEmtpyString (data: any | undefined): string {
+export function safeAnyUsageStringArrayJsonEmtpyString(data: any | undefined): string {
   if (data === undefined) {
-    return ''
+    return '';
   } else if (typeof data === 'string') {
-    return data
+    return data;
   } else if (Array.isArray(data)) {
-    return data.toString()
+    return data.toString();
   } else {
-    return JSON.stringify(data)
+    return JSON.stringify(data);
   }
 }

@@ -83,7 +83,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
       .then((analytics) => {
         setAnalytics(analytics.sort((a, b) => b.apr - a.apr)?.[0]);
       })
-      .catch(console.error);
+      .catch(() => {});
 
     Promise.all([getUser, getAnalytics]).finally(() => setIsLoading(false));
   };

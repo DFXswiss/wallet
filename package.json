@@ -3,13 +3,10 @@
   "private": true,
   "license": "MIT",
   "main": "index.js",
-  "workspaces": [
-    "./website"
-  ],
   "scripts": {
     "prepare": "husky install",
     "lint": "eslint . --fix",
-    "start": "expo start --dev-client",
+    "start": "expo start",
     "start:android": "expo start --android",
     "start:ios": "expo start --ios",
     "start:web": "expo start --web",
@@ -57,12 +54,13 @@
     "dayjs": "^1.11.7",
     "defichain": "^2.52.1",
     "eslint-import-resolver-typescript": "^2.7.1",
-    "expo": "^48.0.0",
+    "expo": "~48.0.6",
     "expo-asset": "~8.9.0",
     "expo-barcode-scanner": "~12.3.2",
     "expo-checkbox": "~2.3.1",
     "expo-cli": "^6.0.1",
     "expo-clipboard": "~4.1.2",
+    "expo-constants": "~14.2.1",
     "expo-crypto": "~12.2.1",
     "expo-file-system": "~15.2.2",
     "expo-font": "~11.1.1",
@@ -184,11 +182,6 @@
       "**.test.tsx",
       "**.snap"
     ]
-  },
-  "overrides": {
-    "react-native-circular-progress-indicator": {
-      "react-native-svg": "13.5.0"
-    }
   },
   "version": "1.0.0"
 }
