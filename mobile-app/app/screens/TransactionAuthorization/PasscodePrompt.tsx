@@ -236,7 +236,7 @@ export const PasscodePrompt = React.memo((props: PasscodePromptProps): JSX.Eleme
       name={props.promptModalName}
       ref={props.modalRef}
       snapPoints={getSnapPoints()}
-      handleComponent={null}
+      handleComponent={EmptyHandleComponent}
       backdropComponent={(backdropProps: BottomSheetBackdropProps) => (
         <View {...backdropProps} style={[backdropProps.style, tailwind('bg-black bg-opacity-60')]} />
       )}
@@ -261,6 +261,10 @@ export const PasscodePrompt = React.memo((props: PasscodePromptProps): JSX.Eleme
     </BottomSheetModal>
   )
 })
+
+function EmptyHandleComponent(): JSX.Element {
+  return <View />;
+}
 
 function SuccessMessage ({ message }: { message?: { title: string, description: string } }): JSX.Element | null {
   if (message === undefined) {
