@@ -65,6 +65,10 @@ export function WalletAlertErrorApi(apiResponseError: any): void {
   WalletAlert({ title: errorName, message: errorMsg });
 }
 
+export function WalletAlertWith(title: string, message: string): void {
+  WalletAlert({ title, message });
+}
+
 // TODO: (thabrad) move to a Utils lib
 export function safeAnyUsageStringArrayJsonEmtpyString(data: any | undefined): string {
   if (data === undefined) {

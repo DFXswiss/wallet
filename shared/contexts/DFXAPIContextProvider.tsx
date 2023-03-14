@@ -291,19 +291,24 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
 
   // start sign in/up process and set web token to pair
   const LOCKcreateWebToken = async (): Promise<string> => {
+    if (LOCKisNotAllowedInCountry) return '';
+
     const address = debouncedAddress;
     const message = `By_signing_this_message,_you_confirm_to_LOCK_that_you_are_the_sole_owner_of_the_provided_Blockchain_address._Your_ID:_${address}`;
     const signMessage = await LOCKgetSignMessage(address);
     const loginSignature = await signMessageNoPersistence(signMessage.message ?? message);
 
     await AuthService.deleteSession(ApiDomain.LOCK);
-
+    Logging.info(`trying to sign in to LOCK with ${address} ...`);
     return await LOCKsignIn({ address: address, signature: loginSignature })
       .then(async (accessToken) => {
+        Logging.info('... success');
+        LOCKsetIsNotAllowedInCountry(false);
         await AuthService.updateSession({ accessToken }, ApiDomain.LOCK);
         return accessToken;
       })
       .catch(async (resp) => {
+        Logging.info(`... failed ${resp.statusCode}`);
         AuthService.deleteSession(ApiDomain.LOCK);
 
         if (resp.statusCode !== undefined && resp.statusCode === 401) {
@@ -314,23 +319,31 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
           return '';
         }
 
-        // try sign up
-        return await LOCKsignUp({
-          address: address,
-          signature: loginSignature,
-          blockchain: 'DeFiChain',
-          walletName: 'DFX',
-        })
-          .then(async (accessToken) => {
-            await AuthService.updateSession({ accessToken }, ApiDomain.LOCK);
-            return accessToken;
+        if (resp.statusCode === 403) {
+          LOCKsetIsNotAllowedInCountry(true);
+        }
+
+        if (resp.statusCode === 404) {
+          // try sign up
+          return await LOCKsignUp({
+            address: address,
+            signature: loginSignature,
+            blockchain: 'DeFiChain',
+            walletName: 'DFX',
           })
-          .catch(async (resp) => {
-            if (resp.message !== undefined) {
-              throw new Error(resp.message);
-            }
-            throw new Error(resp);
-          });
+            .then(async (accessToken) => {
+              await AuthService.updateSession({ accessToken }, ApiDomain.LOCK);
+              return accessToken;
+            })
+            .catch(async (resp) => {
+              if (resp.message !== undefined) {
+                throw new Error(resp.message);
+              }
+              throw new Error(resp);
+            });
+        }
+
+        return '';
       });
   };
 

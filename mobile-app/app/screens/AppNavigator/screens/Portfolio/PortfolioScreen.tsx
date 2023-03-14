@@ -49,11 +49,12 @@ import { getUserDetail } from '@shared-api/dfx/ApiService';
 import { useDebounce } from '@hooks/useDebounce';
 
 import { from, defer } from 'rxjs';
-import { delay, map, retry } from 'rxjs/operators';
+import { map, retry } from 'rxjs/operators';
 import { useNetworkContext } from '@shared-contexts/NetworkContext';
 import { LockStakingCard } from './LOCK/LockStakingCard';
 import { Logging } from '@api';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
+import { WalletAlertWith } from '@components/WalletAlert';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
 
@@ -62,7 +63,7 @@ export interface PortfolioRowToken extends WalletToken {
 }
 
 export function PortfolioScreen({ navigation }: Props): JSX.Element {
-  const { debouncedAddress } = useDFXAPIContext();
+  const { debouncedAddress, isNotAllowedInCountry, LOCKisNotAllowedInCountry } = useDFXAPIContext();
   const { isLight } = useThemeContext();
   const isFocused = useIsFocused();
   const height = useBottomTabBarHeight();
@@ -90,6 +91,19 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   // DFX Staking Balance
   const [staked, setStaked] = useState(0);
   const [hasFetchedStakingBalance, setHasFetchedStakingBalance] = useState(false);
+
+  useEffect(() => {
+    if (isNotAllowedInCountry || LOCKisNotAllowedInCountry) {
+      const service =
+        isNotAllowedInCountry && LOCKisNotAllowedInCountry ? 'DFX & LOCK' : LOCKisNotAllowedInCountry ? 'LOCK' : 'DFX';
+      WalletAlertWith(
+        translate('screens/PortfolioScreen', 'Availability'),
+        translate('screens/PortfolioScreen', 'Unfortunately, {{service}} service is not available in your country.', {
+          service,
+        }),
+      );
+    }
+  }, [isNotAllowedInCountry, LOCKisNotAllowedInCountry]);
 
   useEffect(() => {
     dispatch(ocean.actions.setHeight(height));
