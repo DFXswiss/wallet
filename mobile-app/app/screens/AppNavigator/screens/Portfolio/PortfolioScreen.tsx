@@ -54,7 +54,7 @@ import { useNetworkContext } from '@shared-contexts/NetworkContext';
 import { LockStakingCard } from './LOCK/LockStakingCard';
 import { Logging } from '@api';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
-import { WalletAlertWith } from '@components/WalletAlert';
+import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
 
@@ -63,7 +63,8 @@ export interface PortfolioRowToken extends WalletToken {
 }
 
 export function PortfolioScreen({ navigation }: Props): JSX.Element {
-  const { debouncedAddress, isNotAllowedInCountry, LOCKisNotAllowedInCountry } = useDFXAPIContext();
+  const { debouncedAddress, isNotAllowedInCountry, LOCKisNotAllowedInCountry, getUnavailableServices } =
+    useDFXAPIContext();
   const { isLight } = useThemeContext();
   const isFocused = useIsFocused();
   const height = useBottomTabBarHeight();
@@ -94,14 +95,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
 
   useEffect(() => {
     if (isNotAllowedInCountry || LOCKisNotAllowedInCountry) {
-      const service =
-        isNotAllowedInCountry && LOCKisNotAllowedInCountry ? 'DFX & LOCK' : LOCKisNotAllowedInCountry ? 'LOCK' : 'DFX';
-      WalletAlertWith(
-        translate('screens/PortfolioScreen', 'Availability'),
-        translate('screens/PortfolioScreen', 'Unfortunately, {{service}} service is not available in your country.', {
-          service,
-        }),
-      );
+      WalletAlertNotAvailableInCountry(getUnavailableServices());
     }
   }, [isNotAllowedInCountry, LOCKisNotAllowedInCountry]);
 

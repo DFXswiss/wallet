@@ -33,6 +33,7 @@ import { translate } from '@translations';
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav';
 import { BottomSheetModal, BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { AuthService } from '@shared-api/dfx/AuthService';
+import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 
 interface DfxButton {
   hide?: boolean;
@@ -43,7 +44,7 @@ interface DfxButton {
 
 export function DfxButtons(): JSX.Element {
   const { address } = useWalletContext();
-  const { openDfxServices } = useDFXAPIContext();
+  const { isNotAllowedInCountry, openDfxServices } = useDFXAPIContext();
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>();
 
   const [isLoadingKycInfo, setIsLoadingKycInfo] = useState<boolean>();
@@ -97,6 +98,12 @@ export function DfxButtons(): JSX.Element {
     })();
   }
 
+  const isAllowed = () => {
+    if (!isNotAllowedInCountry) return true;
+    WalletAlertNotAvailableInCountry('DFX');
+    return false;
+  };
+
   const buttons: DfxButton[] = [
     {
       Svg: BuyIcon,
@@ -105,7 +112,7 @@ export function DfxButtons(): JSX.Element {
         // check kycData
         // DEACTIVATED (next line)
         // checkUserProfile('Buy')
-        navigation.navigate('Buy');
+        if (isAllowed()) navigation.navigate('Buy');
       },
     },
     {
@@ -113,7 +120,7 @@ export function DfxButtons(): JSX.Element {
       label: 'Sell',
       onPress: () => {
         // check kycData
-        checkUserProfile('Sell');
+        if (isAllowed()) checkUserProfile('Sell');
       },
     },
     {
@@ -121,11 +128,12 @@ export function DfxButtons(): JSX.Element {
       label: 'Deposit Bitcoin',
       onPress: () => {
         // TODO: (thabrad) maybe will need to do kycCheck here in future
-        navigation.navigate({
-          name: 'ReceiveDTokenScreen',
-          params: { crypto: CryptoButtonGroupTabKey.BTC },
-          merge: true,
-        });
+        if (isAllowed())
+          navigation.navigate({
+            name: 'ReceiveDTokenScreen',
+            params: { crypto: CryptoButtonGroupTabKey.BTC },
+            merge: true,
+          });
       },
     },
     {

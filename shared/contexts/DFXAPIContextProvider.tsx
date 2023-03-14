@@ -35,6 +35,7 @@ import { SellRoute } from '@shared-api/dfx/models/SellRoute';
 import { Country } from '@shared-api/dfx/models/Country';
 import { getReleaseChannel } from '@api/releaseChannel';
 import { Logging } from '@api';
+import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 
 export interface DFXAPIContextI {
   openDfxServices: () => Promise<void>;
@@ -48,6 +49,7 @@ export interface DFXAPIContextI {
   debouncedAddress?: string;
   isNotAllowedInCountry: boolean;
   LOCKisNotAllowedInCountry: boolean;
+  getUnavailableServices: () => string;
 }
 
 const DFXAPIContext = createContext<DFXAPIContextI>(undefined as any);
@@ -95,6 +97,10 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
 
   const checkLoginAndRouteTo = async (url?: string): Promise<void> => {
     Logging.info('checkLoginAndRouteTo');
+    if (isNotAllowedInCountry) {
+      WalletAlertNotAvailableInCountry('DFX');
+      return;
+    }
     await getActiveWebToken()
       .catch(async () => {
         // try login first
@@ -385,6 +391,8 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
     debouncedAddress,
     isNotAllowedInCountry,
     LOCKisNotAllowedInCountry,
+    getUnavailableServices: () =>
+      isNotAllowedInCountry && LOCKisNotAllowedInCountry ? 'DFX & LOCK' : LOCKisNotAllowedInCountry ? 'LOCK' : 'DFX',
   };
 
   // observe address state change
