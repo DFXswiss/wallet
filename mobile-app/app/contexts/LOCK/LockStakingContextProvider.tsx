@@ -143,14 +143,14 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   // TODO: check for possible refactor to dispatch / component lifecycle-independence
   useEffect(() => {
     if (transaction?.tx?.txId != null && transactionCache != null) {
-      LOCKdeposit(info?.id ?? 0, {
+      LOCKdeposit(transactionCache.stakingId, {
         asset: transactionCache.token.symbol,
         amount: transactionCache.amount,
         txId: transaction.tx.txId,
       })
         .then(setInfo)
-        .then(() => setTransactionCache(undefined))
-        .catch(WalletAlertErrorApi);
+        .catch(WalletAlertErrorApi)
+        .finally(() => setTransactionCache(undefined));
     }
   }, [transaction, transactionCache]);
 
