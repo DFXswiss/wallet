@@ -1,27 +1,27 @@
-import { View } from '@components'
-import { BottomSheetInfo } from '@components/BottomSheetInfo'
-import { ThemedText } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import NumberFormat from 'react-number-format'
-import { ActiveUSDValue } from '../../Loans/VaultDetail/components/ActiveUSDValue'
-import BigNumber from 'bignumber.js'
-import { StyleProp, TextStyle } from 'react-native'
+import { View } from '@components';
+import { BottomSheetInfo } from '@components/BottomSheetInfo';
+import { ThemedText } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { ActiveUSDValue } from '../../Loans/VaultDetail/components/ActiveUSDValue';
+import BigNumber from 'bignumber.js';
+import { StyleProp, TextStyle } from 'react-native';
 
 interface MinNextBidTextRowProps {
-  minNextBidInToken: string
-  minNextBidInUSD: string
-  displaySymbol: string
-  labelTextStyle?: StyleProp<TextStyle>
-  valueTextStyle?: StyleProp<TextStyle>
-  testID?: string
+  minNextBidInToken: string;
+  minNextBidInUSD: string;
+  displaySymbol: string;
+  labelTextStyle?: StyleProp<TextStyle>;
+  valueTextStyle?: StyleProp<TextStyle>;
+  testID?: string;
 }
 
-export function MinNextBidTextRow (props: MinNextBidTextRowProps): JSX.Element {
+export function MinNextBidTextRow(props: MinNextBidTextRowProps): JSX.Element {
   const nextBidInfo = {
     title: 'Min. next bid',
-    message: 'The minimum bid a user must place in order to take part in the auction.'
-  }
+    message: 'The minimum bid a user must place in order to take part in the auction.',
+  };
 
   return (
     <View style={tailwind('flex-row w-full justify-between mb-2')}>
@@ -34,12 +34,16 @@ export function MinNextBidTextRow (props: MinNextBidTextRowProps): JSX.Element {
           {translate('components/BatchCard', 'Min. next bid')}
         </ThemedText>
         <View style={tailwind('ml-1')}>
-          <BottomSheetInfo alertInfo={nextBidInfo} name={nextBidInfo.title} infoIconStyle={[tailwind('text-xs'), props.labelTextStyle]} />
+          <BottomSheetInfo
+            alertInfo={nextBidInfo}
+            name={nextBidInfo.title}
+            infoIconStyle={[tailwind('text-xs'), props.labelTextStyle]}
+          />
         </View>
       </View>
       <View style={tailwind('flex items-end flex-1')}>
         <NumberFormat
-          displayType='text'
+          displayType="text"
           suffix={` ${props.displaySymbol}`}
           renderText={(value: string) => (
             <ThemedText
@@ -60,5 +64,5 @@ export function MinNextBidTextRow (props: MinNextBidTextRowProps): JSX.Element {
         />
       </View>
     </View>
-  )
+  );
 }

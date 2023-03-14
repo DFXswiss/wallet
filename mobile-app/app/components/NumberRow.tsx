@@ -1,38 +1,38 @@
-import { StyleProp, TextStyle, View, ViewProps, Text, ViewStyle } from 'react-native'
-import NumberFormat from 'react-number-format'
-import BigNumber from 'bignumber.js'
-import { tailwind } from '@tailwind'
-import { ThemedProps, ThemedText, ThemedView } from './themed'
-import { BottomSheetAlertInfo, BottomSheetInfo } from './BottomSheetInfo'
-import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue'
-import { IconTooltip } from './tooltip/IconTooltip'
+import { StyleProp, TextStyle, View, ViewProps, Text, ViewStyle } from 'react-native';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import BigNumber from 'bignumber.js';
+import { tailwind } from '@tailwind';
+import { ThemedProps, ThemedText, ThemedView } from './themed';
+import { BottomSheetAlertInfo, BottomSheetInfo } from './BottomSheetInfo';
+import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue';
+import { IconTooltip } from './tooltip/IconTooltip';
 
-type INumberRowProps = React.PropsWithChildren<ViewProps> & NumberRowProps
-export type SuffixType = 'text' | 'component'
+type INumberRowProps = React.PropsWithChildren<ViewProps> & NumberRowProps;
+export type SuffixType = 'text' | 'component';
 
 interface NumberRowProps extends ThemedProps {
-  lhs: string
-  rhs: NumberRowElement
-  rhsUsdAmount?: BigNumber
-  info?: BottomSheetAlertInfo
-  textStyle?: StyleProp<TextStyle>
-  lhsThemedProps?: ThemedProps // TODO: change lhs to type NumberRowElement, move themedprops into NumberRowElement
-  rhsThemedProps?: ThemedProps
-  lhsStyle?: StyleProp<ViewStyle>
-  isOraclePrice?: boolean
+  lhs: string;
+  rhs: NumberRowElement;
+  rhsUsdAmount?: BigNumber;
+  info?: BottomSheetAlertInfo;
+  textStyle?: StyleProp<TextStyle>;
+  lhsThemedProps?: ThemedProps; // TODO: change lhs to type NumberRowElement, move themedprops into NumberRowElement
+  rhsThemedProps?: ThemedProps;
+  lhsStyle?: StyleProp<ViewStyle>;
+  isOraclePrice?: boolean;
 }
 
 export interface NumberRowElement {
-  value: string | number
-  suffix?: string
-  testID: string
-  suffixType?: SuffixType
-  prefix?: string
-  style?: StyleProp<ViewProps>
+  value: string | number;
+  suffix?: string;
+  testID: string;
+  suffixType?: SuffixType;
+  prefix?: string;
+  style?: StyleProp<ViewProps>;
 }
 
-export function NumberRow (props: INumberRowProps): JSX.Element {
-  const rhsStyle = [tailwind('text-sm text-right'), props.textStyle, props.rhs.style]
+export function NumberRow(props: INumberRowProps): JSX.Element {
+  const rhsStyle = [tailwind('text-sm text-right'), props.textStyle, props.rhs.style];
   return (
     <ThemedView
       dark={props.dark ?? tailwind('bg-dfxblue-800 border-b border-dfxblue-900')}
@@ -48,9 +48,13 @@ export function NumberRow (props: INumberRowProps): JSX.Element {
           >
             {props.lhs}
           </ThemedText>
-          {(props.info != null) && (
+          {props.info != null && (
             <View style={tailwind('ml-1')}>
-              <BottomSheetInfo alertInfo={props.info} name={props.info.title} infoIconStyle={[tailwind('text-sm'), props.textStyle]} />
+              <BottomSheetInfo
+                alertInfo={props.info}
+                name={props.info.title}
+                infoIconStyle={[tailwind('text-sm'), props.textStyle]}
+              />
             </View>
           )}
         </View>
@@ -61,7 +65,7 @@ export function NumberRow (props: INumberRowProps): JSX.Element {
           <View style={tailwind('flex flex-row justify-end flex-wrap items-center')}>
             <NumberFormat
               decimalScale={8}
-              displayType='text'
+              displayType="text"
               prefix={props.rhs.prefix}
               renderText={(val: string) => (
                 <Text style={rhsStyle}>
@@ -74,21 +78,20 @@ export function NumberRow (props: INumberRowProps): JSX.Element {
                   >
                     {val}
                   </ThemedText>
-                  {
-                    props.rhs.suffixType === 'text' &&
-                      <>
-                        <Text>{' '}</Text>
-                        <ThemedText
-                          light={tailwind('text-dfxgray-500')}
-                          dark={tailwind('text-dfxgray-400')}
-                          style={[tailwind('text-sm ml-1'), props.textStyle, props.rhs.style]}
-                          testID={`${props.rhs.testID}_suffix`}
-                          {...props.rhsThemedProps}
-                        >
-                          {props.rhs.suffix}
-                        </ThemedText>
-                      </>
-                  }
+                  {props.rhs.suffixType === 'text' && (
+                    <>
+                      <Text> </Text>
+                      <ThemedText
+                        light={tailwind('text-dfxgray-500')}
+                        dark={tailwind('text-dfxgray-400')}
+                        style={[tailwind('text-sm ml-1'), props.textStyle, props.rhs.style]}
+                        testID={`${props.rhs.testID}_suffix`}
+                        {...props.rhsThemedProps}
+                      >
+                        {props.rhs.suffix}
+                      </ThemedText>
+                    </>
+                  )}
                 </Text>
               )}
               thousandSeparator
@@ -96,26 +99,18 @@ export function NumberRow (props: INumberRowProps): JSX.Element {
             />
           </View>
         </View>
-        {
-          props.rhs.suffixType === 'component' &&
-          (props.children)
-        }
+        {props.rhs.suffixType === 'component' && props.children}
         <View style={tailwind('flex flex-row justify-end flex-wrap items-center')}>
-          {
-            props.rhsUsdAmount !== undefined &&
-              <ActiveUSDValue
-                price={props.rhsUsdAmount}
-                containerStyle={tailwind('justify-end')}
-                testId={`${props.rhs.testID}_rhsUsdAmount`}
-              />
-          }
-          {
-            props.isOraclePrice === true && (
-              <IconTooltip />
-            )
-          }
+          {props.rhsUsdAmount !== undefined && (
+            <ActiveUSDValue
+              price={props.rhsUsdAmount}
+              containerStyle={tailwind('justify-end')}
+              testId={`${props.rhs.testID}_rhsUsdAmount`}
+            />
+          )}
+          {props.isOraclePrice === true && <IconTooltip />}
         </View>
       </View>
     </ThemedView>
-  )
+  );
 }

@@ -1,61 +1,56 @@
-import { FeeInfoRow } from '@components/FeeInfoRow'
-import { NumberRow } from '@components/NumberRow'
-import { TextRow } from '@components/TextRow'
-import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed'
-import BigNumber from 'bignumber.js'
-import { StackScreenProps } from '@react-navigation/stack'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import React from 'react'
-import { View } from 'react-native'
-import { LoanParamList } from '../LoansNavigator'
-import { SymbolIcon } from '@components/SymbolIcon'
-import NumberFormat from 'react-number-format'
-import { SubmitButtonGroup } from '@components/SubmitButtonGroup'
-import { useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { hasTxQueued } from '@store/transaction_queue'
-import { hasTxQueued as hasBroadcastQueued } from '@store/ocean'
+import { FeeInfoRow } from '@components/FeeInfoRow';
+import { NumberRow } from '@components/NumberRow';
+import { TextRow } from '@components/TextRow';
+import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed';
+import BigNumber from 'bignumber.js';
+import { StackScreenProps } from '@react-navigation/stack';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import React from 'react';
+import { View } from 'react-native';
+import { LoanParamList } from '../LoansNavigator';
+import { SymbolIcon } from '@components/SymbolIcon';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { SubmitButtonGroup } from '@components/SubmitButtonGroup';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store';
+import { hasTxQueued } from '@store/transaction_queue';
+import { hasTxQueued as hasBroadcastQueued } from '@store/ocean';
 
-type Props = StackScreenProps<LoanParamList, 'ConfirmAddCollateralScreen'>
+type Props = StackScreenProps<LoanParamList, 'ConfirmAddCollateralScreen'>;
 
-export function ConfirmAddCollateralScreen ({ route, navigation }: Props): JSX.Element {
-  const {
-    vaultId,
-    collaterals,
-    totalCollateralValue,
-    fee
-  } = route.params
-  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
-  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
+export function ConfirmAddCollateralScreen({ route, navigation }: Props): JSX.Element {
+  const { vaultId, collaterals, totalCollateralValue, fee } = route.params;
+  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
+  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
 
-  function onCancel (): void {
+  function onCancel(): void {
     navigation.navigate({
       name: 'AddCollateralScreen',
       params: {
-        vaultId
+        vaultId,
       },
-      merge: true
-    })
+      merge: true,
+    });
   }
 
-  async function onSubmit (): Promise<void> {
+  async function onSubmit(): Promise<void> {
     // TODO: create signer to add collateral, remove custom navigation below
     navigation.navigate({
       name: 'VaultDetailScreen',
       params: {
         vaultId: vaultId,
-        emptyActiveLoans: false
+        emptyActiveLoans: false,
       },
-      merge: true
-    })
+      merge: true,
+    });
   }
 
-  function getSubmitLabel (): string {
+  function getSubmitLabel(): string {
     if (hasPendingBroadcastJob || hasPendingJob) {
-      return 'ADDING'
+      return 'ADDING';
     }
-    return 'CONFIRM ADD COLLATERAL'
+    return 'CONFIRM ADD COLLATERAL';
   }
 
   return (
@@ -66,18 +61,17 @@ export function ConfirmAddCollateralScreen ({ route, navigation }: Props): JSX.E
         totalCollateralValue={totalCollateralValue}
         fee={fee}
       />
-      {collaterals.map((collateral, index) =>
-        (
-          <CollateralSection
-            key={collateral.collateralId}
-            index={index}
-            collateralId={collateral.collateralId}
-            collateralAmount={collateral.amount}
-            collateralValue={collateral.amountValue}
-            collateralizationFactor={collateral.collateralFactor}
-            vaultProportion={collateral.vaultProportion}
-          />
-        ))}
+      {collaterals.map((collateral, index) => (
+        <CollateralSection
+          key={collateral.collateralId}
+          index={index}
+          collateralId={collateral.collateralId}
+          collateralAmount={collateral.amount}
+          collateralValue={collateral.amountValue}
+          collateralizationFactor={collateral.collateralFactor}
+          vaultProportion={collateral.vaultProportion}
+        />
+      ))}
       <SubmitButtonGroup
         isDisabled={hasPendingJob || hasPendingBroadcastJob}
         label={translate('screens/ConfirmAddCollateralScreen', 'CONFIRM ADD COLLATERAL')}
@@ -85,24 +79,20 @@ export function ConfirmAddCollateralScreen ({ route, navigation }: Props): JSX.E
         processingLabel={translate('screens/ConfirmAddCollateralScreen', getSubmitLabel())}
         onCancel={onCancel}
         onSubmit={onSubmit}
-        title='create_vault'
+        title="create_vault"
       />
     </ThemedScrollView>
-  )
+  );
 }
 
-function SummaryHeader (props: {vaultId: string}): JSX.Element {
+function SummaryHeader(props: { vaultId: string }): JSX.Element {
   return (
     <ThemedView
       dark={tailwind('bg-dfxblue-800 border-b border-dfxblue-900')}
       light={tailwind('bg-white border-b border-dfxgray-300')}
       style={tailwind('flex-col px-4 py-6')}
     >
-      <ThemedText
-        light={tailwind('text-dfxgray-500')}
-        dark={tailwind('text-dfxgray-400')}
-        style={tailwind('mb-2')}
-      >
+      <ThemedText light={tailwind('text-dfxgray-500')} dark={tailwind('text-dfxgray-400')} style={tailwind('mb-2')}>
         {translate('screens/ConfirmAddCollateralScreen', 'You are adding collaterals to')}
       </ThemedText>
       <View style={tailwind('flex flex-row items-center')}>
@@ -112,8 +102,8 @@ function SummaryHeader (props: {vaultId: string}): JSX.Element {
           style={tailwind('w-8 h-8 rounded-full flex items-center justify-center mr-2')}
         >
           <ThemedIcon
-            iconType='MaterialIcons'
-            name='shield'
+            iconType="MaterialIcons"
+            name="shield"
             size={14}
             light={tailwind('text-gray-600')}
             dark={tailwind('text-dfxgray-300')}
@@ -128,20 +118,22 @@ function SummaryHeader (props: {vaultId: string}): JSX.Element {
         </ThemedText>
       </View>
     </ThemedView>
-  )
+  );
 }
 
-function SummaryTransactionDetails (props: {tokensToAdd: number, totalCollateralValue: BigNumber, fee: BigNumber}): JSX.Element {
+function SummaryTransactionDetails(props: {
+  tokensToAdd: number;
+  totalCollateralValue: BigNumber;
+  fee: BigNumber;
+}): JSX.Element {
   return (
     <>
-      <ThemedSectionTitle
-        text={translate('screens/ConfirmAddCollateralScreen', 'TRANSACTION DETAILS')}
-      />
+      <ThemedSectionTitle text={translate('screens/ConfirmAddCollateralScreen', 'TRANSACTION DETAILS')} />
       <TextRow
         lhs={translate('screens/ConfirmAddCollateralScreen', 'Transaction type')}
         rhs={{
           value: translate('screens/ConfirmAddCollateralScreen', 'Add collateral'),
-          testID: 'text_transaction_type'
+          testID: 'text_transaction_type',
         }}
         textStyle={tailwind('text-sm font-normal')}
       />
@@ -149,7 +141,7 @@ function SummaryTransactionDetails (props: {tokensToAdd: number, totalCollateral
         lhs={translate('screens/ConfirmAddCollateralScreen', 'Collateral tokens to add')}
         rhs={{
           value: props.tokensToAdd,
-          testID: 'tokens_to_add'
+          testID: 'tokens_to_add',
         }}
       />
       <NumberRow
@@ -157,29 +149,24 @@ function SummaryTransactionDetails (props: {tokensToAdd: number, totalCollateral
         rhs={{
           value: props.totalCollateralValue.toFixed(2),
           testID: 'total_collateral_value',
-          prefix: '$'
+          prefix: '$',
         }}
       />
-      <FeeInfoRow
-        type='ESTIMATED_FEE'
-        value={props.fee.toFixed(8)}
-        testID='estimated_fee'
-        suffix='DFI'
-      />
+      <FeeInfoRow type="ESTIMATED_FEE" value={props.fee.toFixed(8)} testID="estimated_fee" suffix="DFI" />
     </>
-  )
+  );
 }
 
 interface CollateralSectionProps {
-  index: number
-  collateralId: string
-  collateralizationFactor: BigNumber
-  collateralAmount: BigNumber
-  collateralValue: BigNumber
-  vaultProportion: BigNumber
+  index: number;
+  collateralId: string;
+  collateralizationFactor: BigNumber;
+  collateralAmount: BigNumber;
+  collateralValue: BigNumber;
+  vaultProportion: BigNumber;
 }
 
-function CollateralSection (props: CollateralSectionProps): JSX.Element {
+function CollateralSection(props: CollateralSectionProps): JSX.Element {
   return (
     <>
       <ThemedSectionTitle
@@ -189,7 +176,7 @@ function CollateralSection (props: CollateralSectionProps): JSX.Element {
         lhs={translate('screens/ConfirmAddCollateralScreen', 'Token')}
         rhs={{
           value: props.collateralId,
-          testID: 'text_token_id'
+          testID: 'text_token_id',
         }}
         textStyle={tailwind('text-sm font-normal')}
       />
@@ -199,7 +186,7 @@ function CollateralSection (props: CollateralSectionProps): JSX.Element {
           value: new BigNumber(props.collateralizationFactor).toFixed(2),
           testID: 'collateral_factor',
           suffixType: 'text',
-          suffix: '%'
+          suffix: '%',
         }}
       />
       <NumberRow
@@ -208,7 +195,7 @@ function CollateralSection (props: CollateralSectionProps): JSX.Element {
           value: new BigNumber(props.collateralAmount).toFixed(8),
           testID: 'collateral_amount',
           suffixType: 'text',
-          suffix: ` ${props.collateralId}`
+          suffix: ` ${props.collateralId}`,
         }}
       />
       <NumberRow
@@ -216,7 +203,7 @@ function CollateralSection (props: CollateralSectionProps): JSX.Element {
         rhs={{
           value: new BigNumber(props.collateralAmount).toFixed(2),
           testID: 'collateral_value',
-          prefix: '$'
+          prefix: '$',
         }}
       />
       <VaultProportionRow
@@ -225,10 +212,10 @@ function CollateralSection (props: CollateralSectionProps): JSX.Element {
         proportion={props.vaultProportion}
       />
     </>
-  )
+  );
 }
 
-function VaultProportionRow (props: {lhs: string, tokenId: string, proportion: BigNumber}): JSX.Element {
+function VaultProportionRow(props: { lhs: string; tokenId: string; proportion: BigNumber }): JSX.Element {
   return (
     <ThemedView
       dark={tailwind('bg-dfxblue-800 border-b border-dfxblue-900')}
@@ -236,9 +223,7 @@ function VaultProportionRow (props: {lhs: string, tokenId: string, proportion: B
       style={tailwind('p-4 flex-row items-start w-full justify-between')}
     >
       <View style={tailwind('w-5/12')}>
-        <ThemedText style={tailwind('text-sm')}>
-          {props.lhs}
-        </ThemedText>
+        <ThemedText style={tailwind('text-sm')}>{props.lhs}</ThemedText>
       </View>
 
       <ThemedView
@@ -250,18 +235,19 @@ function VaultProportionRow (props: {lhs: string, tokenId: string, proportion: B
         <NumberFormat
           value={props.proportion.toFixed(2)}
           decimalScale={2}
-          displayType='text'
-          suffix='%'
-          renderText={value =>
+          displayType="text"
+          suffix="%"
+          renderText={(value) => (
             <ThemedText
               light={tailwind('text-gray-700')}
               dark={tailwind('text-dfxgray-300')}
               style={tailwind('text-xs font-medium ml-1')}
             >
               {value}
-            </ThemedText>}
+            </ThemedText>
+          )}
         />
       </ThemedView>
     </ThemedView>
-  )
+  );
 }

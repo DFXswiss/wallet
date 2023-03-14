@@ -1,32 +1,31 @@
-import { useNetworkContext } from '@shared-contexts/NetworkContext'
-import { RootState } from '@store'
-import dayjs from 'dayjs'
-import { useSelector } from 'react-redux'
-import NumberFormat from 'react-number-format'
-import { TouchableOpacity, Linking } from 'react-native'
-import { View } from '@components/index'
-import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { TextRow } from '@components/TextRow'
-import { NumberRow } from '@components/NumberRow'
-import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext'
+import { useNetworkContext } from '@shared-contexts/NetworkContext';
+import { RootState } from '@store';
+import dayjs from 'dayjs';
+import { useSelector } from 'react-redux';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { TouchableOpacity, Linking } from 'react-native';
+import { View } from '@components/index';
+import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { TextRow } from '@components/TextRow';
+import { NumberRow } from '@components/NumberRow';
+import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext';
 
-export function NetworkDetails (): JSX.Element {
-  const { network } = useNetworkContext()
+export function NetworkDetails(): JSX.Element {
+  const { network } = useNetworkContext();
   const {
     connected,
     count: blockCount,
     masternodeCount,
-    lastSuccessfulSync
-  } = useSelector((state: RootState) => state.block)
-  const syncFormattedDate = (lastSuccessfulSync != null) ? dayjs(lastSuccessfulSync).format('lll') : ''
+    lastSuccessfulSync,
+  } = useSelector((state: RootState) => state.block);
+  const syncFormattedDate = lastSuccessfulSync != null ? dayjs(lastSuccessfulSync).format('lll') : '';
 
   return (
-    <ThemedScrollView testID='network_details'>
-
+    <ThemedScrollView testID="network_details">
       <ThemedSectionTitle
-        testID='network_details_current_connection'
+        testID="network_details_current_connection"
         text={translate('screens/NetworkDetails', 'YOU ARE CURRENTLY CONNECTED TO')}
       />
 
@@ -38,7 +37,7 @@ export function NetworkDetails (): JSX.Element {
       <NetworkStatusRow connected={connected} />
 
       <ThemedSectionTitle
-        testID='network_details_block_info'
+        testID="network_details_block_info"
         text={translate('screens/NetworkDetails', 'NETWORK DETAILS')}
       />
 
@@ -53,24 +52,22 @@ export function NetworkDetails (): JSX.Element {
         lhs={translate('screens/NetworkDetails', 'Total Masternodes')}
         rhs={{
           value: masternodeCount ?? '',
-          testID: 'network_details_total_masternodes'
+          testID: 'network_details_total_masternodes',
         }}
         textStyle={tailwind('font-medium text-base')}
       />
     </ThemedScrollView>
-  )
+  );
 }
 
-function NetworkStatusRow ({ connected }: {connected: boolean}): JSX.Element {
+function NetworkStatusRow({ connected }: { connected: boolean }): JSX.Element {
   return (
     <ThemedView
       dark={tailwind('bg-dfxblue-800 border-b border-dfxblue-900')}
       light={tailwind('bg-white border-b border-gray-200')}
       style={tailwind('flex flex-row p-4 items-center justify-between w-full')}
     >
-      <ThemedText style={tailwind('font-medium')}>
-        {translate('screens/NetworkDetails', 'Status')}
-      </ThemedText>
+      <ThemedText style={tailwind('font-medium')}>{translate('screens/NetworkDetails', 'Status')}</ThemedText>
 
       <ThemedView
         dark={tailwind('text-dfxgray-400')}
@@ -79,30 +76,30 @@ function NetworkStatusRow ({ connected }: {connected: boolean}): JSX.Element {
       >
         <View
           style={tailwind(`h-3 w-3 rounded-full ${connected ? 'bg-green-500' : 'bg-red-500'} mr-1.5`)}
-          testID='network_details_status_icon'
+          testID="network_details_status_icon"
         />
         <ThemedText
           dark={tailwind('text-dfxgray-400')}
           light={tailwind('text-dfxgray-500')}
           style={[tailwind('font-medium text-right'), { lineHeight: 20 }]}
-          testID='network_details_status_value'
+          testID="network_details_status_value"
         >
           {translate('screens/NetworkDetails', connected ? 'Connected' : 'Disconnected')}
         </ThemedText>
       </ThemedView>
     </ThemedView>
-  )
+  );
 }
 
-function BlocksInfoRow ({ blockCount }: {blockCount?: number}): JSX.Element {
-  const { getBlocksUrl } = useDeFiScanContext()
+function BlocksInfoRow({ blockCount }: { blockCount?: number }): JSX.Element {
+  const { getBlocksUrl } = useDeFiScanContext();
 
   const onBlockUrlPressed = async (): Promise<void> => {
     if (blockCount !== undefined) {
-      const url = getBlocksUrl(blockCount)
-      await Linking.openURL(url)
+      const url = getBlocksUrl(blockCount);
+      await Linking.openURL(url);
     }
-  }
+  };
 
   return (
     <ThemedView
@@ -110,37 +107,32 @@ function BlocksInfoRow ({ blockCount }: {blockCount?: number}): JSX.Element {
       light={tailwind('bg-white border-b border-gray-200')}
       style={tailwind('flex flex-row p-4 items-center justify-between w-full')}
     >
-      <ThemedText style={tailwind('font-medium')}>
-        {translate('screens/NetworkDetails', 'Block height')}
-      </ThemedText>
+      <ThemedText style={tailwind('font-medium')}>{translate('screens/NetworkDetails', 'Block height')}</ThemedText>
       <View style={tailwind('flex-row items-center')}>
-        <TouchableOpacity
-          onPress={onBlockUrlPressed}
-          testID='block_detail_explorer_url'
-        >
+        <TouchableOpacity onPress={onBlockUrlPressed} testID="block_detail_explorer_url">
           <View style={tailwind('flex-row items-center')}>
             <NumberFormat
               decimalScale={8}
-              displayType='text'
+              displayType="text"
               renderText={(val: string) => (
                 <ThemedText
                   dark={tailwind('text-dfxred-500')}
                   light={tailwind('text-primary-500')}
                   style={tailwind('flex-wrap font-medium text-right text-dfxgray-500')}
-                  testID='network_details_block_height'
+                  testID="network_details_block_height"
                 >
                   {val}
                 </ThemedText>
-            )}
+              )}
               thousandSeparator
               value={blockCount}
             />
             <View style={tailwind('ml-2 flex-grow-0 justify-center')}>
               <ThemedIcon
                 dark={tailwind('text-dfxred-500')}
-                iconType='MaterialIcons'
+                iconType="MaterialIcons"
                 light={tailwind('text-primary-500')}
-                name='open-in-new'
+                name="open-in-new"
                 size={24}
               />
             </View>
@@ -148,5 +140,5 @@ function BlocksInfoRow ({ blockCount }: {blockCount?: number}): JSX.Element {
         </TouchableOpacity>
       </View>
     </ThemedView>
-  )
+  );
 }
