@@ -7,5 +7,6 @@ export interface TransactionCache {
   depositAddress: string;
   token: WalletToken;
   network: NetworkName;
+  stakingId: number;
   transaction?: OceanTransaction;
 }
