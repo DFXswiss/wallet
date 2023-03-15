@@ -27,6 +27,8 @@ import { ConversionMode } from './ConvertScreen';
 import { useSelector } from 'react-redux';
 import { RootState } from '@store';
 import { getAssets } from '@shared-api/dfx/ApiService';
+import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
+import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 
 interface TokenActionItems {
   title: string;
@@ -87,6 +89,7 @@ const usePoolPairToken = (
 export function TokenDetailScreen({ route, navigation }: Props): JSX.Element {
   const DFIUnified = useSelector((state: RootState) => unifiedDFISelector(state.wallet));
   const { pair, token, swapTokenDisplaySymbol } = usePoolPairToken(route.params.token);
+  const { isNotAllowedInCountry } = useDFXAPIContext();
   const [isSellable, setIsSellable] = useState(false);
   const [isBuyable, setIsBuyable] = useState(false);
 
@@ -137,6 +140,12 @@ export function TokenDetailScreen({ route, navigation }: Props): JSX.Element {
     });
   };
 
+  const isAllowed = () => {
+    if (!isNotAllowedInCountry) return true;
+    WalletAlertNotAvailableInCountry('DFX');
+    return false;
+  };
+
   return (
     <ThemedScrollView>
       <TokenSummary token={token} />
@@ -152,6 +161,7 @@ export function TokenDetailScreen({ route, navigation }: Props): JSX.Element {
               icon="bank" // {BtnSell} // TODO: add + implement custom icon
               iconType="MaterialCommunityIcons"
               onPress={() =>
+                isAllowed() &&
                 navigation.navigate({
                   name: 'Buy',
                   params: { token },
@@ -167,6 +177,7 @@ export function TokenDetailScreen({ route, navigation }: Props): JSX.Element {
             <TokenActionRow
               icon="money" // {BtnSell} // TODO: add + implement custom icon
               onPress={() =>
+                isAllowed() &&
                 navigation.navigate({
                   name: 'Sell',
                   params: { token },
