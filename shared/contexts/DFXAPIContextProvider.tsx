@@ -96,7 +96,6 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
   };
 
   const checkLoginAndRouteTo = async (url?: string): Promise<void> => {
-    Logging.info('checkLoginAndRouteTo');
     if (isNotAllowedInCountry) {
       WalletAlertNotAvailableInCountry('DFX');
       return;
@@ -104,7 +103,6 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
     await getActiveWebToken()
       .catch(async () => {
         // try login first
-        Logging.info('catch of checkLoginAndRouteTo');
         await activePairHandler({ network: networkName, addr: address });
         return await getActiveWebToken().catch(() => {});
       })
@@ -131,7 +129,6 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
 
   // returns webtoken string of current active Wallet address
   const getActiveWebToken = async (): Promise<string> => {
-    Logging.info('getActiveWebToken');
     let webToken = await DFXPersistence.getToken(address);
 
     // TODO: (thabrad) quick fix - recheck
@@ -355,7 +352,6 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
 
   // create/update DFX addr signature pair
   const activePairHandler = async (pair: DFXAddrSignature): Promise<void> => {
-    Logging.info('activePairHandler');
     // - do we have a signature?
     if (pair.signature === undefined || pair.signature.length === 0) {
       await createSignature(pair.addr).catch(logger.error);
@@ -400,18 +396,15 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
     Logging.info(`debouncedAddress changed ${debouncedAddress} (previous: ${previousDebouncedAddress})`);
     setPreviousDebouncedAddress(debouncedAddress);
     if (!previousDebouncedAddress || previousDebouncedAddress === debouncedAddress) {
-      Logging.info('\tearly return');
       return;
     }
     getActiveWebToken()
       .then(() =>
         DFXPersistence.getPair(debouncedAddress)
           .then(async (pair) => {
-            Logging.info('then of useEffect');
             await activePairHandler(pair).catch(() => {});
           })
           .catch(async () => {
-            Logging.info('catch of useEffect');
             await activePairHandler({
               network: networkName,
               addr: debouncedAddress,

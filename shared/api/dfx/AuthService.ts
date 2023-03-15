@@ -82,9 +82,6 @@ class AuthServiceClass {
     }
 
     const session = new Session(await StorageService.getValue<ISession>(AuthServiceClass.SessionKey(forApiDomain)));
-    // console.log('\n\nforApiDomain: ', forApiDomain)
-    // console.log(session)
-    Logging.info(`Session ${forApiDomain} ${session.accessToken} ${session.address}`);
     if (
       session.isExpired ||
       session.address !== this.dfxApiHook?.debouncedAddress ||
@@ -109,7 +106,6 @@ class AuthServiceClass {
   }
 
   public async deleteSession(forApiDomain?: ApiDomain): Promise<void> {
-    Logging.info('delete session');
     return await this.updateSession({ accessToken: undefined }, forApiDomain);
   }
 

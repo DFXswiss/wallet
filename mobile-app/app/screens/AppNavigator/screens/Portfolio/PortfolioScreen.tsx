@@ -184,15 +184,11 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const [previousDebounced, setPreviousDebounced] = useState<{ debouncedAddress?: string; networkName: string }>();
 
   useEffect(() => {
-    Logging.info(
-      `portfolio debounced address changed ${extraDebouncedAddress} (previous: ${previousDebounced?.debouncedAddress})`,
-    );
     setPreviousDebounced({ debouncedAddress: extraDebouncedAddress, networkName });
     if (
       !previousDebounced ||
       (previousDebounced.debouncedAddress === extraDebouncedAddress && previousDebounced.networkName === networkName)
     ) {
-      Logging.info('\tearly return');
       return;
     }
     fetchDfxStakingBalance();
