@@ -106,7 +106,9 @@
     "A to Z": "A bis Z",
     "Z to A": "Z bis A",
     "AVAILABLE ASSETS": "VERFÜGBARE AKTIVA",
-    "Asset value": "Wert der Aktiva"
+    "Asset value": "Wert der Aktiva",
+    "Availability": "Verfügbarkeit",
+    "Unfortunately, {{service}} service is not available in your country.": "Leider ist der {{service}} Service in deinem Land nicht verfügbar."
   },
   "screens/GetDFIScreen": {
     "Get DFI": "DFI erhalten",
