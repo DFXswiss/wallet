@@ -8,15 +8,17 @@ import { MaterialIcons } from '@expo/vector-icons';
 import { ThemedCheckbox } from '@components/themed/ThemedCheckbox';
 import { Button } from '@components/Button';
 import { useState } from 'react';
+import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 
 type Props = StackScreenProps<SettingsParamList, 'RecoveryWordsScreen'>;
 
 export function RecoveryWordsScreen({ route, navigation }: Props): JSX.Element {
-  const { words } = route.params;
+  const { words, needsToAccept } = route.params;
+  const { verifiedBackup } = useDFXAPIContext();
   const [isAccepted, setIsAccpted] = useState(false);
 
   const handleContinue = (): void => {
-    // TODO persist isAccepted
+    isAccepted && verifiedBackup();
     // pops to top, which in current case is the explanation screen
     navigation.popToTop();
     // pop explanation screen to go back to portfolio
@@ -49,23 +51,25 @@ export function RecoveryWordsScreen({ route, navigation }: Props): JSX.Element {
           ))}
         </View>
       </View>
-      <View style={tailwind('flex flex-grow flex-col items-center justify-end')}>
-        <ThemedCheckbox
-          text={translate(
-            'screens/RecoveryWordsScreen',
-            'I understand that if I lose my recovery phrase, I will not be able to access my funds.',
-          )}
-          onChanged={setIsAccpted}
-        />
-        <View style={tailwind('flex flex-grow flex-row items-end')}>
-          <Button
-            onPress={handleContinue}
-            disabled={!isAccepted}
-            label={translate('components/Button', 'CONTINUE')}
-            grow
+      {needsToAccept && (
+        <View style={tailwind('flex flex-grow flex-col items-center justify-end')}>
+          <ThemedCheckbox
+            text={translate(
+              'screens/RecoveryWordsScreen',
+              'I understand that if I lose my recovery phrase, I will not be able to access my funds.',
+            )}
+            onChanged={setIsAccpted}
           />
+          <View style={tailwind('flex flex-grow flex-row items-end')}>
+            <Button
+              onPress={handleContinue}
+              disabled={!isAccepted}
+              label={translate('components/Button', 'CONTINUE')}
+              grow
+            />
+          </View>
         </View>
-      </View>
+      )}
     </ScrollView>
   );
 }

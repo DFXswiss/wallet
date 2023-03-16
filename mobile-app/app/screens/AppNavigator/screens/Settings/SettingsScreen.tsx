@@ -54,7 +54,7 @@ export function SettingsScreen({ navigation }: Props): JSX.Element {
       onAuthenticated: async (words) => {
         navigation.navigate({
           name: 'RecoveryWordsScreen',
-          params: { words },
+          params: { words, needsToAccept: false },
           merge: true,
         });
       },

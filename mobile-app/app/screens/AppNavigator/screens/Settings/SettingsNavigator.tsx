@@ -27,7 +27,7 @@ import { BackupExplanation } from './screens/BackupExplanation';
 export interface SettingsParamList {
   SettingsScreen: undefined;
   CommunityScreen: undefined;
-  RecoveryWordsScreen: { words: string[] };
+  RecoveryWordsScreen: { words: string[]; needsToAccept: boolean };
   ChangePinScreen: { pinLength: number; words: string[] };
   ConfirmPinScreen: { pin: string; words: string[] };
   ServiceProviderScreen: {};
