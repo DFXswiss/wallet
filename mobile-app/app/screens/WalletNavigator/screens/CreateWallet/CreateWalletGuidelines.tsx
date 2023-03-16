@@ -12,6 +12,7 @@ import { openURL } from '@api/linking';
 import SvgSign from '@assets/images/onboarding/x.svg';
 import { MnemonicUnprotected } from '@api/wallet';
 import { ThemedCheckbox } from '@components/themed/ThemedCheckbox';
+import { DFXPersistence } from '@api/persistence/dfx_storage';
 
 type Props = StackScreenProps<WalletParamList, 'CreateWalletGuidelines'>;
 
@@ -21,6 +22,7 @@ export function CreateWalletGuidelines({ navigation }: Props): JSX.Element {
   const [isTermsEnabled, setIsTermsEnabled] = useState(false);
 
   function navigateToPinCreation(): void {
+    DFXPersistence.removeVerifiedBackup();
     navigation.navigate({
       name: 'PinCreation',
       params: {

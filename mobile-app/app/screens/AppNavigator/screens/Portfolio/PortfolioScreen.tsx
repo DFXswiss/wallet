@@ -55,7 +55,6 @@ import { LockStakingCard } from './LOCK/LockStakingCard';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 import { BackupSeedWarning } from '@components/BackupSeedWarning';
-import { DFXPersistence } from '@api/persistence/dfx_storage';
 import { Logging } from '@api';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
