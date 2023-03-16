@@ -606,8 +606,8 @@
     "Keep the passcode for your wallet confidential.": "Gardez le code d'accès de votre portefeuille confidentiel."
   },
   "screens/PinCreation": {
-    "Well done! Your wallet is created. Keep your wallet private and secure by creating a passcode for it.": "Bravo ! Votre portefeuille est créé. Gardez votre portefeuille privé et sécurisé en créant un code d'accès pour celui-ci.",
-    "Well done! Your wallet is restored. Keep your wallet private and secure by creating a passcode for it.": "Bravo ! Votre portefeuille est restauré. Gardez votre portefeuille privé et sécurisé en créant un code d'accès pour celui-ci.",
+    "Well done! Your wallet is created.": "Bravo ! Votre portefeuille est créé.",
+    "Well done! Your wallet is restored.": "Bravo ! Votre portefeuille est restauré.",
     "Keep your passcode private": "Gardez votre code d'accès secret.",
     "CREATE PASSCODE": "CRÉER UN CODE D'ACCÈS",
     "CHANGE PASSCODE": "CHANGER LE CODE D'ACCÈS",
@@ -943,6 +943,7 @@
     "Transaction signed": "Transaction signée"
   },
   "components/CreateWalletIndicator": {
+    "Create": "Créer",
     "Recovery": "Restauration",
     "Verify": "Vérifiez",
     "Secure": "Sécurisez",
