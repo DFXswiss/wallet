@@ -52,10 +52,11 @@ import { from, defer } from 'rxjs';
 import { map, retry } from 'rxjs/operators';
 import { useNetworkContext } from '@shared-contexts/NetworkContext';
 import { LockStakingCard } from './LOCK/LockStakingCard';
-import { Logging } from '@api';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 import { BackupSeedWarning } from '@components/BackupSeedWarning';
+import { DFXPersistence } from '@api/persistence/dfx_storage';
+import { Logging } from '@api';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
 
@@ -64,8 +65,13 @@ export interface PortfolioRowToken extends WalletToken {
 }
 
 export function PortfolioScreen({ navigation }: Props): JSX.Element {
-  const { debouncedAddress, isNotAllowedInCountry, LOCKisNotAllowedInCountry, getUnavailableServices } =
-    useDFXAPIContext();
+  const {
+    debouncedAddress,
+    isNotAllowedInCountry,
+    LOCKisNotAllowedInCountry,
+    getUnavailableServices,
+    hasVerifiedBackup,
+  } = useDFXAPIContext();
   const { isLight } = useThemeContext();
   const isFocused = useIsFocused();
   const height = useBottomTabBarHeight();
@@ -85,6 +91,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const dispatch = useAppDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [isZeroBalance, setIsZeroBalance] = useState(true);
+  const [hasLoadedBalance, setHasLoadedBalance] = useState(false);
   const hasPendingFutureSwap = useSelector((state: RootState) => hasFutureSwap(state.futureSwaps));
   const { hasFetchedToken, allTokens } = useSelector((state: RootState) => state.wallet);
   const ref = useRef(null);
@@ -141,6 +148,11 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
       dispatch(fetchLoanTokens({ client }));
     });
   }, []);
+
+  const showsBackupVerify = useMemo(() => {
+    if (!hasLoadedBalance) return false;
+    return !hasVerifiedBackup && !isZeroBalance;
+  }, [isZeroBalance, hasLoadedBalance, hasVerifiedBackup]);
 
   function getUserDetailWithRetry() {
     defer(() => {
@@ -432,6 +444,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
 
   useEffect(() => {
     setIsZeroBalance(!tokens.some((token) => new BigNumber(token.amount).isGreaterThan(0)));
+    setHasLoadedBalance(true);
   }, [tokens]);
 
   const assetSortBottomSheetScreen = useMemo(() => {
@@ -561,7 +574,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
         refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
       >
         <Announcements />
-        <BackupSeedWarning />
+        {showsBackupVerify && <BackupSeedWarning />}
         <DfxButtons />
         <TotalPortfolio
           totalAvailableValue={totalAvailableValue}

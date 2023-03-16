@@ -38,7 +38,7 @@ export function BackupExplanation(): JSX.Element {
       onAuthenticated: async (words) => {
         navigation.navigate({
           name: 'RecoveryWordsScreen',
-          params: { words },
+          params: { words, needsToAccept: true },
           merge: true,
         });
       },
