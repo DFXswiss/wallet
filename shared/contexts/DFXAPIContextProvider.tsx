@@ -58,7 +58,7 @@ export function useDFXAPIContext(): DFXAPIContextI {
   return useContext(DFXAPIContext);
 }
 
-export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element | null {
+export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | null {
   const { network, networkName } = useNetworkContext();
   const { data: providerData } = useWalletNodeContext();
   const logger = useLogger();
@@ -129,10 +129,8 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
 
   // returns webtoken string of current active Wallet address
   const getActiveWebToken = async (): Promise<string> => {
-    let webToken = await DFXPersistence.getToken(address);
-
-    // TODO: (thabrad) quick fix - recheck
-    webToken = '';
+    let webToken = await DFXPersistence.getToken(address).catch(() => {});
+    Logging.info(`${address} has token? ${webToken === undefined || webToken.length === 0 ? 'no' : 'yes'}`);
 
     if (webToken === undefined || webToken.length === 0) {
       await createWebToken(address);
@@ -243,9 +241,11 @@ export function DFXAPIContextProvider(props: PropsWithChildren<{}>): JSX.Element
   const createWebToken = async (address: string): Promise<void> => {
     if (isNotAllowedInCountry) return;
 
-    const pair = await DFXPersistence.getPair(address);
+    const pair = await DFXPersistence.getPair(address).catch(() => {
+      return { addr: address, signature: undefined };
+    });
     if (pair.signature === undefined || pair.signature.length === 0) {
-      await createSignature(address);
+      pair.signature = await createSignature(address);
     }
 
     // first try, sign up
