@@ -88,7 +88,11 @@ class AuthServiceClass {
       session.accessToken === undefined ||
       session.accessToken.length < 10
     ) {
-      // console.log('EXPIRED --> ')//, session)
+      Logging.info(
+        `session is expired (${session.isExpired}), non existent (${
+          session.accessToken === undefined || session.accessToken.length < 10
+        }) or from another address (${session.address !== this.dfxApiHook?.debouncedAddress})`,
+      );
       session.accessToken =
         forApiDomain === ApiDomain.LOCK
           ? await this.dfxApiHook?.LOCKcreateWebToken()
