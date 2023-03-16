@@ -109,7 +109,8 @@
     "AVAILABLE ASSETS": "ACTIFS DISPONIBLES",
     "Asset value": "Valeur des actifs",
     "Availability": "Disponibilité",
-    "Unfortunately, {{service}} service is not available in your country.": "Malheureusement, le service {{service}} n'est pas disponible dans votre pays."
+    "Unfortunately, {{service}} service is not available in your country.": "Malheureusement, le service {{service}} n'est pas disponible dans votre pays.",
+    "Backup not verified": "Sauvegarde non vérifiée"
   },
   "screens/GetDFIScreen": {
     "Get DFI": "Obtenir DFI",
@@ -707,8 +708,23 @@
     "Create new passcode for your wallet": "Créez un nouveau code d'accès pour votre portefeuille",
     "Keep the passcode for your wallet confidential.": "Gardez le code d'accès de votre portefeuille confidentiel."
   },
+  "screens/BackupExplanation": {
+    "Backup phrase": "Phrase de sauvegarde",
+    "Recovery phrase backup": "Récupération de la phrase de sauvegarde",
+    "Find a safe and private place. Set a pen and some paper to write down your recovery phrase.": "Trouvez un endroit sûr et privé. Mettez un stylo et du papier pour écrire votre phrase de récupération.",
+    "Secret words": "Mots secrets",
+    "Your recovery phrase is a list of 12 secret words in a predefined order that back up your private key.": "Votre phrase de récupération est une liste de 12 mots secrets dans un ordre prédéfini qui sauvegardent votre clé privée.",
+    "Unrestorable": "Unrestorable",
+    "if you lose your recovery phrase, you will de unable to access your funds, as nobody will be able to restore it.": "Si vous perdez votre phrase de récupération, vous ne pourrez plus accéder à vos fonds, car personne ne pourra la restaurer.",
+    "Only Chance": "Seule chance",
+    "This phrase is your only chance to recover access to your funds if your DFX Bitcoin App or usual device is unavailable for you.": "Cette phrase est votre seule chance de récupérer l'accès à vos fonds si votre DFX Bitcoin App ou votre appareil habituel est indisponible pour vous."
+  },
   "screens/RecoveryWordsScreen": {
-    "Keep your recovery words safe and private.": "Gardez vos mots de récupération sûrs et privés.",
+    "Backup phrase": "Phrase de sauvegarde",
+    "Your Recovery phrase": "Votre phrase de récupération",
+    "Never share recovery phrase with anyone, store it securely!": "Ne partagez jamais votre phrase de rétablissement avec quiconque, conservez-la en toute sécurité !",
+    "Write down these words in the right order and save them somewhere safe.": "Notez ces mots dans le bon ordre et sauvegardez-les dans un endroit sûr.",
+    "I understand that if I lose my recovery phrase, I will not be able to access my funds.": "Je comprends que si je perds ma phrase de récupération, je ne pourrai pas accéder à mes fonds.",
     "Take note of the correct spelling and order. Keep your recovery words confidential and secure.": "Prenez note de l'orthographe et de l'ordre corrects. Gardez vos mots de récupération confidentiels et sécurisés."
   },
   "screens/AddLiquidity": {
@@ -803,6 +819,7 @@
     "Max": "Max"
   },
   "components/Button": {
+    "READY": "PRÊT",
     "CONTINUE": "SUIVANT",
     "CLOSE": "FERMER"
   },

@@ -49,6 +49,7 @@ import { LockStakingCard } from './LOCK/LockStakingCard';
 import { Logging } from '@api';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
+import { BackupSeedWarning } from '@components/BackupSeedWarning';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
 
@@ -501,6 +502,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
         refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
       >
         <Announcements />
+        <BackupSeedWarning />
         <DfxButtons />
         <TotalPortfolio
           totalAvailableValue={totalAvailableValue}

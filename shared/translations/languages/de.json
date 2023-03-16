@@ -108,7 +108,8 @@
     "AVAILABLE ASSETS": "VERFÜGBARE AKTIVA",
     "Asset value": "Wert der Aktiva",
     "Availability": "Verfügbarkeit",
-    "Unfortunately, {{service}} service is not available in your country.": "Leider ist der {{service}} Service in deinem Land nicht verfügbar."
+    "Unfortunately, {{service}} service is not available in your country.": "Leider ist der {{service}} Service in deinem Land nicht verfügbar.",
+    "Backup not verified": "Backup nicht verifiziert"
   },
   "screens/GetDFIScreen": {
     "Get DFI": "DFI erhalten",
@@ -702,8 +703,23 @@
     "Create new passcode for your wallet": "Erstelle neues Passwort für deine Wallet",
     "Keep the passcode for your wallet confidential.": "Verwahre das Passwort für deine Wallet vertraulich."
   },
+  "screens/BackupExplanation": {
+    "Backup phrase": "Phrase Backup",
+    "Recovery phrase backup": "Backup Wiederherstellungsphrase",
+    "Find a safe and private place. Set a pen and some paper to write down your recovery phrase.": "Suchen Sie sich einen sicheren und privaten Ort. Legen Sie einen Stift und etwas Papier bereit, um Ihre Wiederherstellungsphrase aufzuschreiben.",
+    "Secret words": "Geheime Wörter",
+    "Your recovery phrase is a list of 12 secret words in a predefined order that back up your private key.": "Ihre Wiederherstellungsphrase ist eine Liste von 12 geheimen Wörtern in einer vordefinierten Reihenfolge, die Ihren privaten Schlüssel sichern.",
+    "Unrestorable": "Nicht wiederherstellbar",
+    "if you lose your recovery phrase, you will de unable to access your funds, as nobody will be able to restore it.": "Wenn Sie Ihre Wiederherstellungsphrase verlieren, können Sie nicht mehr auf Ihr Guthaben zugreifen, da niemand in der Lage ist, es wiederherzustellen.",
+    "Only Chance": "Einzige Chance",
+    "This phrase is your only chance to recover access to your funds if your DFX Bitcoin App or usual device is unavailable for you.": "Diese Phrase ist Ihre einzige Chance, den Zugang zu Ihrem Guthaben wiederherzustellen, wenn Ihre DFX Bitcoin App oder Ihr gewohntes Gerät für Sie nicht mehr verfügbar ist."
+  },
   "screens/RecoveryWordsScreen": {
-    "Keep your recovery words safe and private.": "Verwahre deinen Wiederherstellungssatz sicher und diskret.",
+    "Backup phrase": "Phrase Backup",
+    "Your Recovery phrase": "Ihre Wiederherstellungsphrase",
+    "Never share recovery phrase with anyone, store it securely!": "Geben Sie die Wiederherstellungsphrase niemals an andere weiter, sondern bewahren Sie sie sicher auf!",
+    "Write down these words in the right order and save them somewhere safe.": "Schreiben Sie diese Wörter in der richtigen Reihenfolge auf und bewahren Sie sie an einem sicheren Ort auf.",
+    "I understand that if I lose my recovery phrase, I will not be able to access my funds.": "Mir ist klar, dass ich bei Verlust meiner Wiederherstellungsphrase nicht mehr auf mein Guthaben zugreifen kann.",
     "Take note of the correct spelling and order. Keep your recovery words confidential and secure.": "Achte auf die richtige Schreibweise und Reihenfolge. Bewahre deinen Wiederherstellungssatz vertraulich und sicher auf."
   },
   "screens/AddLiquidity": {
@@ -798,6 +814,7 @@
     "Max": "Max"
   },
   "components/Button": {
+    "READY": "BEREIT",
     "CONTINUE": "WEITER",
     "CLOSE": "SCHLIESSEN"
   },
