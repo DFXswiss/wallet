@@ -130,6 +130,10 @@ async function verifiedBackup(): Promise<void> {
   await AsyncStorage.setItem(StoreItem.DFXWALLET_BACKUP, 'true');
 }
 
+async function removeVerifiedBackup(): Promise<void> {
+  await AsyncStorage.removeItem(StoreItem.DFXWALLET_BACKUP);
+}
+
 export const DFXPersistence = {
   addPair,
   remPair,
@@ -148,5 +152,5 @@ export const DFXPersistence = {
   getUserInfoComplete,
   hasVerifiedBackup,
   verifiedBackup,
-  removeVerifiedBackup: () => AsyncStorage.removeItem(StoreItem.DFXWALLET_BACKUP),
+  removeVerifiedBackup,
 };

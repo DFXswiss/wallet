@@ -573,8 +573,8 @@
     "Keep the passcode for your wallet confidential.": "Keep the passcode for your wallet confidential."
   },
   "screens/PinCreation": {
-    "Well done! Your wallet is created. Keep your wallet private and secure by creating a passcode for it.": "恭喜您创建新钱包！接着请创建密码以维持安全保护.",
-    "Well done! Your wallet is restored. Keep your wallet private and secure by creating a passcode for it.": "恭喜您恢复钱包！接着请创建密码以维持安全保护.",
+    "Well done! Your wallet is created.": "恭喜您创建新钱包！",
+    "Well done! Your wallet is restored.": "恭喜您恢复钱包！",
     "Keep your passcode private": "请把密码保管好",
     "CREATE PASSCODE": "创建密码",
     "CHANGE PASSCODE": "更换密码",
