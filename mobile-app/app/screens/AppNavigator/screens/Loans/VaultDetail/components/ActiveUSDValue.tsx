@@ -1,23 +1,23 @@
-import * as React from 'react'
-import BigNumber from 'bignumber.js'
-import { ThemedText } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { View } from '@components'
-import NumberFormat from 'react-number-format'
-import { StyleProp, ViewStyle } from 'react-native'
-import { getPrecisedTokenValue } from '@screens/AppNavigator/screens/Auctions/helpers/precision-token-value'
-import { PortfolioButtonGroupTabKey } from '@screens/AppNavigator/screens/Portfolio/components/TotalPortfolio'
-import { IconTooltip } from '@components/tooltip/IconTooltip'
+import * as React from 'react';
+import BigNumber from 'bignumber.js';
+import { ThemedText } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { View } from '@components';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { StyleProp, ViewStyle } from 'react-native';
+import { getPrecisedTokenValue } from '@screens/AppNavigator/screens/Auctions/helpers/precision-token-value';
+import { PortfolioButtonGroupTabKey } from '@screens/AppNavigator/screens/Portfolio/components/TotalPortfolio';
+import { IconTooltip } from '@components/tooltip/IconTooltip';
 
 interface ActiveUSDValueProps {
-  style?: StyleProp<ViewStyle>
-  lightTextStyle?: { [key: string]: string }
-  darkTextStyle?: { [key: string]: string }
-  containerStyle?: StyleProp<ViewStyle>
-  testId?: string
-  price: BigNumber
-  denominationCurrency?: string
-  isOraclePrice?: boolean
+  style?: StyleProp<ViewStyle>;
+  lightTextStyle?: { [key: string]: string };
+  darkTextStyle?: { [key: string]: string };
+  containerStyle?: StyleProp<ViewStyle>;
+  testId?: string;
+  price: BigNumber;
+  denominationCurrency?: string;
+  isOraclePrice?: boolean;
 }
 
 export const ActiveUSDValue = React.memo((props: ActiveUSDValueProps): JSX.Element => {
@@ -26,9 +26,17 @@ export const ActiveUSDValue = React.memo((props: ActiveUSDValueProps): JSX.Eleme
       <NumberFormat
         value={getPrecisedTokenValue(props.price)}
         thousandSeparator
-        displayType='text'
-        prefix={(props.denominationCurrency === undefined || props.denominationCurrency === PortfolioButtonGroupTabKey.USDT) ? '≈ $' : undefined}
-        suffix={(props.denominationCurrency !== undefined && props.denominationCurrency !== PortfolioButtonGroupTabKey.USDT) ? ` ${props.denominationCurrency}` : undefined}
+        displayType="text"
+        prefix={
+          props.denominationCurrency === undefined || props.denominationCurrency === PortfolioButtonGroupTabKey.USDT
+            ? '≈ $'
+            : undefined
+        }
+        suffix={
+          props.denominationCurrency !== undefined && props.denominationCurrency !== PortfolioButtonGroupTabKey.USDT
+            ? ` ${props.denominationCurrency}`
+            : undefined
+        }
         renderText={(val: string) => (
           <ThemedText
             dark={props.darkTextStyle ?? tailwind('text-dfxgray-400')}
@@ -40,11 +48,7 @@ export const ActiveUSDValue = React.memo((props: ActiveUSDValueProps): JSX.Eleme
           </ThemedText>
         )}
       />
-      {
-        props.isOraclePrice === true && (
-          <IconTooltip />
-        )
-      }
+      {props.isOraclePrice === true && <IconTooltip />}
     </View>
-  )
-})
+  );
+});

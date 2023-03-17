@@ -1,16 +1,17 @@
-import { SvgProps } from 'react-native-svg'
-import { _Default } from './_Default'
-import { dBCH } from './dBCH'
-import { dBTC } from './dBTC'
-import { BTC } from './BTC'
-import { dDFI } from './dDFI'
-import { dDOGE } from './dDOGE'
-import { dETH } from './dETH'
-import { DFI } from './DFI'
-import { dLTC } from './dLTC'
-import { dUSDC } from './dUSDC'
-import { dUSDT } from './dUSDT'
-import { dUSD } from './dUSD'
+import { SvgProps } from 'react-native-svg';
+import { _Default } from './_Default';
+import { dBCH } from './dBCH';
+import { dBTC } from './dBTC';
+import { BTC } from './BTC';
+import { dDFI } from './dDFI';
+import { dDOGE } from './dDOGE';
+import { dETH } from './dETH';
+import { DFI } from './DFI';
+import { dLTC } from './dLTC';
+import { dUSDC } from './dUSDC';
+import { dUSDT } from './dUSDT';
+import { dUSD } from './dUSD';
+import { dEUROC } from './dEUROC';
 
 const mapping: Record<string, (props: SvgProps) => JSX.Element> = {
   _UTXO: DFI,
@@ -27,17 +28,18 @@ const mapping: Record<string, (props: SvgProps) => JSX.Element> = {
   dUSDT: dUSDT,
   dUSDC: dUSDC,
   dDUSD: dUSD,
-  DUSD: dUSD
-}
+  DUSD: dUSD,
+  dEUROC: dEUROC,
+};
 
 /**
  * @param {string} symbol of the native asset icon
  * @return {(props: SvgProps) => JSX.Element}
  */
-export function getNativeIcon (symbol: string): (props: SvgProps) => JSX.Element {
-  const Icon = mapping[symbol]
+export function getNativeIcon(symbol: string): (props: SvgProps) => JSX.Element {
+  const Icon = mapping[symbol];
   if (Icon === undefined) {
-    return _Default(symbol)
+    return _Default(symbol);
   }
-  return Icon
+  return Icon;
 }

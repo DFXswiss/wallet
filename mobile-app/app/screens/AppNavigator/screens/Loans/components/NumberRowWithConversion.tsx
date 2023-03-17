@@ -1,31 +1,31 @@
-import { StyleProp, TextStyle, View, ViewProps, Text } from 'react-native'
-import NumberFormat from 'react-number-format'
-import { tailwind } from '@tailwind'
-import { ThemedProps, ThemedView, ThemedText } from '@components/themed'
-import { BottomSheetAlertInfo, BottomSheetInfo } from '@components/BottomSheetInfo'
+import { StyleProp, TextStyle, View, ViewProps, Text } from 'react-native';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { tailwind } from '@tailwind';
+import { ThemedProps, ThemedView, ThemedText } from '@components/themed';
+import { BottomSheetAlertInfo, BottomSheetInfo } from '@components/BottomSheetInfo';
 
-type INumberRowProps = React.PropsWithChildren<ViewProps> & NumberRowWithConversionProps
-export type SuffixType = 'text' | 'component'
+type INumberRowProps = React.PropsWithChildren<ViewProps> & NumberRowWithConversionProps;
+export type SuffixType = 'text' | 'component';
 
 interface NumberRowWithConversionProps extends ThemedProps {
-  lhs: string
-  rhs: NumberRowElement
-  rhsConversion?: NumberRowElement
-  info?: BottomSheetAlertInfo
-  textStyle?: StyleProp<TextStyle>
+  lhs: string;
+  rhs: NumberRowElement;
+  rhsConversion?: NumberRowElement;
+  info?: BottomSheetAlertInfo;
+  textStyle?: StyleProp<TextStyle>;
 }
 
 export interface NumberRowElement {
-  value: string | number
-  suffix?: string
-  testID: string
-  suffixType?: SuffixType
-  prefix?: string
-  style?: StyleProp<ViewProps>
+  value: string | number;
+  suffix?: string;
+  testID: string;
+  suffixType?: SuffixType;
+  prefix?: string;
+  style?: StyleProp<ViewProps>;
 }
 
-export function NumberRowWithConversion (props: INumberRowProps): JSX.Element {
-  const rhsStyle = [tailwind('text-sm text-right w-full'), props.textStyle, props.rhs.style]
+export function NumberRowWithConversion(props: INumberRowProps): JSX.Element {
+  const rhsStyle = [tailwind('text-sm text-right w-full'), props.textStyle, props.rhs.style];
   return (
     <ThemedView
       dark={props.dark ?? tailwind('bg-dfxblue-800 border-b border-dfxblue-900')}
@@ -34,16 +34,14 @@ export function NumberRowWithConversion (props: INumberRowProps): JSX.Element {
     >
       <View style={tailwind('w-6/12 self-center')}>
         <View style={tailwind('flex-row items-end justify-start')}>
-          <ThemedText
-            style={[tailwind('text-sm'), props.textStyle]}
-            testID={`${props.rhs.testID}_label`}
-          >
+          <ThemedText style={[tailwind('text-sm'), props.textStyle]} testID={`${props.rhs.testID}_label`}>
             {props.lhs}
           </ThemedText>
-          {(props.info != null) && (
+          {props.info != null && (
             <View style={tailwind('ml-1')}>
               <BottomSheetInfo
-                alertInfo={props.info} name={props.info.title}
+                alertInfo={props.info}
+                name={props.info.title}
                 infoIconStyle={[tailwind('text-sm'), props.textStyle]}
               />
             </View>
@@ -51,12 +49,10 @@ export function NumberRowWithConversion (props: INumberRowProps): JSX.Element {
         </View>
       </View>
 
-      <View
-        style={tailwind('flex-1 flex-col justify-end flex-wrap items-end')}
-      >
+      <View style={tailwind('flex-1 flex-col justify-end flex-wrap items-end')}>
         <NumberFormat
           decimalScale={8}
-          displayType='text'
+          displayType="text"
           prefix={props.rhs.prefix}
           renderText={(val: string) => (
             <Text style={rhsStyle}>
@@ -68,68 +64,72 @@ export function NumberRowWithConversion (props: INumberRowProps): JSX.Element {
               >
                 {val}
               </ThemedText>
-              {
-                props.rhs.suffixType === 'text' &&
-                  <>
-                    <Text>{' '}</Text>
-                    <ThemedText
-                      light={tailwind('text-gray-500')}
-                      dark={tailwind('text-dfxgray-400')}
-                      style={[tailwind('text-sm ml-1'), props.textStyle, props.rhs.style]}
-                      testID={`${props.rhs.testID}_suffix`}
-                    >
-                      {props.rhs.suffix}
-                    </ThemedText>
-                  </>
-              }
+              {props.rhs.suffixType === 'text' && (
+                <>
+                  <Text> </Text>
+                  <ThemedText
+                    light={tailwind('text-gray-500')}
+                    dark={tailwind('text-dfxgray-400')}
+                    style={[tailwind('text-sm ml-1'), props.textStyle, props.rhs.style]}
+                    testID={`${props.rhs.testID}_suffix`}
+                  >
+                    {props.rhs.suffix}
+                  </ThemedText>
+                </>
+              )}
             </Text>
           )}
           thousandSeparator
           value={props.rhs.value}
         />
 
-        {props.rhsConversion !== undefined &&
+        {props.rhsConversion !== undefined && (
           <NumberFormat
             decimalScale={8}
-            displayType='text'
+            displayType="text"
             prefix={props.rhsConversion.prefix}
             renderText={(val: string) => (
               <Text style={rhsStyle}>
-                {props.rhsConversion === undefined
-                  ? ''
-                  : (
-                    <>
-                      <ThemedText light={tailwind('text-gray-500')} dark={tailwind('text-dfxgray-400')}>(</ThemedText>
-                      <ThemedText
-                        dark={tailwind('text-dfxgray-400')}
-                        light={tailwind('text-gray-500')}
-                        style={rhsStyle}
-                        testID={props.rhsConversion.testID}
-                      >
-                        {val}
-                      </ThemedText>
-                      {
-                        props.rhsConversion.suffixType === 'text' &&
-                          <>
-                            <Text>{' '}</Text>
-                            <ThemedText
-                              light={tailwind('text-gray-500')}
-                              dark={tailwind('text-dfxgray-400')}
-                              style={[tailwind('text-sm ml-1'), props.textStyle, props.rhsConversion.style]}
-                              testID={`${props.rhsConversion.testID}_suffix`}
-                            >
-                              {props.rhsConversion.suffix}
-                            </ThemedText>
-                          </>
-                      }
-                      <ThemedText light={tailwind('text-gray-500')} dark={tailwind('text-dfxgray-400')}>)</ThemedText>
-                    </>)}
+                {props.rhsConversion === undefined ? (
+                  ''
+                ) : (
+                  <>
+                    <ThemedText light={tailwind('text-gray-500')} dark={tailwind('text-dfxgray-400')}>
+                      (
+                    </ThemedText>
+                    <ThemedText
+                      dark={tailwind('text-dfxgray-400')}
+                      light={tailwind('text-gray-500')}
+                      style={rhsStyle}
+                      testID={props.rhsConversion.testID}
+                    >
+                      {val}
+                    </ThemedText>
+                    {props.rhsConversion.suffixType === 'text' && (
+                      <>
+                        <Text> </Text>
+                        <ThemedText
+                          light={tailwind('text-gray-500')}
+                          dark={tailwind('text-dfxgray-400')}
+                          style={[tailwind('text-sm ml-1'), props.textStyle, props.rhsConversion.style]}
+                          testID={`${props.rhsConversion.testID}_suffix`}
+                        >
+                          {props.rhsConversion.suffix}
+                        </ThemedText>
+                      </>
+                    )}
+                    <ThemedText light={tailwind('text-gray-500')} dark={tailwind('text-dfxgray-400')}>
+                      )
+                    </ThemedText>
+                  </>
+                )}
               </Text>
             )}
             thousandSeparator
             value={props.rhsConversion.value}
-          />}
+          />
+        )}
       </View>
     </ThemedView>
-  )
+  );
 }

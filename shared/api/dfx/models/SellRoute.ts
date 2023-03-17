@@ -1,53 +1,51 @@
-import { Asset } from './Asset'
-import { Blockchain } from './CryptoRoute'
-import { Deposit } from './Deposit'
-import { Fiat } from './Fiat'
+import { Asset } from './Asset';
+import { Blockchain } from './CryptoRoute';
+import { Deposit } from './Deposit';
+import { Fiat } from './Fiat';
 
 export interface SellRouteDto {
-  id: string
-  fiat: Fiat
-  deposit: Deposit
-  iban: string
-  volume: number
-  annualVolume: number
-  active: boolean
-  fee: number
-  isInUse: boolean
+  id: string;
+  fiat: Fiat;
+  deposit: Deposit;
+  iban: string;
+  volume: number;
+  annualVolume: number;
+  active: boolean;
+  fee: number;
 }
 
 export interface SellRoute {
-  id: string
-  fiat: Fiat
-  deposit: Deposit
-  iban: string
-  volume: number
-  annualVolume: number
-  active: boolean
-  fee: number
-  isInUse: boolean
+  id: string;
+  fiat: Fiat;
+  deposit: Deposit;
+  iban: string;
+  volume: number;
+  annualVolume: number;
+  active: boolean;
+  fee: number;
 }
 
 export interface SellData {
-  fiat: Fiat
-  iban: string
+  fiat: Fiat;
+  iban: string;
 }
 
 export interface GetSellPaymentInfoDto {
-  iban: string
-  asset: Asset
-  blockchain: Blockchain
-  currency: Fiat
+  iban: string;
+  asset: Asset;
+  blockchain: Blockchain;
+  currency: Fiat;
 }
 
 export interface SellPaymentInfoDto {
-  fee: number
-  depositAddress: string
+  fee: number;
+  depositAddress: string;
   minDeposits: [
     {
-      amount: number
-      asset: string
-    }
-  ]
+      amount: number;
+      asset: string;
+    },
+  ];
 }
 
 export const fromSellRouteDto = (route: SellRouteDto): SellRoute => ({
@@ -59,10 +57,9 @@ export const fromSellRouteDto = (route: SellRouteDto): SellRoute => ({
   volume: route.volume,
   annualVolume: route.annualVolume,
   fee: route.fee,
-  isInUse: route.isInUse
-})
+});
 
 export const toSellRouteDto = (route: SellData): SellData => ({
   fiat: route.fiat,
-  iban: route.iban.split(' ').join('')
-})
+  iban: route.iban.split(' ').join(''),
+});

@@ -1,42 +1,36 @@
-import { memo } from 'react'
-import BigNumber from 'bignumber.js'
-import { View } from 'react-native'
-import { isEqual } from 'lodash'
-import { tailwind } from '@tailwind'
-import { getNativeIcon } from '@components/icons/assets'
-import { ThemedText } from '@components/themed'
-import { translate } from '@translations'
-import NumberFormat from 'react-number-format'
-import { SkeletonLoader, SkeletonLoaderScreen } from '@components/SkeletonLoader'
+import { memo } from 'react';
+import BigNumber from 'bignumber.js';
+import { View } from 'react-native';
+import { isEqual } from 'lodash';
+import { tailwind } from '@tailwind';
+import { getNativeIcon } from '@components/icons/assets';
+import { ThemedText } from '@components/themed';
+import { translate } from '@translations';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { SkeletonLoader, SkeletonLoaderScreen } from '@components/SkeletonLoader';
 
 interface PriceRatesSectionProps {
   tokenA: {
-    symbol: string
-    displaySymbol: string
-    priceRate: BigNumber
-  }
+    symbol: string;
+    displaySymbol: string;
+    priceRate: BigNumber;
+  };
   tokenB: {
-    symbol: string
-    displaySymbol: string
-    priceRate: BigNumber
-  }
+    symbol: string;
+    displaySymbol: string;
+    priceRate: BigNumber;
+  };
 }
 
-export const PriceRatesSection = memo(({
-  tokenA,
-  tokenB
-}: PriceRatesSectionProps): JSX.Element => {
-  const TokenAIcon = getNativeIcon(tokenA.displaySymbol)
-  const TokenBIcon = getNativeIcon(tokenB.displaySymbol)
-  if (
-    new BigNumber(tokenA.priceRate).isNaN() ||
-    new BigNumber(tokenB.priceRate).isNaN()
-  ) {
+export const PriceRatesSection = memo(({ tokenA, tokenB }: PriceRatesSectionProps): JSX.Element => {
+  const TokenAIcon = getNativeIcon(tokenA.displaySymbol);
+  const TokenBIcon = getNativeIcon(tokenB.displaySymbol);
+  if (new BigNumber(tokenA.priceRate).isNaN() || new BigNumber(tokenB.priceRate).isNaN()) {
     return (
       <View style={tailwind('mt-2')}>
         <SkeletonLoader row={1} screen={SkeletonLoaderScreen.DexPrices} />
       </View>
-    )
+    );
   }
   return (
     <View style={tailwind('flex')}>
@@ -50,9 +44,7 @@ export const PriceRatesSection = memo(({
       <View style={tailwind('flex flex-row items-center m-0.5')}>
         <TokenAIcon height={16} width={16} />
         <View style={tailwind('flex flex-row items-center')}>
-          <ThemedText style={tailwind('text-sm ml-1')}>
-            {`1 ${tokenA.displaySymbol} =`}
-          </ThemedText>
+          <ThemedText style={tailwind('text-sm ml-1')}>{`1 ${tokenA.displaySymbol} =`}</ThemedText>
           <PriceRateValue
             value={tokenA.priceRate.toFixed(8)}
             suffix={tokenB.displaySymbol}
@@ -62,9 +54,7 @@ export const PriceRatesSection = memo(({
       </View>
       <View style={tailwind('flex flex-row items-center m-0.5')}>
         <TokenBIcon height={16} width={16} />
-        <ThemedText style={tailwind('text-sm ml-1')}>
-          {`1 ${tokenB.displaySymbol} =`}
-        </ThemedText>
+        <ThemedText style={tailwind('text-sm ml-1')}>{`1 ${tokenB.displaySymbol} =`}</ThemedText>
         <PriceRateValue
           value={tokenB.priceRate.toFixed(8)}
           suffix={tokenA.displaySymbol}
@@ -72,14 +62,14 @@ export const PriceRatesSection = memo(({
         />
       </View>
     </View>
-  )
-}, isEqual)
+  );
+}, isEqual);
 
-const PriceRateValue = (props: { value: string, suffix: string, testID: string }): JSX.Element => {
+const PriceRateValue = (props: { value: string; suffix: string; testID: string }): JSX.Element => {
   return (
     <NumberFormat
       decimalScale={8}
-      displayType='text'
+      displayType="text"
       renderText={(textValue) => (
         <ThemedText style={tailwind('text-sm ml-1')} testID={props.testID}>
           {textValue}
@@ -89,5 +79,5 @@ const PriceRateValue = (props: { value: string, suffix: string, testID: string }
       value={props.value}
       suffix={` ${props.suffix}`}
     />
-  )
-}
+  );
+};

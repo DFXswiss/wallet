@@ -25,7 +25,6 @@ import {
 } from './models/SellRoute';
 import {
   Blockchain,
-  CfpVotes,
   fromUserDetailDto,
   fromUserDto,
   KycInfo,
@@ -38,10 +37,8 @@ import {
   UserDto,
 } from './models/User';
 import { ApiDomain, AuthService, Credentials, Session } from './AuthService';
-import { StakingRoute } from './models/StakingRoute';
 import { RoutesDto, fromRoutesDto, Routes } from './models/Route';
 import { KycData, KycDataTransferDto, toKycDataDto } from './models/KycData';
-import { Settings } from './models/Settings';
 import { HistoryType } from './models/HistoryType';
 import { CryptoRoute } from './models/CryptoRoute';
 import {
@@ -53,6 +50,7 @@ import {
 } from './models/BankAccount';
 import { noop } from 'lodash';
 import { getReleaseChannel } from '@api/releaseChannel';
+import { Logging } from '@api';
 
 const DfxBaseUrl = getEnvironment(getReleaseChannel()).dfx.apiUrl;
 const AuthUrl = 'auth';
@@ -63,7 +61,6 @@ const BuyUrl = 'buy';
 const PaymentInfosUrl = 'paymentInfos';
 const RouteUrl = 'route';
 const SellUrl = 'sell';
-const StakingUrl = 'staking';
 const CryptoRouteUrl = 'cryptoRoute';
 const HistoryUrl = 'history';
 const AssetUrl = 'asset';
@@ -71,7 +68,6 @@ const FiatUrl = 'fiat';
 const LanguageUrl = 'language';
 const BankTxUrl = 'bankTx';
 const StatisticUrl = 'statistic';
-const SettingUrl = 'setting/frontend';
 
 // ------------------------------------------------------
 // -----------------LOCK - API---------------------------
@@ -368,19 +364,6 @@ export const getCountries = async (): Promise<Country[]> => {
   );
 };
 
-// --- VOTING --- //
-export const getSettings = async (): Promise<Settings> => {
-  return await fetchFrom<Settings>(SettingUrl);
-};
-
-export const getCfpVotes = async (): Promise<CfpVotes> => {
-  return await fetchFrom<CfpVotes>(`${UserUrl}/cfpVotes`);
-};
-
-export const putCfpVotes = async (votes: CfpVotes): Promise<CfpVotes> => {
-  return await fetchFrom<CfpVotes>(`${UserUrl}/cfpVotes`, 'PUT', votes);
-};
-
 // --- ACCOUNTS --- //
 export const getBankAccounts = async (): Promise<BankAccount[]> => {
   return await fetchFrom<BankAccountDto[]>(BankAccountUrl).then((dtoList) =>
@@ -435,18 +418,6 @@ export const postSellRoute = async (route: SellData): Promise<SellRoute> => {
 
 export const putSellRoute = async (route: SellRoute): Promise<SellRoute> => {
   return await fetchFrom<SellRouteDto>(`${SellUrl}/${route.id}`, 'PUT', toSellRouteDto(route)).then(fromSellRouteDto);
-};
-
-export const getStakingRoutes = async (): Promise<StakingRoute[]> => {
-  return await fetchFrom<StakingRoute[]>(StakingUrl);
-};
-
-export const postStakingRoute = async (route: StakingRoute): Promise<StakingRoute> => {
-  return await fetchFrom<StakingRoute>(StakingUrl, 'POST', route);
-};
-
-export const putStakingRoute = async (route: StakingRoute): Promise<StakingRoute> => {
-  return await fetchFrom<StakingRoute>(`${StakingUrl}/${route.id}`, 'PUT', route);
 };
 
 export const getCryptoRoutes = async (): Promise<CryptoRoute[]> => {
@@ -524,7 +495,7 @@ const fetchFrom = async <T>(
   // console.log('URL--> ', `${BaseUrl}/${url}`)
   // console.log('METHOD --> ', method)
   // ;(data != null) && console.log('data --> ', data)
-
+  Logging.info(`fetch ${method} ${url}`);
   return await AuthService.Session(options?.withoutJWT, options?.apiDomain)
     .then((session) => buildInit(method, session, data, options?.noJson))
     .then(async (init) => await fetch(`${BaseUrl}/${url}`, init))

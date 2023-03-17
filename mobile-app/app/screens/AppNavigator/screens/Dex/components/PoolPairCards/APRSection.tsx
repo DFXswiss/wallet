@@ -1,26 +1,23 @@
-import { memo } from 'react'
-import { View } from 'react-native'
-import NumberFormat from 'react-number-format'
-import { isEqual } from 'lodash'
-import { tailwind } from '@tailwind'
-import { ThemedText } from '@components/themed'
+import { memo } from 'react';
+import { View } from 'react-native';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import { isEqual } from 'lodash';
+import { tailwind } from '@tailwind';
+import { ThemedText } from '@components/themed';
 
 interface APRSectionProps {
-  label: string
+  label: string;
   value: {
-    decimalScale: number
-    suffix?: string
-    testID: string
-    text: string
-  }
+    decimalScale: number;
+    suffix?: string;
+    testID: string;
+    text: string;
+  };
 }
 
 export const APRSection = memo((props: APRSectionProps): JSX.Element => {
   return (
-    <View style={tailwind(
-      'py-1 px-2 items-center border border-dfxblue-900 rounded break-words'
-    )}
-    >
+    <View style={tailwind('py-1 px-2 items-center border border-dfxblue-900 rounded break-words')}>
       <ThemedText
         dark={tailwind('text-dfxgray-400')}
         light={tailwind('text-gray-500')}
@@ -30,14 +27,13 @@ export const APRSection = memo((props: APRSectionProps): JSX.Element => {
       </ThemedText>
       <NumberFormat
         decimalScale={props.value.decimalScale}
-        displayType='text'
+        displayType="text"
         renderText={(value) => (
           <ThemedText
             style={tailwind('text-sm font-semibold')}
             light={tailwind('text-success-600')}
             dark={tailwind('text-darksuccess-600')}
             testID={props.value.testID}
-
           >
             {value}
           </ThemedText>
@@ -47,5 +43,5 @@ export const APRSection = memo((props: APRSectionProps): JSX.Element => {
         value={props.value.text}
       />
     </View>
-  )
-}, isEqual)
+  );
+}, isEqual);

@@ -120,7 +120,13 @@ export const BottomSheetStaking = ({
           logger,
         );
         setIsSubmitting(false);
-        onStaked({ depositAddress, token: token, amount: amount.toNumber(), network: network.networkName });
+        onStaked({
+          depositAddress,
+          token: token,
+          amount: amount.toNumber(),
+          network: network.networkName,
+          stakingId: stakingInfo?.id,
+        });
       }
     }
 

@@ -14,12 +14,12 @@ import {
   StakingAnalyticsOutputDto,
   StakingOutputDto,
 } from '@shared-api/dfx/ApiService';
-import { WalletAlertErrorApi } from '@components/WalletAlert';
+import { WalletAlertErrorApi, WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { useLock } from '../../../../../contexts/LOCK/LockContextProvider';
 import { useTokenPrice } from '../hooks/TokenPrice';
 import { BalanceText } from '../components/BalanceText';
-import NumberFormat from 'react-number-format';
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { getPrecisedTokenValue } from '../../Auctions/helpers/precision-token-value';
 import { PortfolioButtonGroupTabKey } from '../components/TotalPortfolio';
 
@@ -30,7 +30,7 @@ interface LockStakingCardProps {
 
 export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockStakingCardProps): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>();
-  const { LOCKcreateWebToken } = useDFXAPIContext();
+  const { LOCKisNotAllowedInCountry, LOCKcreateWebToken } = useDFXAPIContext();
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false);
   // data loading logic
   const [isLoading, setIsLoading] = useState(false);
@@ -52,6 +52,10 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
       : null;
 
   const enterLOCK = (): void => {
+    if (LOCKisNotAllowedInCountry) {
+      WalletAlertNotAvailableInCountry('LOCK');
+      return;
+    }
     LOCKcreateWebToken()
       .then(() => {
         setLoggedIn(true);
@@ -83,7 +87,7 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
       .then((analytics) => {
         setAnalytics(analytics.sort((a, b) => b.apr - a.apr)?.[0]);
       })
-      .catch(console.error);
+      .catch(() => {});
 
     Promise.all([getUser, getAnalytics]).finally(() => setIsLoading(false));
   };
@@ -91,6 +95,10 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
   useEffect(() => fetchLockData(loggedIn), [refreshTrigger]);
 
   const navigateToLock = (): void => {
+    if (LOCKisNotAllowedInCountry) {
+      WalletAlertNotAvailableInCountry('LOCK');
+      return;
+    }
     isKycComplete ? navigation.navigate('LockDashboardScreen') : navigation.navigate('LockKycScreen');
   };
 

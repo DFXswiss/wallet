@@ -1,18 +1,18 @@
-import { ThemedText, ThemedView } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { View } from '@components'
-import { getNativeIcon } from '@components/icons/assets'
-import { LoanVaultTokenAmount } from '@defichain/whale-api-client/dist/api/loan'
-import NumberFormat from 'react-number-format'
-import BigNumber from 'bignumber.js'
-import { getPrecisedTokenValue } from '@screens/AppNavigator/screens/Auctions/helpers/precision-token-value'
-import { useTokenPrice } from '../../Portfolio/hooks/TokenPrice'
+import { ThemedText, ThemedView } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { View } from '@components';
+import { getNativeIcon } from '@components/icons/assets';
+import { LoanVaultTokenAmount } from '@defichain/whale-api-client/dist/api/loan';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import BigNumber from 'bignumber.js';
+import { getPrecisedTokenValue } from '@screens/AppNavigator/screens/Auctions/helpers/precision-token-value';
+import { useTokenPrice } from '../../Portfolio/hooks/TokenPrice';
 
-export function CollateralTokenItemRow ({ token }: { token: LoanVaultTokenAmount }): JSX.Element {
-  const Icon = getNativeIcon(token.displaySymbol)
-  const testID = `collateral_row_${token.id}`
-  const { getTokenPrice } = useTokenPrice()
-  const collateralPrice = getTokenPrice(token.symbol, new BigNumber(token.amount))
+export function CollateralTokenItemRow({ token }: { token: LoanVaultTokenAmount }): JSX.Element {
+  const Icon = getNativeIcon(token.displaySymbol);
+  const testID = `collateral_row_${token.id}`;
+  const { getTokenPrice } = useTokenPrice();
+  const collateralPrice = getTokenPrice(token.symbol, new BigNumber(token.amount));
 
   return (
     <ThemedView
@@ -24,15 +24,11 @@ export function CollateralTokenItemRow ({ token }: { token: LoanVaultTokenAmount
       <View style={tailwind('flex-row items-center w-6/12')}>
         <Icon testID={`${testID}_icon`} />
         <View style={tailwind('mx-3 flex-auto')}>
-          <ThemedText
-            dark={tailwind('text-gray-50')}
-            light={tailwind('text-gray-900')}
-            testID={`${testID}_symbol`}
-          >
+          <ThemedText dark={tailwind('text-gray-50')} light={tailwind('text-gray-900')} testID={`${testID}_symbol`}>
             {token.displaySymbol}
           </ThemedText>
           <ThemedText
-            ellipsizeMode='tail'
+            ellipsizeMode="tail"
             light={tailwind('text-gray-500')}
             dark={tailwind('text-dfxgray-400')}
             numberOfLines={1}
@@ -47,8 +43,8 @@ export function CollateralTokenItemRow ({ token }: { token: LoanVaultTokenAmount
         <NumberFormat
           decimalScale={8}
           suffix={` ${token.displaySymbol}`}
-          displayType='text'
-          renderText={(value) =>
+          displayType="text"
+          renderText={(value) => (
             <ThemedText
               dark={tailwind('text-gray-50')}
               light={tailwind('text-gray-900')}
@@ -56,15 +52,16 @@ export function CollateralTokenItemRow ({ token }: { token: LoanVaultTokenAmount
               testID={`${testID}_amount`}
             >
               {value}
-            </ThemedText>}
+            </ThemedText>
+          )}
           thousandSeparator
           value={new BigNumber(token.amount).toFixed(8)}
         />
         <NumberFormat
           decimalScale={8}
-          prefix='≈ $'
-          displayType='text'
-          renderText={(value) =>
+          prefix="≈ $"
+          displayType="text"
+          renderText={(value) => (
             <ThemedText
               light={tailwind('text-gray-500')}
               dark={tailwind('text-dfxgray-400')}
@@ -72,11 +69,12 @@ export function CollateralTokenItemRow ({ token }: { token: LoanVaultTokenAmount
               testID={`${testID}_amount`}
             >
               {value}
-            </ThemedText>}
+            </ThemedText>
+          )}
           thousandSeparator
           value={getPrecisedTokenValue(collateralPrice)}
         />
       </View>
     </ThemedView>
-  )
+  );
 }

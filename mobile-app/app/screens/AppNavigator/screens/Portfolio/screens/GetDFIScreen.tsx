@@ -1,7 +1,7 @@
 import * as Clipboard from 'expo-clipboard'
 import { useCallback, useEffect, useState } from 'react'
 import { ImageSourcePropType, Share, TouchableOpacity, View, Image } from 'react-native'
-import QRCode from 'react-native-qrcode-svg'
+import QRCode from 'react-qr-code'
 import { ThemedIcon, ThemedScrollView, ThemedText, ThemedTouchableOpacity, ThemedView } from '@components/themed'
 import { useToast } from 'react-native-toast-notifications'
 import { useThemeContext } from '@shared-contexts/ThemeProvider'
@@ -12,7 +12,7 @@ import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingPro
 import { debounce } from 'lodash'
 import { openURL } from '@api/linking'
 import { IconTooltip } from '@components/tooltip/IconTooltip'
-import NumberFormat from 'react-number-format'
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import BigNumber from 'bignumber.js'
 import { useSelector } from 'react-redux'
 import { RootState } from '@store'
