@@ -84,8 +84,8 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   useScrollToTop(ref);
 
   // TODO: LOCK staking balance
-  const [staked, setStaked] = useState(0)
-  const [hasFetchedStakingBalance, setHasFetchedStakingBalance] = useState(false)
+  const [staked, setStaked] = useState(0);
+  const [hasFetchedStakingBalance, setHasFetchedStakingBalance] = useState(false);
 
   useEffect(() => {
     if (isNotAllowedInCountry || LOCKisNotAllowedInCountry) {
