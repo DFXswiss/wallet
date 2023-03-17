@@ -45,12 +45,6 @@ import { fetchExecutionBlock, fetchFutureSwaps, hasFutureSwap } from '@store/fut
 import { useDenominationCurrency } from './hooks/PortfolioCurrency';
 import { BottomSheetAssetSortList, PortfolioSortType } from './components/BottomSheetAssetSortList';
 import { useAppDispatch } from '@hooks/useAppDispatch';
-import { getUserDetail } from '@shared-api/dfx/ApiService';
-import { useDebounce } from '@hooks/useDebounce';
-
-import { from, defer } from 'rxjs';
-import { map, retry } from 'rxjs/operators';
-import { useNetworkContext } from '@shared-contexts/NetworkContext';
 import { LockStakingCard } from './LOCK/LockStakingCard';
 import { Logging } from '@api';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
@@ -89,7 +83,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const ref = useRef(null);
   useScrollToTop(ref);
 
-  // DFX Staking Balance
+  // TODO: LOCK staking balance
   const [staked, setStaked] = useState(0);
   const [hasFetchedStakingBalance, setHasFetchedStakingBalance] = useState(false);
 
@@ -140,59 +134,6 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
       dispatch(fetchLoanTokens({ client }));
     });
   }, []);
-
-  function getUserDetailWithRetry() {
-    defer(() => {
-      return from(getUserDetail());
-    })
-      .pipe(
-        map((userDetail) => {
-          if (userDetail === undefined || userDetail.stakingBalance === undefined) {
-            throw new Error('userdetail undefined');
-          }
-          return userDetail;
-        }),
-        retry({ count: 1, delay: 3000, resetOnSuccess: true }),
-      )
-      .subscribe({
-        next: (result) => {
-          // console.log(result)
-
-          setStaked(result?.stakingBalance ?? 0);
-          setHasFetchedStakingBalance(true);
-        },
-        error: () => {
-          // console.log(err)
-        },
-      });
-  }
-
-  function fetchDfxStakingBalance(): void {
-    setHasFetchedStakingBalance(false);
-
-    getUserDetailWithRetry();
-  }
-
-  useEffect(() => {
-    fetchDfxStakingBalance();
-  }, []);
-
-  // use debounced address of DFXAPIContext, but as the whole session updating is scuffed, we need to wait an additional time
-  // therefore extra debounce before trying to fetch new "staking balance"
-  const extraDebouncedAddress = useDebounce(debouncedAddress ?? '', 2000);
-  const { networkName } = useNetworkContext();
-  const [previousDebounced, setPreviousDebounced] = useState<{ debouncedAddress?: string; networkName: string }>();
-
-  useEffect(() => {
-    setPreviousDebounced({ debouncedAddress: extraDebouncedAddress, networkName });
-    if (
-      !previousDebounced ||
-      (previousDebounced.debouncedAddress === extraDebouncedAddress && previousDebounced.networkName === networkName)
-    ) {
-      return;
-    }
-    fetchDfxStakingBalance();
-  }, [extraDebouncedAddress, networkName]);
 
   const fetchPortfolioData = (): void => {
     batch(() => {
@@ -545,7 +486,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     fetchPortfolioData();
-    fetchDfxStakingBalance();
+    // TODO: fetch LOCK staking balance
     setLockRefetchTrigger((value) => !value);
     setRefreshing(false);
   }, [address, client, dispatch]);
