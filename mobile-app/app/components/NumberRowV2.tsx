@@ -1,42 +1,41 @@
-import { StyleProp, View, ViewProps, ViewStyle } from 'react-native'
-import NumberFormat from 'react-number-format'
-import BigNumber from 'bignumber.js'
-import { tailwind } from '@tailwind'
-import { ThemedProps, ThemedText, ThemedView } from './themed'
-import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue'
-import { IconTooltip } from './tooltip/IconTooltip'
+import { StyleProp, View, ViewProps, ViewStyle } from 'react-native';
+import { NumericFormat as NumberFormat } from 'react-number-format';
+import BigNumber from 'bignumber.js';
+import { tailwind } from '@tailwind';
+import { ThemedProps, ThemedText, ThemedView } from './themed';
+import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue';
+import { IconTooltip } from './tooltip/IconTooltip';
 
-type INumberRowProps = React.PropsWithChildren<ViewProps> & NumberRowProps
+type INumberRowProps = React.PropsWithChildren<ViewProps> & NumberRowProps;
 
 interface NumberRowProps extends ThemedProps {
-  lhs: NumberRowElement
-  rhs: RhsNumberRowElement
-  containerStyle?: ThemedProps & { style: ThemedProps & StyleProp<ViewStyle> }
+  lhs: NumberRowElement;
+  rhs: RhsNumberRowElement;
+  containerStyle?: ThemedProps & { style: ThemedProps & StyleProp<ViewStyle> };
 }
 
 interface RhsNumberRowElement extends NumberRowElement {
-  usdAmount?: BigNumber
-  isOraclePrice?: boolean
+  usdAmount?: BigNumber;
+  isOraclePrice?: boolean;
 }
 
 export interface NumberRowElement {
-  value: string | number
-  prefix?: string
-  suffix?: string
-  testID: string
+  value: string | number;
+  prefix?: string;
+  suffix?: string;
+  testID: string;
 }
 
-export function NumberRowV2 (props: INumberRowProps): JSX.Element {
+export function NumberRowV2(props: INumberRowProps): JSX.Element {
   return (
     <ThemedView
-      {
-      ...((props.containerStyle != null)
+      {...(props.containerStyle != null
         ? props.containerStyle
         : {
-          style: tailwind('flex-row items-start w-full bg-transparent'),
-          light: tailwind('bg-transparent'),
-          dark: tailwind('bg-transparent')
-        })}
+            style: tailwind('flex-row items-start w-full bg-transparent'),
+            light: tailwind('bg-transparent'),
+            dark: tailwind('bg-transparent'),
+          })}
     >
       <View style={tailwind('w-5/12')}>
         <View style={tailwind('flex-row items-end justify-start')}>
@@ -56,7 +55,7 @@ export function NumberRowV2 (props: INumberRowProps): JSX.Element {
           <View style={tailwind('flex flex-row justify-end flex-wrap items-center')}>
             <NumberFormat
               decimalScale={8}
-              displayType='text'
+              displayType="text"
               prefix={props.rhs.prefix}
               suffix={props.rhs.suffix !== undefined ? ` ${props.rhs.suffix}` : undefined}
               renderText={(val: string) => (
@@ -75,21 +74,16 @@ export function NumberRowV2 (props: INumberRowProps): JSX.Element {
           </View>
         </View>
         <View style={tailwind('flex flex-row justify-end flex-wrap items-center')}>
-          {
-            props.rhs.usdAmount !== undefined &&
-              <ActiveUSDValue
-                price={props.rhs.usdAmount}
-                containerStyle={tailwind('justify-end')}
-                testId={`${props.rhs.testID}_rhsUsdAmount`}
-              />
-          }
-          {
-            props.rhs.isOraclePrice === true && (
-              <IconTooltip />
-            )
-          }
+          {props.rhs.usdAmount !== undefined && (
+            <ActiveUSDValue
+              price={props.rhs.usdAmount}
+              containerStyle={tailwind('justify-end')}
+              testId={`${props.rhs.testID}_rhsUsdAmount`}
+            />
+          )}
+          {props.rhs.isOraclePrice === true && <IconTooltip />}
         </View>
       </View>
     </ThemedView>
-  )
+  );
 }

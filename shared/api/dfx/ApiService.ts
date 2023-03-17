@@ -50,6 +50,7 @@ import {
 } from './models/BankAccount';
 import { noop } from 'lodash';
 import { getReleaseChannel } from '@api/releaseChannel';
+import { Logging } from '@api';
 
 const DfxBaseUrl = getEnvironment(getReleaseChannel()).dfx.apiUrl;
 const AuthUrl = 'auth';
@@ -494,7 +495,7 @@ const fetchFrom = async <T>(
   // console.log('URL--> ', `${BaseUrl}/${url}`)
   // console.log('METHOD --> ', method)
   // ;(data != null) && console.log('data --> ', data)
-
+  Logging.info(`fetch ${method} ${url}`);
   return await AuthService.Session(options?.withoutJWT, options?.apiDomain)
     .then((session) => buildInit(method, session, data, options?.noJson))
     .then(async (init) => await fetch(`${BaseUrl}/${url}`, init))

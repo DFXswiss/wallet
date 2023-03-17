@@ -8,7 +8,7 @@ import { tailwind } from '@tailwind';
 import { translate } from '@translations';
 import BigNumber from 'bignumber.js';
 import { Text, TouchableOpacity, View } from 'react-native';
-import NumberFormat from 'react-number-format';
+import { NumericFormat as NumberFormat } from 'react-number-format';
 import { useSelector } from 'react-redux';
 import { ListItem, ListItemStyle } from './ListItem';
 import { SymbolIcon } from '@components/SymbolIcon';
