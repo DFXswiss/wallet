@@ -18,6 +18,7 @@ import BigNumber from 'bignumber.js';
 import { TokenBreakdownPercentage } from './TokenBreakdownPercentage';
 import { LockedBalance, useTokenLockedBalance } from '../hooks/TokenLockedBalance';
 import { EmptyPortfolio } from './EmptyPortfolio';
+import { PoolPairIcon } from '@components/icons/PoolPairIcon';
 
 export enum ButtonGroupTabKey {
   AllTokens = 'ALL_TOKENS',
@@ -154,6 +155,7 @@ function PortfolioItemRow({
   denominationCurrency: string;
 }): JSX.Element {
   const Icon = getNativeIcon(token.displaySymbol);
+  const splittedLPS = token.isLPS ? token.displaySymbol.split('-') : [];
   const testID = `portfolio_row_${token.id}`;
   const { isBalancesDisplayed } = useDisplayBalancesContext();
   const lockedToken = (useTokenLockedBalance({
@@ -178,7 +180,12 @@ function PortfolioItemRow({
         testID={testID}
       >
         <View style={tailwind('flex-row items-center flex-grow')}>
-          <Icon height={32} width={32} testID={`${testID}_icon`} />
+          {token.isLPS ? (
+            <PoolPairIcon symbolA={splittedLPS[0]} symbolB={splittedLPS[1]} big />
+          ) : (
+            <Icon height={32} width={32} testID={`${testID}_icon`} />
+          )}
+
           <TokenNameText displaySymbol={token.displaySymbol} name={token.name} testID={testID} />
           <TokenAmountText
             tokenAmount={token.amount}
