@@ -125,7 +125,6 @@ export interface UserDetail extends User {
 
 export interface LinkedAddresses {
   address: string;
-  isSwitchable: boolean;
   blockchains: Blockchain;
 }
 
