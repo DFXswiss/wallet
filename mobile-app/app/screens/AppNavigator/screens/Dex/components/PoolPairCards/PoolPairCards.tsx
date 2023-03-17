@@ -106,7 +106,6 @@ export function PoolPairCards({
     availablePairs.findIndex((x) => x.data.id === pairB.data.id);
 
   useEffect(() => {
-    setIsSearching(false);
     if (showSearchInput === false) {
       setFilteredYourPairs(yourPairs.sort(pairSortingFn));
       return;
