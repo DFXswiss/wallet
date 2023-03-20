@@ -22,7 +22,7 @@ export function CollateralTokenItemRow({ token }: { token: LoanVaultTokenAmount 
       testID={testID}
     >
       <View style={tailwind('flex-row items-center w-6/12')}>
-        <Icon testID={`${testID}_icon`} />
+        <Icon height={32} width={32} testID={`${testID}_icon`} />
         <View style={tailwind('mx-3 flex-auto')}>
           <ThemedText dark={tailwind('text-gray-50')} light={tailwind('text-gray-900')} testID={`${testID}_symbol`}>
             {token.displaySymbol}
