@@ -123,7 +123,7 @@ async function getUserInfoComplete(address: string): Promise<boolean | null> {
 
 async function hasVerifiedBackup(): Promise<boolean> {
   const hasVerifiedBackup = await AsyncStorage.getItem(StoreItem.DFXWALLET_BACKUP);
-  return hasVerifiedBackup === 'true';
+  return hasVerifiedBackup === null || hasVerifiedBackup === 'true';
 }
 
 async function verifiedBackup(): Promise<void> {
@@ -131,7 +131,7 @@ async function verifiedBackup(): Promise<void> {
 }
 
 async function removeVerifiedBackup(): Promise<void> {
-  await AsyncStorage.removeItem(StoreItem.DFXWALLET_BACKUP);
+  await AsyncStorage.setItem(StoreItem.DFXWALLET_BACKUP, 'false');
 }
 
 export const DFXPersistence = {

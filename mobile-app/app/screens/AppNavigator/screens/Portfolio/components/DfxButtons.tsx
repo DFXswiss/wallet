@@ -168,7 +168,7 @@ export function DfxButtons(): JSX.Element {
         },
         {
           Svg: DfxIcon,
-          label: 'delete backupVerified',
+          label: 'set backupVerified to false',
           onPress: () => DFXPersistence.removeVerifiedBackup(),
         },
       ]
