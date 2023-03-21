@@ -44,6 +44,7 @@ export interface AddOrRemoveCollateralFormProps {
   onCloseButtonPress: () => void;
   isAdd: boolean;
   vault: LoanVaultActive;
+  collateralTokens: CollateralItem[];
 }
 
 const COLOR_BARS_COUNT = 6;
@@ -66,6 +67,7 @@ export const AddOrRemoveCollateralForm = memo(({ route }: Props): JSX.Element =>
     isAdd,
     vault,
     collateralItem,
+    collateralTokens,
   } = route.params;
   const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
   const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
@@ -87,6 +89,7 @@ export const AddOrRemoveCollateralForm = memo(({ route }: Props): JSX.Element =>
     isAdd,
     collateralInputValue,
     activePriceAmount: activePrice.isNaN() ? new BigNumber(0) : new BigNumber(activePrice),
+    collateralTokens,
   });
   const { displayedColorBars, resultingColRatio } = useResultingCollateralizationRatioByCollateral({
     collateralValue: collateralValue,
