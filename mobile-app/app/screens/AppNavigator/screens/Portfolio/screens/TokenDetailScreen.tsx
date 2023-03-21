@@ -20,13 +20,15 @@ import {
   ThemedSectionTitle,
   ThemedText,
   ThemedTouchableOpacity,
-  ThemedView
-} from '@components/themed'
-import { PortfolioParamList } from '../PortfolioNavigator'
-import { ConversionMode } from './ConvertScreen'
-import { useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { getAssets } from '@shared-api/dfx/ApiService'
+  ThemedView,
+} from '@components/themed';
+import { PortfolioParamList } from '../PortfolioNavigator';
+import { ConversionMode } from './ConvertScreen';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store';
+import { getAssets } from '@shared-api/dfx/ApiService';
+import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
+import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 
 interface TokenActionItems {
   title: string
@@ -82,18 +84,12 @@ const usePoolPairToken = (tokenParam: WalletToken): { pair?: PoolPairData, token
   }
 }
 
-export function TokenDetailScreen ({
-  route,
-  navigation
-}: Props): JSX.Element {
-  const DFIUnified = useSelector((state: RootState) => unifiedDFISelector(state.wallet))
-  const {
-    pair,
-    token,
-    swapTokenDisplaySymbol
-  } = usePoolPairToken(route.params.token)
-  const [isSellable, setIsSellable] = useState(false)
-  const [isBuyable, setIsBuyable] = useState(false)
+export function TokenDetailScreen({ route, navigation }: Props): JSX.Element {
+  const DFIUnified = useSelector((state: RootState) => unifiedDFISelector(state.wallet));
+  const { pair, token, swapTokenDisplaySymbol } = usePoolPairToken(route.params.token);
+  const { isNotAllowedInCountry } = useDFXAPIContext();
+  const [isSellable, setIsSellable] = useState(false);
+  const [isBuyable, setIsBuyable] = useState(false);
 
   useEffect(() => {
     getAssets().then((assets) => {
@@ -142,6 +138,12 @@ export function TokenDetailScreen ({
     })
   }
 
+  const isAllowed = () => {
+    if (!isNotAllowedInCountry) return true;
+    WalletAlertNotAvailableInCountry('DFX');
+    return false;
+  };
+
   return (
     <ThemedScrollView>
       <TokenSummary token={token} />
@@ -150,14 +152,15 @@ export function TokenDetailScreen ({
         text={translate('screens/TokenDetailScreen', 'AVAILABLE OPTIONS')}
       />
 
-      {
-        token.id !== '0' && (
-          <>
-            {isBuyable && (
-              <TokenActionRow
-                icon='bank' // {BtnSell} // TODO: add + implement custom icon
-                iconType='MaterialCommunityIcons'
-                onPress={() => navigation.navigate({
+      {token.id !== '0' && (
+        <>
+          {isBuyable && (
+            <TokenActionRow
+              icon="bank" // {BtnSell} // TODO: add + implement custom icon
+              iconType="MaterialCommunityIcons"
+              onPress={() =>
+                isAllowed() &&
+                navigation.navigate({
                   name: 'Buy',
                   params: { token },
                   merge: true
@@ -166,10 +169,12 @@ export function TokenDetailScreen ({
                 title={translate('screens/TokenDetailScreen', 'Buy')}
               />)}
 
-            {isSellable && (
-              <TokenActionRow
-                icon='money' // {BtnSell} // TODO: add + implement custom icon
-                onPress={() => navigation.navigate({
+          {isSellable && (
+            <TokenActionRow
+              icon="money" // {BtnSell} // TODO: add + implement custom icon
+              onPress={() =>
+                isAllowed() &&
+                navigation.navigate({
                   name: 'Sell',
                   params: { token },
                   merge: true

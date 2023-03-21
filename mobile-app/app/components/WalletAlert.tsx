@@ -1,5 +1,7 @@
 // import { Logging } from '@api'
-import { Alert, AlertButton, AlertOptions, Platform } from 'react-native'
+import { Logging } from '@api';
+import { translate } from '@translations';
+import { Alert, AlertButton, AlertOptions, Platform } from 'react-native';
 
 export interface CustomAlertOption {
   title: string
@@ -68,6 +70,19 @@ export function WalletAlertErrorApi (apiResponseError: any): void {
   const errorMsg = safeAnyUsageStringArrayJsonEmtpyString(apiResponseError?.message)
 
   WalletAlert({ title: errorName, message: errorMsg })
+}
+
+export function WalletAlertNotAvailableInCountry(service: string): void {
+  WalletAlert({
+    title: translate('screens/PortfolioScreen', 'Availability'),
+    message: translate(
+      'screens/PortfolioScreen',
+      'Unfortunately, {{service}} service is not available in your country.',
+      {
+        service,
+      },
+    ),
+  });
 }
 
 // TODO: (thabrad) move to a Utils lib
