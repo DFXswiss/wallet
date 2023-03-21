@@ -3,5 +3,5 @@ export enum HistoryType {
   SELL = 'sell',
   STAKING = 'staking',
   REF = 'ref',
-//   LM = "lm",
+  //   LM = "lm",
 }

@@ -6,5 +6,5 @@ export enum VaultStatus {
   Halted = 'HALTED',
   NearLiquidation = 'NEAR LIQUIDATION',
   Liquidated = 'IN LIQUIDATION',
-  Unknown = 'UNKNOWN'
+  Unknown = 'UNKNOWN',
 }

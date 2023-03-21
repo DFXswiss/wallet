@@ -1,18 +1,15 @@
-import { Button } from '@components/Button'
-import { ThemedScrollView, ThemedText } from '@components/themed'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
+import { Button } from '@components/Button';
+import { ThemedScrollView, ThemedText } from '@components/themed';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
 
-import { LoanParamList } from '../../LoansNavigator'
+import { LoanParamList } from '../../LoansNavigator';
 
-export function EmptyCollateral (props: {vaultId: string}): JSX.Element {
-  const navigation = useNavigation<NavigationProp<LoanParamList>>()
+export function EmptyCollateral(props: { vaultId: string }): JSX.Element {
+  const navigation = useNavigation<NavigationProp<LoanParamList>>();
   return (
-    <ThemedScrollView
-      contentContainerStyle={tailwind('px-12 py-16 text-center')}
-      testID='empty_active_loans'
-    >
+    <ThemedScrollView contentContainerStyle={tailwind('px-12 py-16 text-center')} testID="empty_active_loans">
       <ThemedText style={tailwind('text-2xl pb-2 font-semibold text-center')}>
         {translate('components/EmptyCollateral', 'No collateral')}
       </ThemedText>
@@ -27,13 +24,13 @@ export function EmptyCollateral (props: {vaultId: string}): JSX.Element {
           navigation.navigate({
             name: 'EditCollateralScreen',
             params: {
-              vaultId: props.vaultId
-            }
-          })
+              vaultId: props.vaultId,
+            },
+          });
         }}
-        testID='button_add_collateral'
-        margin='m-0 mb-4'
+        testID="button_add_collateral"
+        margin="m-0 mb-4"
       />
     </ThemedScrollView>
-  )
+  );
 }

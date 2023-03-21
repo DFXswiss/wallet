@@ -1,5 +1,5 @@
 module.exports = function (api) {
-  api.cache(true)
+  api.cache(true);
   const plugins = [
     [
       'module-resolver',
@@ -18,9 +18,9 @@ module.exports = function (api) {
           '@screens': './mobile-app/app/screens',
           '@store': './shared/store',
           '@translations': './shared/translations',
-          '@tailwind': './mobile-app/app/tailwind'
-        }
-      }
+          '@tailwind': './mobile-app/app/tailwind',
+        },
+      },
     ],
     'react-native-reanimated/plugin',
     [
@@ -28,19 +28,19 @@ module.exports = function (api) {
       {
         runtime: 'automatic',
       },
-    ]
-  ]
+    ],
+  ];
 
   if (process.env.CYPRESS_E2E) {
-    plugins.push('istanbul')
+    plugins.push('istanbul');
   }
 
   if (process.env.NODE_ENV === 'production') {
-    plugins.push(['transform-remove-console', { 'exclude': ['error', 'warn'] }])
+    plugins.push(['transform-remove-console', { exclude: ['error', 'warn'] }]);
   }
 
   return {
     presets: ['babel-preset-expo'],
-    plugins: plugins
-  }
-}
+    plugins: plugins,
+  };
+};

@@ -1,18 +1,18 @@
-import { tailwind } from '@tailwind'
-import { ThemedText } from './themed'
+import { tailwind } from '@tailwind';
+import { ThemedText } from './themed';
 
 export enum IconLabelScreenType {
   Balance,
-  DEX
+  DEX,
 }
 
 interface InputIconLabelProps {
-  testID?: string
-  label: string
-  screenType: IconLabelScreenType
+  testID?: string;
+  label: string;
+  screenType: IconLabelScreenType;
 }
 
-export function InputIconLabel (props: InputIconLabelProps): JSX.Element {
+export function InputIconLabel(props: InputIconLabelProps): JSX.Element {
   return (
     <ThemedText
       dark={tailwind('text-dfxgray-400')}
@@ -22,20 +22,20 @@ export function InputIconLabel (props: InputIconLabelProps): JSX.Element {
     >
       {getSymbolLabel(props.label, props.screenType)}
     </ThemedText>
-  )
+  );
 }
 
-function getSymbolLabel (symbol: string, screenType: IconLabelScreenType): string {
-  let symbolLabel: string
+function getSymbolLabel(symbol: string, screenType: IconLabelScreenType): string {
+  let symbolLabel: string;
 
   switch (symbol) {
     case 'DFI':
-      symbolLabel = screenType === IconLabelScreenType.Balance ? 'DFI (UTXO)' : 'DFI (Token)'
-      break
+      symbolLabel = screenType === IconLabelScreenType.Balance ? 'DFI (UTXO)' : 'DFI (Token)';
+      break;
 
     default:
-      symbolLabel = symbol
+      symbolLabel = symbol;
   }
 
-  return symbolLabel
+  return symbolLabel;
 }

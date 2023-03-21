@@ -1,22 +1,22 @@
-import { View } from '@components'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { Platform, TouchableOpacity } from 'react-native'
-import { useSafeAreaInsets } from 'react-native-safe-area-context'
-import { SearchInput } from './SearchInput'
-import { ThemedIcon, ThemedView } from './themed'
+import { View } from '@components';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { Platform, TouchableOpacity } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { SearchInput } from './SearchInput';
+import { ThemedIcon, ThemedView } from './themed';
 
 interface HeaderSearchInputProps {
-  searchString: string
-  onClearInput: () => void
-  onChangeInput: (text: string) => void
-  onCancelPress: () => void
-  placeholder: string
-  testID?: string
+  searchString: string;
+  onClearInput: () => void;
+  onChangeInput: (text: string) => void;
+  onCancelPress: () => void;
+  placeholder: string;
+  testID?: string;
 }
 
-export function HeaderSearchInput (props: HeaderSearchInputProps): JSX.Element {
-  const safeAreaInsets = useSafeAreaInsets()
+export function HeaderSearchInput(props: HeaderSearchInputProps): JSX.Element {
+  const safeAreaInsets = useSafeAreaInsets();
   return (
     <ThemedView
       light={tailwind('bg-white border-gray-200')}
@@ -24,8 +24,8 @@ export function HeaderSearchInput (props: HeaderSearchInputProps): JSX.Element {
       style={[
         tailwind('flex flex-row items-center pb-2 px-4'),
         {
-          paddingTop: Platform.OS === 'android' ? safeAreaInsets.top + 8 : safeAreaInsets.top - 4
-        }
+          paddingTop: Platform.OS === 'android' ? safeAreaInsets.top + 8 : safeAreaInsets.top - 4,
+        },
       ]}
     >
       <SearchInput
@@ -43,12 +43,12 @@ export function HeaderSearchInput (props: HeaderSearchInputProps): JSX.Element {
           <ThemedIcon
             light={tailwind('text-primary-500')}
             dark={tailwind('text-dfxred-500')}
-            iconType='MaterialCommunityIcons'
-            name='close'
+            iconType="MaterialCommunityIcons"
+            name="close"
             size={24}
           />
         </TouchableOpacity>
       </View>
     </ThemedView>
-  )
+  );
 }

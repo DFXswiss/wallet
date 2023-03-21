@@ -1,7 +1,7 @@
-import { render } from '@testing-library/react-native'
-import { WalletToast } from './WalletToast'
+import { render } from '@testing-library/react-native';
+import { WalletToast } from './WalletToast';
 
-jest.mock('@shared-contexts/ThemeProvider')
+jest.mock('@shared-contexts/ThemeProvider');
 
 describe('wallet toast', () => {
   it('should render and match snapshot', async () => {
@@ -12,10 +12,10 @@ describe('wallet toast', () => {
           onDestroy: jest.fn,
           message: 'foo',
           open: true,
-          onHide: jest.fn
+          onHide: jest.fn,
         }}
-      />
-    )
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
-})
+      />,
+    );
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
+});

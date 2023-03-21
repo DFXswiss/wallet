@@ -1,28 +1,28 @@
-import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed'
-import { View, TouchableOpacity } from 'react-native'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { NumberRow } from '@components/NumberRow'
-import { LoanVaultLiquidated, LoanVaultLiquidationBatch } from '@defichain/whale-api-client/dist/api/loan'
-import { openURL } from '@api/linking'
-import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext'
-import { TextRow } from '@components/TextRow'
-import { useAuctionTime } from '../hooks/AuctionTimeLeft'
-import { useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { useAuctionBidValue } from '../hooks/AuctionBidValue'
+import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed';
+import { View, TouchableOpacity } from 'react-native';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { NumberRow } from '@components/NumberRow';
+import { LoanVaultLiquidated, LoanVaultLiquidationBatch } from '@defichain/whale-api-client/dist/api/loan';
+import { openURL } from '@api/linking';
+import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext';
+import { TextRow } from '@components/TextRow';
+import { useAuctionTime } from '../hooks/AuctionTimeLeft';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store';
+import { useAuctionBidValue } from '../hooks/AuctionBidValue';
 
-export function AuctionDetails (props: { vault: LoanVaultLiquidated, batch: LoanVaultLiquidationBatch }): JSX.Element {
-  const { vault, batch } = props
-  const blockCount = useSelector((state: RootState) => state.block.count)
-  const { getVaultsUrl, getAddressUrl } = useDeFiScanContext()
-  const { startTime } = useAuctionTime(vault.liquidationHeight, blockCount ?? 0)
-  const { minStartingBidInToken, totalCollateralsValueInUSD } = useAuctionBidValue(batch, vault.liquidationPenalty)
+export function AuctionDetails(props: { vault: LoanVaultLiquidated; batch: LoanVaultLiquidationBatch }): JSX.Element {
+  const { vault, batch } = props;
+  const blockCount = useSelector((state: RootState) => state.block.count);
+  const { getVaultsUrl, getAddressUrl } = useDeFiScanContext();
+  const { startTime } = useAuctionTime(vault.liquidationHeight, blockCount ?? 0);
+  const { minStartingBidInToken, totalCollateralsValueInUSD } = useAuctionBidValue(batch, vault.liquidationPenalty);
 
   return (
     <ThemedScrollView contentContainerStyle={tailwind('pb-8')}>
       <ThemedSectionTitle
-        testID='auction_details'
+        testID="auction_details"
         text={translate('components/AuctionDetailScreen', 'VAULT DETAILS')}
       />
 
@@ -42,12 +42,12 @@ export function AuctionDetails (props: { vault: LoanVaultLiquidated, batch: Loan
         lhs={translate('components/AuctionDetailScreen', 'Liquidation height')}
         rhs={{
           value: vault.liquidationHeight,
-          testID: 'text_liquidation_height'
+          testID: 'text_liquidation_height',
         }}
       />
 
       <ThemedSectionTitle
-        testID='vault_details'
+        testID="vault_details"
         text={translate('components/AuctionDetailScreen', 'ADDITIONAL DETAILS')}
       />
 
@@ -56,7 +56,7 @@ export function AuctionDetails (props: { vault: LoanVaultLiquidated, batch: Loan
         rhs={{
           value: totalCollateralsValueInUSD,
           testID: 'text_collateral_value',
-          prefix: '$'
+          prefix: '$',
         }}
       />
 
@@ -66,7 +66,7 @@ export function AuctionDetails (props: { vault: LoanVaultLiquidated, batch: Loan
           suffix: batch.loan.displaySymbol,
           suffixType: 'text',
           value: minStartingBidInToken,
-          testID: 'text_min_starting_bid'
+          testID: 'text_min_starting_bid',
         }}
       />
 
@@ -74,15 +74,15 @@ export function AuctionDetails (props: { vault: LoanVaultLiquidated, batch: Loan
         lhs={translate('components/AuctionDetailScreen', 'Auction start')}
         rhs={{
           value: startTime,
-          testID: 'auction_start'
+          testID: 'auction_start',
         }}
         textStyle={tailwind('text-sm font-normal')}
       />
     </ThemedScrollView>
-  )
+  );
 }
 
-function RowLinkItem (props: {label: string, value: string, onPress: () => void }): JSX.Element {
+function RowLinkItem(props: { label: string; value: string; onPress: () => void }): JSX.Element {
   return (
     <ThemedView
       dark={tailwind('bg-dfxblue-800 border-b border-dfxblue-900')}
@@ -91,9 +91,7 @@ function RowLinkItem (props: {label: string, value: string, onPress: () => void 
     >
       <View style={tailwind('w-5/12')}>
         <View style={tailwind('flex-row items-center justify-start')}>
-          <ThemedText style={tailwind('text-sm font-normal')}>
-            {props.label}
-          </ThemedText>
+          <ThemedText style={tailwind('text-sm font-normal')}>{props.label}</ThemedText>
         </View>
       </View>
 
@@ -104,19 +102,16 @@ function RowLinkItem (props: {label: string, value: string, onPress: () => void 
             light={tailwind('text-gray-500')}
             style={tailwind('text-right w-11/12 text-sm font-normal')}
             numberOfLines={1}
-            ellipsizeMode='middle'
+            ellipsizeMode="middle"
           >
             {props.value}
           </ThemedText>
-          <TouchableOpacity
-            onPress={props.onPress}
-            testID='ocean_vault_explorer'
-          >
+          <TouchableOpacity onPress={props.onPress} testID="ocean_vault_explorer">
             <ThemedIcon
               dark={tailwind('text-dfxred-500')}
-              iconType='MaterialIcons'
+              iconType="MaterialIcons"
               light={tailwind('text-primary-500')}
-              name='open-in-new'
+              name="open-in-new"
               style={tailwind('text-right ml-1')}
               size={16}
             />
@@ -124,5 +119,5 @@ function RowLinkItem (props: {label: string, value: string, onPress: () => void 
         </View>
       </View>
     </ThemedView>
-  )
+  );
 }

@@ -1,12 +1,12 @@
 export interface ApiError {
-  statusCode: number
-  message: string
+  statusCode: number;
+  message: string;
 }
 
 export interface AuthResponse {
-  accessToken: string
+  accessToken: string;
 }
 
 export interface SignMessageResponse {
-  message: string
+  message: string;
 }

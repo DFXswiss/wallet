@@ -1,21 +1,24 @@
-import { StackScreenProps } from '@react-navigation/stack'
-import { ThemedScrollViewV2, ThemedViewV2, ThemedTextV2 } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { SettingsParamList } from '../SettingsNavigatorV2'
+import { StackScreenProps } from '@react-navigation/stack';
+import { ThemedScrollViewV2, ThemedViewV2, ThemedTextV2 } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { SettingsParamList } from '../SettingsNavigatorV2';
 
-type Props = StackScreenProps<SettingsParamList, 'RecoveryWordsScreen'>
+type Props = StackScreenProps<SettingsParamList, 'RecoveryWordsScreen'>;
 
-export function RecoveryWordsScreenV2 ({ route }: Props): JSX.Element {
-  const { words } = route.params
+export function RecoveryWordsScreenV2({ route }: Props): JSX.Element {
+  const { words } = route.params;
   return (
     <ThemedScrollViewV2
       contentContainerStyle={tailwind('pt-8 px-5 pb-16')}
       style={tailwind('flex-1')}
-      testID='recovery_word_screen'
+      testID="recovery_word_screen"
     >
       <ThemedTextV2 style={tailwind('font-normal-v2 text-base text-center px-5')}>
-        {translate('screens/RecoveryWordsScreen', 'Take note of the correct spelling and order. Keep your recovery words confidential and secure.')}
+        {translate(
+          'screens/RecoveryWordsScreen',
+          'Take note of the correct spelling and order. Keep your recovery words confidential and secure.',
+        )}
       </ThemedTextV2>
 
       <ThemedViewV2
@@ -24,21 +27,14 @@ export function RecoveryWordsScreenV2 ({ route }: Props): JSX.Element {
         style={tailwind('rounded-lg-v2 mt-8')}
       >
         {words.map((word, index) => {
-          return (
-            <RecoveryWordRow
-              index={index}
-              key={index}
-              word={word}
-              border={index < words.length - 1}
-            />
-          )
+          return <RecoveryWordRow index={index} key={index} word={word} border={index < words.length - 1} />;
         })}
       </ThemedViewV2>
     </ThemedScrollViewV2>
-  )
+  );
 }
 
-function RecoveryWordRow (props: { index: number, word: string, border: boolean }): JSX.Element {
+function RecoveryWordRow(props: { index: number; word: string; border: boolean }): JSX.Element {
   return (
     <ThemedViewV2
       dark={tailwind('border-mono-dark-v2-300')}
@@ -63,5 +59,5 @@ function RecoveryWordRow (props: { index: number, word: string, border: boolean 
         {props.word}
       </ThemedTextV2>
     </ThemedViewV2>
-  )
+  );
 }

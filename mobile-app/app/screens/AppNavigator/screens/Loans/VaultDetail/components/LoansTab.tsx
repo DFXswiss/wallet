@@ -1,44 +1,37 @@
-
-import BigNumber from 'bignumber.js'
-import { ThemedText, ThemedView } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { View } from '@components'
-import { SymbolIcon } from '@components/SymbolIcon'
-import { IconButton } from '@components/IconButton'
-import { translate } from '@translations'
-import { LoanVault } from '@store/loans'
-import { LoanVaultActive, LoanVaultState, LoanVaultTokenAmount } from '@defichain/whale-api-client/dist/api/loan'
-import { VaultSectionTextRow } from '../../components/VaultSectionTextRow'
-import { EmptyLoan } from './EmptyLoan'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { LoanParamList } from '@screens/AppNavigator/screens/Loans/LoansNavigator'
-import { useLoanOperations } from '@screens/AppNavigator/screens/Loans/hooks/LoanOperations'
-import { getActivePrice } from '@screens/AppNavigator/screens/Auctions/helpers/ActivePrice'
-import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue'
+import BigNumber from 'bignumber.js';
+import { ThemedText, ThemedView } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { View } from '@components';
+import { SymbolIcon } from '@components/SymbolIcon';
+import { IconButton } from '@components/IconButton';
+import { translate } from '@translations';
+import { LoanVault } from '@store/loans';
+import { LoanVaultActive, LoanVaultState, LoanVaultTokenAmount } from '@defichain/whale-api-client/dist/api/loan';
+import { VaultSectionTextRow } from '../../components/VaultSectionTextRow';
+import { EmptyLoan } from './EmptyLoan';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { LoanParamList } from '@screens/AppNavigator/screens/Loans/LoansNavigator';
+import { useLoanOperations } from '@screens/AppNavigator/screens/Loans/hooks/LoanOperations';
+import { getActivePrice } from '@screens/AppNavigator/screens/Auctions/helpers/ActivePrice';
+import { ActiveUSDValue } from '@screens/AppNavigator/screens/Loans/VaultDetail/components/ActiveUSDValue';
 
 interface LoanCardProps {
-  symbol: string
-  displaySymbol: string
-  amount: string
-  interestAmount?: string
-  vaultState: LoanVaultState
-  vault?: LoanVaultActive
-  loanToken: LoanVaultTokenAmount
+  symbol: string;
+  displaySymbol: string;
+  amount: string;
+  interestAmount?: string;
+  vaultState: LoanVaultState;
+  vault?: LoanVaultActive;
+  loanToken: LoanVaultTokenAmount;
 }
 
-export function LoansTab (props: { vault: LoanVault }): JSX.Element {
-  const { vault } = props
+export function LoansTab(props: { vault: LoanVault }): JSX.Element {
+  const { vault } = props;
   return (
-    <ThemedView
-      style={tailwind('p-4')}
-    >
-      {vault.state === LoanVaultState.ACTIVE && vault.loanValue === '0' &&
-      (
-        <EmptyLoan vaultId={vault.vaultId} />
-      )}
+    <ThemedView style={tailwind('p-4')}>
+      {vault.state === LoanVaultState.ACTIVE && vault.loanValue === '0' && <EmptyLoan vaultId={vault.vaultId} />}
       {vault.state === LoanVaultState.IN_LIQUIDATION
-        ? (
-          vault.batches.map(batch => (
+        ? vault.batches.map((batch) => (
             <LoanCard
               key={batch.loan.id}
               symbol={batch.loan.id}
@@ -47,31 +40,26 @@ export function LoansTab (props: { vault: LoanVault }): JSX.Element {
               vaultState={LoanVaultState.IN_LIQUIDATION}
               loanToken={batch.loan}
             />
-            )
-          )
-        )
-        : (
-          vault.loanAmounts.map(loan => (
+          ))
+        : vault.loanAmounts.map((loan) => (
             <LoanCard
               key={loan.id}
               symbol={loan.symbol}
               displaySymbol={loan.displaySymbol}
               amount={loan.amount}
-              interestAmount={vault.interestAmounts.find(interest => interest.symbol === loan.symbol)?.amount}
+              interestAmount={vault.interestAmounts.find((interest) => interest.symbol === loan.symbol)?.amount}
               vaultState={vault.state}
               vault={vault}
               loanToken={loan}
             />
-          ))
-        )}
-
+          ))}
     </ThemedView>
-  )
+  );
 }
 
-function LoanCard (props: LoanCardProps): JSX.Element {
-  const canUseOperations = useLoanOperations(props.vault?.state)
-  const activePrice = new BigNumber(getActivePrice(props.symbol, props.loanToken.activePrice))
+function LoanCard(props: LoanCardProps): JSX.Element {
+  const canUseOperations = useLoanOperations(props.vault?.state);
+  const activePrice = new BigNumber(getActivePrice(props.symbol, props.loanToken.activePrice));
 
   return (
     <ThemedView
@@ -80,17 +68,15 @@ function LoanCard (props: LoanCardProps): JSX.Element {
       style={tailwind('p-4 mb-2 border rounded')}
     >
       <View style={tailwind('flex flex-row items-center')}>
-        <SymbolIcon
-          symbol={props.displaySymbol} styleProps={tailwind('w-4 h-4')}
-        />
+        <SymbolIcon symbol={props.displaySymbol} styleProps={tailwind('w-4 h-4')} />
         <ThemedText
           light={tailwind({
             'text-dfxgray-300': props.vaultState === LoanVaultState.IN_LIQUIDATION,
-            'text-black': props.vaultState !== LoanVaultState.IN_LIQUIDATION
+            'text-black': props.vaultState !== LoanVaultState.IN_LIQUIDATION,
           })}
           dark={tailwind({
             'text-gray-700': props.vaultState === LoanVaultState.IN_LIQUIDATION,
-            'text-white': props.vaultState !== LoanVaultState.IN_LIQUIDATION
+            'text-white': props.vaultState !== LoanVaultState.IN_LIQUIDATION,
           })}
           style={tailwind('font-medium ml-2')}
           testID={`loan_card_${props.displaySymbol}`}
@@ -103,18 +89,18 @@ function LoanCard (props: LoanCardProps): JSX.Element {
           value={new BigNumber(props.amount).toFixed(8)}
           lhs={translate('components/VaultDetailsLoansTab', 'Outstanding balance')}
           testID={`loan_card_${props.displaySymbol}_outstanding_balance`}
-          suffixType='text'
+          suffixType="text"
           suffix={` ${props.displaySymbol}`}
           style={tailwind('text-sm font-medium')}
           rhsThemedProps={{
             light: tailwind({
               'text-dfxgray-300': props.vaultState === LoanVaultState.IN_LIQUIDATION,
-              'text-black': props.vaultState !== LoanVaultState.IN_LIQUIDATION
+              'text-black': props.vaultState !== LoanVaultState.IN_LIQUIDATION,
             }),
             dark: tailwind({
               'text-gray-700': props.vaultState === LoanVaultState.IN_LIQUIDATION,
-              'text-white': props.vaultState !== LoanVaultState.IN_LIQUIDATION
-            })
+              'text-white': props.vaultState !== LoanVaultState.IN_LIQUIDATION,
+            }),
           }}
         />
         <ActiveUSDValue
@@ -122,20 +108,19 @@ function LoanCard (props: LoanCardProps): JSX.Element {
           containerStyle={tailwind('justify-end')}
           isOraclePrice
         />
-        {props.vaultState !== LoanVaultState.IN_LIQUIDATION &&
-        (
+        {props.vaultState !== LoanVaultState.IN_LIQUIDATION && (
           <>
             <View style={tailwind('pt-1.5')}>
               <VaultSectionTextRow
                 value={new BigNumber(props.interestAmount ?? 0).toFixed(8)}
                 lhs={translate('components/VaultDetailsLoansTab', 'Interest amount')}
-                testID='text_interest_amount'
-                suffixType='text'
+                testID="text_interest_amount"
+                suffixType="text"
                 suffix={` ${props.displaySymbol}`}
                 info={{
-                title: 'Interest amount',
-                message: 'This amount is the total interest amount from both vault and token interest rate.'
-              }}
+                  title: 'Interest amount',
+                  message: 'This amount is the total interest amount from both vault and token interest rate.',
+                }}
               />
               <ActiveUSDValue
                 price={new BigNumber(props.interestAmount ?? 0).multipliedBy(activePrice)}
@@ -147,27 +132,33 @@ function LoanCard (props: LoanCardProps): JSX.Element {
         )}
       </View>
 
-      {
-        props.vault !== undefined && (
-          <ActionButtons testID={`loan_card_${props.displaySymbol}`} vault={props.vault} loanToken={props.loanToken} canUseOperations={canUseOperations} />
-        )
-      }
+      {props.vault !== undefined && (
+        <ActionButtons
+          testID={`loan_card_${props.displaySymbol}`}
+          vault={props.vault}
+          loanToken={props.loanToken}
+          canUseOperations={canUseOperations}
+        />
+      )}
     </ThemedView>
-  )
+  );
 }
 
-function ActionButtons ({
+function ActionButtons({
   vault,
   loanToken,
   canUseOperations,
-  testID
-}: { vault: LoanVaultActive, loanToken: LoanVaultTokenAmount, canUseOperations: boolean, testID: string }): JSX.Element {
-  const navigation = useNavigation<NavigationProp<LoanParamList>>()
+  testID,
+}: {
+  vault: LoanVaultActive;
+  loanToken: LoanVaultTokenAmount;
+  canUseOperations: boolean;
+  testID: string;
+}): JSX.Element {
+  const navigation = useNavigation<NavigationProp<LoanParamList>>();
 
   return (
-    <View
-      style={tailwind('mt-4 -mb-2 flex flex-row justify-between')}
-    >
+    <View style={tailwind('mt-4 -mb-2 flex flex-row justify-between')}>
       <View style={tailwind('flex flex-row flex-wrap flex-1')}>
         <IconButton
           disabled={!canUseOperations}
@@ -180,9 +171,9 @@ function ActionButtons ({
               merge: true,
               params: {
                 vault,
-                loanTokenAmount: loanToken
-              }
-            })
+                loanTokenAmount: loanToken,
+              },
+            });
           }}
         />
         <IconButton
@@ -196,12 +187,12 @@ function ActionButtons ({
               merge: true,
               params: {
                 vault,
-                loanTokenAmount: loanToken
-              }
-            })
+                loanTokenAmount: loanToken,
+              },
+            });
           }}
         />
       </View>
     </View>
-  )
+  );
 }

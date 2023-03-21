@@ -1,45 +1,50 @@
-import { tailwind } from '@tailwind'
-import { ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedView, ThemedScrollView, ThemedSectionTitle } from '@components/themed'
-import { useEffect, useState, useLayoutEffect } from 'react'
-import { MAX_ALLOWED_ADDRESSES, useWalletContext } from '@shared-contexts/WalletContext'
-import { View } from '@components'
-import { TouchableOpacity } from 'react-native'
-import { translate } from '@translations'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { PortfolioParamList } from '../PortfolioNavigator'
-import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { RandomAvatar } from '@screens/AppNavigator/screens/Portfolio/components/RandomAvatar'
-import { SkeletonLoader, SkeletonLoaderScreen } from '@components/SkeletonLoader'
-import { useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { hasTxQueued } from '@store/transaction_queue'
-import { hasTxQueued as hasBroadcastQueued } from '@store/ocean'
-import { wallet as walletReducer } from '@store/wallet'
-import { loans } from '@store/loans'
-import { useAppDispatch } from '@hooks/useAppDispatch'
+import { tailwind } from '@tailwind';
+import {
+  ThemedIcon,
+  ThemedText,
+  ThemedTouchableOpacity,
+  ThemedView,
+  ThemedScrollView,
+  ThemedSectionTitle,
+} from '@components/themed';
+import { useEffect, useState, useLayoutEffect } from 'react';
+import { MAX_ALLOWED_ADDRESSES, useWalletContext } from '@shared-contexts/WalletContext';
+import { View } from '@components';
+import { TouchableOpacity } from 'react-native';
+import { translate } from '@translations';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { PortfolioParamList } from '../PortfolioNavigator';
+import { useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { RandomAvatar } from '@screens/AppNavigator/screens/Portfolio/components/RandomAvatar';
+import { SkeletonLoader, SkeletonLoaderScreen } from '@components/SkeletonLoader';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store';
+import { hasTxQueued } from '@store/transaction_queue';
+import { hasTxQueued as hasBroadcastQueued } from '@store/ocean';
+import { wallet as walletReducer } from '@store/wallet';
+import { loans } from '@store/loans';
+import { useAppDispatch } from '@hooks/useAppDispatch';
 
-export function AddressControlScreen (): JSX.Element {
-  const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
+export function AddressControlScreen(): JSX.Element {
+  const navigation = useNavigation<NavigationProp<PortfolioParamList>>();
   useLayoutEffect(() => {
     navigation.setOptions({
-      headerRight: (): JSX.Element => (
-        <DiscoverWalletAddress />
-      )
-    })
-  }, [navigation])
+      headerRight: (): JSX.Element => <DiscoverWalletAddress />,
+    });
+  }, [navigation]);
 
   return (
     <ThemedScrollView>
       <ThemedSectionTitle
-        testID='switch_address_screen_title'
+        testID="switch_address_screen_title"
         text={translate('screens/AddressControlScreen', 'Switch to another address')}
       />
       <AddressControlCard onClose={() => navigation.goBack()} />
     </ThemedScrollView>
-  )
+  );
 }
 
-export function AddressControlModal ({ onClose }: { onClose: () => void }): JSX.Element {
+export function AddressControlModal({ onClose }: { onClose: () => void }): JSX.Element {
   return (
     <View style={tailwind('w-full pb-16')}>
       <ThemedView
@@ -61,8 +66,8 @@ export function AddressControlModal ({ onClose }: { onClose: () => void }): JSX.
           <TouchableOpacity onPress={onClose}>
             <ThemedIcon
               size={24}
-              name='close'
-              iconType='MaterialIcons'
+              name="close"
+              iconType="MaterialIcons"
               dark={tailwind('text-white text-opacity-70')}
               light={tailwind('text-gray-600')}
             />
@@ -77,90 +82,85 @@ export function AddressControlModal ({ onClose }: { onClose: () => void }): JSX.
         <AddressControlCard onClose={onClose} />
       </ThemedScrollView>
     </View>
-  )
+  );
 }
 
-export function AddressControlCard ({ onClose }: { onClose: () => void }): JSX.Element {
-  const { address, addressLength, setIndex, wallet } = useWalletContext()
-  const [availableAddresses, setAvailableAddresses] = useState<string[]>([])
-  const [canCreateAddress, setCanCreateAddress] = useState<boolean>(false)
-  const blockCount = useSelector((state: RootState) => state.block.count)
-  const dispatch = useAppDispatch()
-  const logger = useLogger()
+export function AddressControlCard({ onClose }: { onClose: () => void }): JSX.Element {
+  const { address, addressLength, setIndex, wallet } = useWalletContext();
+  const [availableAddresses, setAvailableAddresses] = useState<string[]>([]);
+  const [canCreateAddress, setCanCreateAddress] = useState<boolean>(false);
+  const blockCount = useSelector((state: RootState) => state.block.count);
+  const dispatch = useAppDispatch();
+  const logger = useLogger();
 
   const fetchAddresses = async (): Promise<void> => {
-    const addresses: string[] = []
+    const addresses: string[] = [];
     for (let i = 0; i <= addressLength; i++) {
-      const account = wallet.get(i)
-      const address = await account.getAddress()
-      addresses.push(address)
+      const account = wallet.get(i);
+      const address = await account.getAddress();
+      addresses.push(address);
     }
-    setAvailableAddresses(addresses)
-    await isNextAddressUsable()
-  }
+    setAvailableAddresses(addresses);
+    await isNextAddressUsable();
+  };
 
   const isNextAddressUsable = async (): Promise<void> => {
     // incremented 1 to check if next account in the wallet is usable.
-    const next = addressLength + 1
-    const isUsable = await wallet.isUsable(next)
-    setCanCreateAddress(isUsable && MAX_ALLOWED_ADDRESSES > next)
-  }
+    const next = addressLength + 1;
+    const isUsable = await wallet.isUsable(next);
+    setCanCreateAddress(isUsable && MAX_ALLOWED_ADDRESSES > next);
+  };
 
   const onRowPress = async (index: number): Promise<void> => {
-    dispatch(walletReducer.actions.setHasFetchedToken(false))
-    dispatch(loans.actions.setHasFetchedVaultsData(false))
-    await setIndex(index)
-    onClose()
-  }
+    dispatch(walletReducer.actions.setHasFetchedToken(false));
+    dispatch(loans.actions.setHasFetchedVaultsData(false));
+    await setIndex(index);
+    onClose();
+  };
 
   useEffect(() => {
-    fetchAddresses().catch(logger.error)
-  }, [wallet, addressLength])
+    fetchAddresses().catch(logger.error);
+  }, [wallet, addressLength]);
 
   useEffect(() => {
-    isNextAddressUsable().catch(logger.error)
-  }, [blockCount])
+    isNextAddressUsable().catch(logger.error);
+  }, [blockCount]);
 
   if (address.length === 0) {
-    return (
-      <SkeletonLoader
-        row={addressLength}
-        screen={SkeletonLoaderScreen.Address}
-      />
-    )
+    return <SkeletonLoader row={addressLength} screen={SkeletonLoaderScreen.Address} />;
   }
 
   return (
     <>
-      {availableAddresses.map((availableAddress: string, index: number) =>
+      {availableAddresses.map((availableAddress: string, index: number) => (
         <AddressItemRow
           key={availableAddress}
           address={availableAddress}
           isActive={address === availableAddress}
           index={index}
           onPress={async () => {
-            await onRowPress(index)
+            await onRowPress(index);
           }}
         />
-      )}
+      ))}
       {canCreateAddress && (
         <ThemedTouchableOpacity
           light={tailwind('bg-white border-gray-100')}
           dark={tailwind('bg-dfxblue-800 border-dfxblue-900')}
           style={tailwind('py-4 pl-4 pr-2 border-b ')}
           onPress={async () => {
-            await onRowPress(addressLength + 1)
+            await onRowPress(addressLength + 1);
           }}
-          testID='create_new_address'
+          testID="create_new_address"
         >
           <View style={tailwind('flex-row items-center flex-grow')}>
             <ThemedIcon
               size={20}
-              name='add'
+              name="add"
               dark={tailwind('text-dfxred-500')}
               light={tailwind('text-primary-500')}
               style={tailwind('font-normal')}
-              iconType='MaterialIcons'
+              iconType="MaterialIcons"
             />
 
             <View style={tailwind('mx-3 flex-auto')}>
@@ -176,12 +176,22 @@ export function AddressControlCard ({ onClose }: { onClose: () => void }): JSX.E
         </ThemedTouchableOpacity>
       )}
     </>
-  )
+  );
 }
 
-export function AddressItemRow ({ address, isActive, index, onPress }: { address: string, isActive: boolean, index: number, onPress: () => void }): JSX.Element {
-  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
-  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
+export function AddressItemRow({
+  address,
+  isActive,
+  index,
+  onPress,
+}: {
+  address: string;
+  isActive: boolean;
+  index: number;
+  onPress: () => void;
+}): JSX.Element {
+  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
+  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
 
   return (
     <ThemedTouchableOpacity
@@ -201,7 +211,7 @@ export function AddressItemRow ({ address, isActive, index, onPress }: { address
             style={tailwind('text-sm w-full font-normal')}
             numberOfLines={1}
             testID={`address_row_text_${index}`}
-            ellipsizeMode='middle'
+            ellipsizeMode="middle"
           >
             {address}
           </ThemedText>
@@ -226,30 +236,27 @@ export function AddressItemRow ({ address, isActive, index, onPress }: { address
           <ThemedIcon
             light={tailwind('text-gray-900')}
             dark={tailwind('text-gray-100')}
-            iconType='MaterialIcons'
-            name='chevron-right'
+            iconType="MaterialIcons"
+            name="chevron-right"
             size={24}
           />
         </View>
       </View>
     </ThemedTouchableOpacity>
-  )
+  );
 }
 
-export function DiscoverWalletAddress ({ size = 24 }: { size?: number }): JSX.Element {
-  const { discoverWalletAddresses } = useWalletContext()
+export function DiscoverWalletAddress({ size = 24 }: { size?: number }): JSX.Element {
+  const { discoverWalletAddresses } = useWalletContext();
   return (
-    <TouchableOpacity
-      onPress={discoverWalletAddresses}
-      testID='discover_wallet_addresses'
-    >
+    <TouchableOpacity onPress={discoverWalletAddresses} testID="discover_wallet_addresses">
       <ThemedIcon
         dark={tailwind('text-dfxred-500')}
-        iconType='MaterialIcons'
+        iconType="MaterialIcons"
         light={tailwind('text-primary-500')}
-        name='sync'
+        name="sync"
         size={size}
       />
     </TouchableOpacity>
-  )
+  );
 }

@@ -1,12 +1,16 @@
-import { tailwind } from '@tailwind'
-import { ThemedText } from '@components/themed'
-import { View } from '@components'
+import { tailwind } from '@tailwind';
+import { ThemedText } from '@components/themed';
+import { View } from '@components';
 
-export function TokenNameText ({
+export function TokenNameText({
   testID,
   displaySymbol,
-  name
-}: { testID: string, displaySymbol: string, name: string }): JSX.Element {
+  name,
+}: {
+  testID: string;
+  displaySymbol: string;
+  name: string;
+}): JSX.Element {
   return (
     <View style={tailwind('mx-3 flex-auto')}>
       <ThemedText
@@ -19,7 +23,7 @@ export function TokenNameText ({
       </ThemedText>
       <ThemedText
         dark={tailwind('text-dfxgray-400')}
-        ellipsizeMode='tail'
+        ellipsizeMode="tail"
         light={tailwind('text-gray-600')}
         numberOfLines={1}
         style={tailwind('text-xs')}
@@ -28,5 +32,5 @@ export function TokenNameText ({
         {name}
       </ThemedText>
     </View>
-  )
+  );
 }

@@ -1,1 +1,1 @@
-global.__reanimatedWorkletInit = jest.fn()
+global.__reanimatedWorkletInit = jest.fn();

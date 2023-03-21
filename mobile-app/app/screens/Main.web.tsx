@@ -1,27 +1,27 @@
-import * as React from 'react'
-import { NavigationContainer } from '@react-navigation/native'
-import { Theme } from '@react-navigation/native/lib/typescript/src/types'
+import * as React from 'react';
+import { NavigationContainer } from '@react-navigation/native';
+import { Theme } from '@react-navigation/native/lib/typescript/src/types';
 
-import { StyleSheet, View } from 'react-native'
-import { getDefaultTheme } from '@constants/Theme'
-import { useThemeContext } from '@shared-contexts/ThemeProvider'
-import { tailwind } from '@tailwind'
-import { PlaygroundNavigator } from './PlaygroundNavigator/PlaygroundNavigator'
-import { RootNavigator } from './RootNavigator'
-import { EnvironmentName, getEnvironment } from '@environment'
-import { getReleaseChannel } from '@api/releaseChannel'
-import { SafeAreaProvider } from 'react-native-safe-area-context'
-import { getDefaultThemeV2 } from '@constants/ThemeV2'
-import { useFeatureFlagContext } from '@contexts/FeatureFlagContext'
+import { StyleSheet, View } from 'react-native';
+import { getDefaultTheme } from '@constants/Theme';
+import { useThemeContext } from '@shared-contexts/ThemeProvider';
+import { tailwind } from '@tailwind';
+import { PlaygroundNavigator } from './PlaygroundNavigator/PlaygroundNavigator';
+import { RootNavigator } from './RootNavigator';
+import { EnvironmentName, getEnvironment } from '@environment';
+import { getReleaseChannel } from '@api/releaseChannel';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { getDefaultThemeV2 } from '@constants/ThemeV2';
+import { useFeatureFlagContext } from '@contexts/FeatureFlagContext';
 
-export function Main (): JSX.Element {
-  const env = getEnvironment(getReleaseChannel())
-  const { isLight } = useThemeContext()
-  const DeFiChainTheme: Theme = getDefaultTheme(isLight)
+export function Main(): JSX.Element {
+  const env = getEnvironment(getReleaseChannel());
+  const { isLight } = useThemeContext();
+  const DeFiChainTheme: Theme = getDefaultTheme(isLight);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const DeFiChainThemeV2: Theme = getDefaultThemeV2(isLight)
+  const DeFiChainThemeV2: Theme = getDefaultThemeV2(isLight);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isFeatureAvailable } = useFeatureFlagContext()
+  const { isFeatureAvailable } = useFeatureFlagContext();
 
   return (
     <SafeAreaProvider>
@@ -40,7 +40,7 @@ export function Main (): JSX.Element {
         )}
       </View>
     </SafeAreaProvider>
-  )
+  );
 }
 
 /**
@@ -49,6 +49,6 @@ export function Main (): JSX.Element {
 const styles = StyleSheet.create({
   phone: {
     height: 667,
-    width: 375
-  }
-})
+    width: 375,
+  },
+});

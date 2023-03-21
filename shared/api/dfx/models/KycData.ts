@@ -1,50 +1,50 @@
-import { Country } from './Country'
-import { AccountType } from './User'
+import { Country } from './Country';
+import { AccountType } from './User';
 
 export interface KycDataTransferDto {
-  walletName: string
+  walletName: string;
 }
 
 export interface KycData {
-  accountType: AccountType
-  firstName: string
-  lastName: string
-  street: string
-  houseNumber: string
-  zip: string
-  location: string
-  country: Country
+  accountType: AccountType;
+  firstName: string;
+  lastName: string;
+  street: string;
+  houseNumber: string;
+  zip: string;
+  location: string;
+  country: Country;
 
-  mail: string
-  phone: string
+  mail: string;
+  phone: string;
 
-  organizationName: string
-  organizationStreet: string
-  organizationHouseNumber: string
-  organizationLocation: string
-  organizationZip: string
-  organizationCountry: Country
+  organizationName: string;
+  organizationStreet: string;
+  organizationHouseNumber: string;
+  organizationLocation: string;
+  organizationZip: string;
+  organizationCountry: Country;
 }
 
 export interface KycDataDto {
-  accountType: AccountType
-  firstname: string
-  surname: string
-  street: string
-  houseNumber: string
-  zip: string
-  location: string
-  country: Country
+  accountType: AccountType;
+  firstname: string;
+  surname: string;
+  street: string;
+  houseNumber: string;
+  zip: string;
+  location: string;
+  country: Country;
 
-  mail: string
-  phone: string
+  mail: string;
+  phone: string;
 
-  organizationName: string
-  organizationStreet: string
-  organizationHouseNumber: string
-  organizationLocation: string
-  organizationZip: string
-  organizationCountry: Country
+  organizationName: string;
+  organizationStreet: string;
+  organizationHouseNumber: string;
+  organizationLocation: string;
+  organizationZip: string;
+  organizationCountry: Country;
 }
 
 export const toKycDataDto = (data: KycData): KycDataDto => ({
@@ -63,5 +63,5 @@ export const toKycDataDto = (data: KycData): KycDataDto => ({
   organizationHouseNumber: data.organizationHouseNumber,
   organizationLocation: data.organizationLocation,
   organizationZip: data.organizationZip,
-  organizationCountry: data.organizationCountry
-})
+  organizationCountry: data.organizationCountry,
+});

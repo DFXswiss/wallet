@@ -1,73 +1,66 @@
-import { CTransactionSegWit } from '@defichain/jellyfish-transaction/dist'
-import { WhaleWalletAccount } from '@defichain/whale-api-wallet'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { StackScreenProps } from '@react-navigation/stack'
-import BigNumber from 'bignumber.js'
-import { useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { Dispatch } from 'redux'
-import { NumberRow } from '@components/NumberRow'
-import { SubmitButtonGroup } from '@components/SubmitButtonGroup'
-import { SummaryTitle } from '@components/SummaryTitle'
-import { ThemedScrollView, ThemedSectionTitle, ThemedView } from '@components/themed'
-import { RootState } from '@store'
-import { firstTransactionSelector, hasTxQueued as hasBroadcastQueued } from '@store/ocean'
-import { hasTxQueued, transactionQueue } from '@store/transaction_queue'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { DexParamList } from './DexNavigator'
-import { getNativeIcon } from '@components/icons/assets'
-import { ConversionTag } from '@components/ConversionTag'
-import { TextRow } from '@components/TextRow'
-import { TransactionResultsRow } from '@components/TransactionResultsRow'
-import { InfoRow, InfoType } from '@components/InfoRow'
-import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { onTransactionBroadcast } from '@api/transaction/transaction_commands'
-import { View } from '@components'
-import { InfoText } from '@components/InfoText'
-import { WalletAddressRow } from '@components/WalletAddressRow'
-import { PricesSection } from '@components/PricesSection'
-import { useAppDispatch } from '@hooks/useAppDispatch'
+import { CTransactionSegWit } from '@defichain/jellyfish-transaction/dist';
+import { WhaleWalletAccount } from '@defichain/whale-api-wallet';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
+import BigNumber from 'bignumber.js';
+import { useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { Dispatch } from 'redux';
+import { NumberRow } from '@components/NumberRow';
+import { SubmitButtonGroup } from '@components/SubmitButtonGroup';
+import { SummaryTitle } from '@components/SummaryTitle';
+import { ThemedScrollView, ThemedSectionTitle, ThemedView } from '@components/themed';
+import { RootState } from '@store';
+import { firstTransactionSelector, hasTxQueued as hasBroadcastQueued } from '@store/ocean';
+import { hasTxQueued, transactionQueue } from '@store/transaction_queue';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { DexParamList } from './DexNavigator';
+import { getNativeIcon } from '@components/icons/assets';
+import { ConversionTag } from '@components/ConversionTag';
+import { TextRow } from '@components/TextRow';
+import { TransactionResultsRow } from '@components/TransactionResultsRow';
+import { InfoRow, InfoType } from '@components/InfoRow';
+import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { onTransactionBroadcast } from '@api/transaction/transaction_commands';
+import { View } from '@components';
+import { InfoText } from '@components/InfoText';
+import { WalletAddressRow } from '@components/WalletAddressRow';
+import { PricesSection } from '@components/PricesSection';
+import { useAppDispatch } from '@hooks/useAppDispatch';
 
-type Props = StackScreenProps<DexParamList, 'ConfirmAddLiquidity'>
+type Props = StackScreenProps<DexParamList, 'ConfirmAddLiquidity'>;
 
-export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
-  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
-  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
-  const currentBroadcastJob = useSelector((state: RootState) => firstTransactionSelector(state.ocean))
-  const {
-    fee,
-    percentage,
-    tokenABalance,
-    tokenAAmount,
-    tokenBBalance,
-    tokenBAmount
-  } = props.route.params.summary
-  const pair = props.route.params.pair
-  const { conversion } = props.route.params
-  const dispatch = useAppDispatch()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const aToBRate = new BigNumber(pair.tokenB.reserve).div(pair.tokenA.reserve)
-  const bToARate = new BigNumber(pair.tokenA.reserve).div(pair.tokenB.reserve)
-  const lmTokenAmount = percentage.times(pair.totalLiquidity.token)
-  const [isOnPage, setIsOnPage] = useState<boolean>(true)
-  const navigation = useNavigation<NavigationProp<DexParamList>>()
-  const TokenAIcon = getNativeIcon(pair.tokenA.displaySymbol)
-  const TokenBIcon = getNativeIcon(pair.tokenB.displaySymbol)
-  const logger = useLogger()
+export function ConfirmAddLiquidityScreen(props: Props): JSX.Element {
+  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
+  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
+  const currentBroadcastJob = useSelector((state: RootState) => firstTransactionSelector(state.ocean));
+  const { fee, percentage, tokenABalance, tokenAAmount, tokenBBalance, tokenBAmount } = props.route.params.summary;
+  const pair = props.route.params.pair;
+  const { conversion } = props.route.params;
+  const dispatch = useAppDispatch();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const aToBRate = new BigNumber(pair.tokenB.reserve).div(pair.tokenA.reserve);
+  const bToARate = new BigNumber(pair.tokenA.reserve).div(pair.tokenB.reserve);
+  const lmTokenAmount = percentage.times(pair.totalLiquidity.token);
+  const [isOnPage, setIsOnPage] = useState<boolean>(true);
+  const navigation = useNavigation<NavigationProp<DexParamList>>();
+  const TokenAIcon = getNativeIcon(pair.tokenA.displaySymbol);
+  const TokenBIcon = getNativeIcon(pair.tokenB.displaySymbol);
+  const logger = useLogger();
 
   useEffect(() => {
-    setIsOnPage(true)
+    setIsOnPage(true);
     return () => {
-      setIsOnPage(false)
-    }
-  }, [])
+      setIsOnPage(false);
+    };
+  }, []);
 
-  async function addLiquidity (): Promise<void> {
+  async function addLiquidity(): Promise<void> {
     if (hasPendingJob || hasPendingBroadcastJob) {
-      return
+      return;
     }
-    setIsSubmitting(true)
+    setIsSubmitting(true);
     await constructSignedAddLiqAndSend(
       {
         tokenASymbol: pair.tokenA.displaySymbol,
@@ -75,42 +68,43 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
         tokenAAmount,
         tokenBSymbol: pair.tokenB.displaySymbol,
         tokenBId: Number(pair.tokenB.id),
-        tokenBAmount
+        tokenBAmount,
       },
       dispatch,
       () => {
-        onTransactionBroadcast(isOnPage, navigation.dispatch)
+        onTransactionBroadcast(isOnPage, navigation.dispatch);
       },
-      logger
-    )
-    setIsSubmitting(false)
+      logger,
+    );
+    setIsSubmitting(false);
   }
 
-  function onCancel (): void {
+  function onCancel(): void {
     if (!isSubmitting) {
       navigation.navigate({
         name: 'AddLiquidity',
         params: { pair },
-        merge: true
-      })
+        merge: true,
+      });
     }
   }
 
-  function getSubmitLabel (): string {
+  function getSubmitLabel(): string {
     if (!hasPendingBroadcastJob && !hasPendingJob) {
-      return 'CONFIRM ADD LIQUIDITY'
+      return 'CONFIRM ADD LIQUIDITY';
     }
-    if (hasPendingBroadcastJob && currentBroadcastJob !== undefined && currentBroadcastJob.submitButtonLabel !== undefined) {
-      return currentBroadcastJob.submitButtonLabel
+    if (
+      hasPendingBroadcastJob &&
+      currentBroadcastJob !== undefined &&
+      currentBroadcastJob.submitButtonLabel !== undefined
+    ) {
+      return currentBroadcastJob.submitButtonLabel;
     }
-    return 'ADDING'
+    return 'ADDING';
   }
 
   return (
-    <ThemedScrollView
-      style={tailwind('pb-4')}
-      testID='confirm-root'
-    >
+    <ThemedScrollView style={tailwind('pb-4')} testID="confirm-root">
       <ThemedView
         dark={tailwind('bg-dfxblue-800 border-b border-dfxblue-900')}
         light={tailwind('bg-white border-b border-dfxgray-300')}
@@ -118,8 +112,8 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
       >
         <SummaryTitle
           amount={lmTokenAmount}
-          suffixType='component'
-          testID='text_add_amount'
+          suffixType="component"
+          testID="text_add_amount"
           title={translate('screens/ConfirmAddLiq', 'You are adding')}
         >
           <TokenAIcon
@@ -139,15 +133,15 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
         {conversion?.isConversionRequired === true && <ConversionTag />}
       </ThemedView>
 
-      <ThemedSectionTitle
-        testID='title_tx_detail'
-        text={translate('screens/ConfirmAddLiq', 'TRANSACTION DETAILS')}
-      />
+      <ThemedSectionTitle testID="title_tx_detail" text={translate('screens/ConfirmAddLiq', 'TRANSACTION DETAILS')} />
       <TextRow
         lhs={translate('screens/ConfirmAddLiq', 'Transaction type')}
         rhs={{
-          value: conversion?.isConversionRequired === true ? translate('screens/ConfirmAddLiq', 'Convert & add liquidity') : translate('screens/ConfirmAddLiq', 'Add liquidity'),
-          testID: 'text_transaction_type'
+          value:
+            conversion?.isConversionRequired === true
+              ? translate('screens/ConfirmAddLiq', 'Convert & add liquidity')
+              : translate('screens/ConfirmAddLiq', 'Add liquidity'),
+          testID: 'text_transaction_type',
         }}
         textStyle={tailwind('text-sm font-normal')}
       />
@@ -158,7 +152,7 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
           value: percentage.times(100).toFixed(8),
           suffix: '%',
           testID: 'percentage_pool',
-          suffixType: 'text'
+          suffixType: 'text',
         }}
       />
 
@@ -168,7 +162,7 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
           value: pair.tokenA.reserve,
           testID: 'pooled_a',
           suffixType: 'text',
-          suffix: pair.tokenA.displaySymbol
+          suffix: pair.tokenA.displaySymbol,
         }}
       />
       <NumberRow
@@ -177,20 +171,12 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
           value: pair.tokenB.reserve,
           testID: 'pooled_b',
           suffixType: 'text',
-          suffix: pair.tokenB.displaySymbol
+          suffix: pair.tokenB.displaySymbol,
         }}
       />
-      <InfoRow
-        type={InfoType.EstimatedFee}
-        value={fee.toFixed(8)}
-        testID='text_fee'
-        suffix='DFI'
-      />
+      <InfoRow type={InfoType.EstimatedFee} value={fee.toFixed(8)} testID="text_fee" suffix="DFI" />
 
-      <ThemedSectionTitle
-        testID='title_add_detail'
-        text={translate('screens/ConfirmAddLiq', 'AMOUNT TO SUPPLY')}
-      />
+      <ThemedSectionTitle testID="title_add_detail" text={translate('screens/ConfirmAddLiq', 'AMOUNT TO SUPPLY')} />
 
       <NumberRow
         lhs={pair.tokenA.displaySymbol}
@@ -198,7 +184,7 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
           testID: 'a_amount',
           value: BigNumber.max(tokenAAmount, 0).toFixed(8),
           suffixType: 'text',
-          suffix: pair.tokenA.displaySymbol
+          suffix: pair.tokenA.displaySymbol,
         }}
       />
       <NumberRow
@@ -207,30 +193,31 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
           testID: 'b_amount',
           value: BigNumber.max(tokenBAmount, 0).toFixed(8),
           suffixType: 'text',
-          suffix: pair.tokenB.displaySymbol
+          suffix: pair.tokenB.displaySymbol,
         }}
       />
 
       <PricesSection
-        testID='confirm_pricerate_value'
-        priceRates={[{
-          label: translate('components/PricesSection', '1 {{token}}', {
-            token: pair.tokenA.displaySymbol
-          }),
-          value: aToBRate.toFixed(8),
-          aSymbol: pair.tokenA.displaySymbol,
-          bSymbol: pair.tokenB.displaySymbol
-        },
-        {
-          label: translate('components/PricesSection', '1 {{token}}', {
-            token: pair.tokenB.displaySymbol
-          }),
-          value: bToARate.toFixed(8),
-          aSymbol: pair.tokenB.displaySymbol,
-          bSymbol: pair.tokenA.displaySymbol
-        }
+        testID="confirm_pricerate_value"
+        priceRates={[
+          {
+            label: translate('components/PricesSection', '1 {{token}}', {
+              token: pair.tokenA.displaySymbol,
+            }),
+            value: aToBRate.toFixed(8),
+            aSymbol: pair.tokenA.displaySymbol,
+            bSymbol: pair.tokenB.displaySymbol,
+          },
+          {
+            label: translate('components/PricesSection', '1 {{token}}', {
+              token: pair.tokenB.displaySymbol,
+            }),
+            value: bToARate.toFixed(8),
+            aSymbol: pair.tokenB.displaySymbol,
+            bSymbol: pair.tokenA.displaySymbol,
+          },
         ]}
-        sectionTitle='PRICES'
+        sectionTitle="PRICES"
       />
 
       <TransactionResultsRow
@@ -238,21 +225,27 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
           {
             symbol: pair.tokenA.displaySymbol,
             value: tokenABalance.minus(tokenAAmount).toFixed(8),
-            suffix: pair.tokenA.displaySymbol
+            suffix: pair.tokenA.displaySymbol,
           },
           {
             symbol: pair.tokenB.displaySymbol,
-            value: BigNumber.max(tokenBBalance.minus(tokenBAmount).minus(pair.tokenB.displaySymbol === 'DFI' ? fee : 0), 0).toFixed(8),
-            suffix: pair.tokenB.displaySymbol
-          }
+            value: BigNumber.max(
+              tokenBBalance.minus(tokenBAmount).minus(pair.tokenB.displaySymbol === 'DFI' ? fee : 0),
+              0,
+            ).toFixed(8),
+            suffix: pair.tokenB.displaySymbol,
+          },
         ]}
       />
 
       {conversion?.isConversionRequired === true && (
         <View style={tailwind('p-4 mt-2')}>
           <InfoText
-            testID='conversion_warning_info_text'
-            text={translate('components/ConversionInfoText', 'Please wait as we convert tokens for your transaction. Conversions are irreversible.')}
+            testID="conversion_warning_info_text"
+            text={translate(
+              'components/ConversionInfoText',
+              'Please wait as we convert tokens for your transaction. Conversions are irreversible.',
+            )}
           />
         </View>
       )}
@@ -265,56 +258,67 @@ export function ConfirmAddLiquidityScreen (props: Props): JSX.Element {
         onCancel={onCancel}
         displayCancelBtn
         onSubmit={addLiquidity}
-        title='add'
+        title="add"
       />
     </ThemedScrollView>
-  )
+  );
 }
 
-async function constructSignedAddLiqAndSend (
-  addLiqForm: { tokenASymbol: string, tokenAId: number, tokenAAmount: BigNumber, tokenBSymbol: string, tokenBId: number, tokenBAmount: BigNumber },
+async function constructSignedAddLiqAndSend(
+  addLiqForm: {
+    tokenASymbol: string;
+    tokenAId: number;
+    tokenAAmount: BigNumber;
+    tokenBSymbol: string;
+    tokenBId: number;
+    tokenBAmount: BigNumber;
+  },
   dispatch: Dispatch<any>,
   onBroadcast: () => void,
-  logger: NativeLoggingProps
+  logger: NativeLoggingProps,
 ): Promise<void> {
   try {
     const signer = async (account: WhaleWalletAccount): Promise<CTransactionSegWit> => {
-      const builder = account.withTransactionBuilder()
-      const script = await account.getScript()
+      const builder = account.withTransactionBuilder();
+      const script = await account.getScript();
 
       const addLiq = {
-        from: [{
-          script,
-          balances: [
-            {
-              token: addLiqForm.tokenAId,
-              amount: addLiqForm.tokenAAmount
-            },
-            {
-              token: addLiqForm.tokenBId,
-              amount: addLiqForm.tokenBAmount
-            }
-          ]
-        }],
-        shareAddress: script
-      }
+        from: [
+          {
+            script,
+            balances: [
+              {
+                token: addLiqForm.tokenAId,
+                amount: addLiqForm.tokenAAmount,
+              },
+              {
+                token: addLiqForm.tokenBId,
+                amount: addLiqForm.tokenBAmount,
+              },
+            ],
+          },
+        ],
+        shareAddress: script,
+      };
 
-      const dfTx = await builder.liqPool.addLiquidity(addLiq, script)
-      return new CTransactionSegWit(dfTx)
-    }
+      const dfTx = await builder.liqPool.addLiquidity(addLiq, script);
+      return new CTransactionSegWit(dfTx);
+    };
 
-    dispatch(transactionQueue.actions.push({
-      sign: signer,
-      title: translate('screens/ConfirmAddLiq', 'Adding Liquidity'),
-      description: translate('screens/ConfirmAddLiq', 'Adding {{amountA}} {{symbolA}} - {{amountB}} {{symbolB}}', {
-        amountA: addLiqForm.tokenAAmount.toFixed(8),
-        symbolA: addLiqForm.tokenASymbol,
-        amountB: addLiqForm.tokenBAmount.toFixed(8),
-        symbolB: addLiqForm.tokenBSymbol
+    dispatch(
+      transactionQueue.actions.push({
+        sign: signer,
+        title: translate('screens/ConfirmAddLiq', 'Adding Liquidity'),
+        description: translate('screens/ConfirmAddLiq', 'Adding {{amountA}} {{symbolA}} - {{amountB}} {{symbolB}}', {
+          amountA: addLiqForm.tokenAAmount.toFixed(8),
+          symbolA: addLiqForm.tokenASymbol,
+          amountB: addLiqForm.tokenBAmount.toFixed(8),
+          symbolB: addLiqForm.tokenBSymbol,
+        }),
+        onBroadcast,
       }),
-      onBroadcast
-    }))
+    );
   } catch (e) {
-    logger.error(e)
+    logger.error(e);
   }
 }
