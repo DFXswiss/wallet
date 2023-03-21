@@ -1695,7 +1695,7 @@
     "Send ONLY Bitcoin (BTC) to your BTC deposit address shown below or scan the QR code. We will transfer dBTC in your DFX Wallet afterwards.": "Envia SOLO Bitcoin nativo (BTC) a tu billetera de depósito mostrada abajo o escanea el código QR. Luego te transferiremos dBTC a tu billetera DFX.",
     "Bitcoin Deposit": "Depósito de Bitcoin",
     "Ref bonus": "Bonificación de referidos",
-    "Please click here to finish the KYC process to receive your bitcoin address": "Por favor, aprieta aquí para acabar con el proceso de verificación KYC para recibir tu dirección Bitcoin."
+    "Please click here to complete the KYC process and make a deposit or withdrawal to get your bitcoin address.": "Por favor, haga clic aquí para completar el proceso KYC y hacer un depósito o retiro para obtener su dirección bitcoin."
   },
   "screens/DfxButtons": {
     "DFI.Tax": "DFI.tax",
