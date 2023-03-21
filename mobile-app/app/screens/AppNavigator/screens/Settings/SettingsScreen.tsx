@@ -59,6 +59,7 @@ export function SettingsScreen({ navigation }: Props): JSX.Element {
         });
       },
       onError: (e) => logger.error(e),
+      title: translate('screens/Settings', 'Recovery Words'),
       message: translate('screens/Settings', 'Enter passcode to continue'),
       loading: translate('screens/Settings', 'Verifying access'),
     };
