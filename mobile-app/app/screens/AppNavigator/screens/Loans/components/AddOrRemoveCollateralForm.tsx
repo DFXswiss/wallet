@@ -34,16 +34,17 @@ import { TokenIconGroup } from '@components/TokenIconGroup'
 import { IconTooltip } from '@components/tooltip/IconTooltip'
 
 export interface AddOrRemoveCollateralFormProps {
-  collateralItem: CollateralItem
-  token: TokenData
-  activePrice: BigNumber
-  collateralFactor: BigNumber
-  available: string
-  current?: BigNumber
-  onButtonPress: (item: AddOrRemoveCollateralResponse) => void
-  onCloseButtonPress: () => void
-  isAdd: boolean
-  vault: LoanVaultActive
+  collateralItem: CollateralItem;
+  token: TokenData;
+  activePrice: BigNumber;
+  collateralFactor: BigNumber;
+  available: string;
+  current?: BigNumber;
+  onButtonPress: (item: AddOrRemoveCollateralResponse) => void;
+  onCloseButtonPress: () => void;
+  isAdd: boolean;
+  vault: LoanVaultActive;
+  collateralTokens: CollateralItem[];
 }
 
 const COLOR_BARS_COUNT = 6
@@ -65,12 +66,13 @@ export const AddOrRemoveCollateralForm = memo(({ route }: Props): JSX.Element =>
     collateralFactor,
     isAdd,
     vault,
-    collateralItem
-  } = route.params
-  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
-  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
-  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet))
-  const { isFeatureAvailable } = useFeatureFlagContext()
+    collateralItem,
+    collateralTokens,
+  } = route.params;
+  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
+  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
+  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet));
+  const { isFeatureAvailable } = useFeatureFlagContext();
 
   const [collateralValue, setCollateralValue] = useState<string>('')
   const [vaultValue, setVaultValue] = useState<string>('')
@@ -87,12 +89,10 @@ export const AddOrRemoveCollateralForm = memo(({ route }: Props): JSX.Element =>
     token,
     isAdd,
     collateralInputValue,
-    activePriceAmount: activePrice.isNaN() ? new BigNumber(0) : new BigNumber(activePrice)
-  })
-  const {
-    displayedColorBars,
-    resultingColRatio
-  } = useResultingCollateralizationRatioByCollateral({
+    activePriceAmount: activePrice.isNaN() ? new BigNumber(0) : new BigNumber(activePrice),
+    collateralTokens,
+  });
+  const { displayedColorBars, resultingColRatio } = useResultingCollateralizationRatioByCollateral({
     collateralValue: collateralValue,
     collateralRatio: new BigNumber(vault.collateralRatio ?? NaN),
     minCollateralRatio: new BigNumber(vault.loanScheme.minColRatio),
