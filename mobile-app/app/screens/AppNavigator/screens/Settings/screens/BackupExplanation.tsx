@@ -43,6 +43,7 @@ export function BackupExplanation(): JSX.Element {
         });
       },
       onError: (e) => Logging.error(e),
+      title: translate('screens/Settings', 'Recovery Words'),
       message: translate('screens/Settings', 'Enter passcode to continue'),
       loading: translate('screens/Settings', 'Verifying access'),
     };
