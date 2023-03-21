@@ -50,6 +50,8 @@ export interface DFXAPIContextI {
   isNotAllowedInCountry: boolean;
   LOCKisNotAllowedInCountry: boolean;
   getUnavailableServices: () => string;
+  hasVerifiedBackup?: boolean;
+  verifiedBackup: () => void;
 }
 
 const DFXAPIContext = createContext<DFXAPIContextI>(undefined as any);
@@ -72,6 +74,8 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   const [isNotAllowedInCountry, setIsNotAllowedInCountry] = useState(false);
   const [LOCKisNotAllowedInCountry, LOCKsetIsNotAllowedInCountry] = useState(false);
+
+  const [hasVerifiedBackup, setHasVerifiedBackup] = useState(true);
 
   const openKycLink = async (): Promise<void> => {
     const user = await getUser();
@@ -389,6 +393,11 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
     LOCKisNotAllowedInCountry,
     getUnavailableServices: () =>
       isNotAllowedInCountry && LOCKisNotAllowedInCountry ? 'DFX & LOCK' : LOCKisNotAllowedInCountry ? 'LOCK' : 'DFX',
+    hasVerifiedBackup,
+    verifiedBackup: () => {
+      setHasVerifiedBackup(true);
+      DFXPersistence.verifiedBackup();
+    },
   };
 
   // observe address state change
@@ -425,6 +434,10 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
     }
     getActiveWebToken().catch(() => {});
   }, [debouncedNetworkName]);
+
+  useEffect(() => {
+    DFXPersistence.hasVerifiedBackup().then(setHasVerifiedBackup);
+  }, []);
 
   AuthService.setHookAccessor(context);
 

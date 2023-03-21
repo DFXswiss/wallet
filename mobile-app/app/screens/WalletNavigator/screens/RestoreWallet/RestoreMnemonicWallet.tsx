@@ -1,130 +1,127 @@
-import { SkeletonLoader, SkeletonLoaderScreen } from '@components/SkeletonLoader'
-import { validateMnemonicSentence } from '@defichain/jellyfish-wallet-mnemonic'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { createRef, useEffect, useState } from 'react'
-import { Controller, useForm } from 'react-hook-form'
-import { TextInput } from 'react-native'
-import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
-import { View } from '@components'
-import { Button } from '@components/Button'
-import { CreateWalletStepIndicator, RESTORE_STEPS } from '@components/CreateWalletStepIndicator'
-import { ThemedText, ThemedView } from '@components/themed'
-import { WalletAlert } from '@components/WalletAlert'
-import { useThemeContext } from '@shared-contexts/ThemeProvider'
-import { WalletTextInput } from '@components/WalletTextInput'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { WalletParamList } from '../../WalletNavigator'
-import * as Clipboard from 'expo-clipboard'
+import { SkeletonLoader, SkeletonLoaderScreen } from '@components/SkeletonLoader';
+import { validateMnemonicSentence } from '@defichain/jellyfish-wallet-mnemonic';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { createRef, useEffect, useState } from 'react';
+import { Controller, useForm } from 'react-hook-form';
+import { TextInput } from 'react-native';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
+import { View } from '@components';
+import { Button } from '@components/Button';
+import { CreateWalletStepIndicator, RESTORE_STEPS } from '@components/CreateWalletStepIndicator';
+import { ThemedText, ThemedView } from '@components/themed';
+import { WalletAlert } from '@components/WalletAlert';
+import { useThemeContext } from '@shared-contexts/ThemeProvider';
+import { WalletTextInput } from '@components/WalletTextInput';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { WalletParamList } from '../../WalletNavigator';
+import * as Clipboard from 'expo-clipboard';
+import { DFXPersistence } from '@api/persistence/dfx_storage';
 
-export function RestoreMnemonicWallet (): JSX.Element {
-  const navigation = useNavigation<NavigationProp<WalletParamList>>()
+export function RestoreMnemonicWallet(): JSX.Element {
+  const navigation = useNavigation<NavigationProp<WalletParamList>>();
   const {
     control,
-    formState: {
-      isValid,
-      isDirty
-    },
+    formState: { isValid, isDirty },
     getValues,
     trigger,
-    setValue
-  } = useForm({ mode: 'onChange' })
-  const [recoveryWords] = useState<number[]>(Array.from(Array(24), (v, i) => i + 1))
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const [inputRefMap, setInputRefMap] = useState<Array<React.RefObject<TextInput>>>([])
-  const { isLight } = useThemeContext()
+    setValue,
+  } = useForm({ mode: 'onChange' });
+  const [recoveryWords] = useState<number[]>(Array.from(Array(24), (v, i) => i + 1));
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [inputRefMap, setInputRefMap] = useState<Array<React.RefObject<TextInput>>>([]);
+  const { isLight } = useThemeContext();
 
-  function autoFillFromClipboard (): void {
+  function autoFillFromClipboard(): void {
     void (async () => {
-      const text = await Clipboard.getStringAsync()
+      const text = await Clipboard.getStringAsync();
       if (text === undefined) {
-        return
+        return;
       }
-      const words = text.replace(/[^A-Za-z ]+/g, '').split(' ')
+      const words = text.replace(/[^A-Za-z ]+/g, '').split(' ');
       recoveryWords.forEach((word) => {
-        setValue(`recover_word_${word}`, words[word])
-        trigger(`recover_word_${word}`)
-      })
-    })()
+        setValue(`recover_word_${word}`, words[word]);
+        trigger(`recover_word_${word}`);
+      });
+    })();
   }
 
   useEffect(() => {
     recoveryWords.forEach((r) => {
-      inputRefMap[r] = createRef<TextInput>()
-      setInputRefMap(inputRefMap)
-    })
+      inputRefMap[r] = createRef<TextInput>();
+      setInputRefMap(inputRefMap);
+    });
 
     // autoFillFromClipboard()
-  }, [])
+  }, []);
 
   useEffect(() => {
     navigation.addListener('beforeRemove', (e) => {
       if (!isDirty) {
         // If we don't have unsaved changes, then we don't need to do anything
-        return
+        return;
       }
 
       // Prevent default behavior of leaving the screen
-      e.preventDefault()
+      e.preventDefault();
 
       // Prompt the user before leaving the screen
       WalletAlert({
         title: translate('screens/RestoreWallet', 'Discard changes?'),
-        message: translate('screens/RestoreWallet', 'You have unsaved changes. Are you sure to discard them and leave the screen?'),
+        message: translate(
+          'screens/RestoreWallet',
+          'You have unsaved changes. Are you sure to discard them and leave the screen?',
+        ),
         buttons: [
           {
             text: translate('screens/RestoreWallet', 'Cancel'),
             style: 'cancel',
-            onPress: () => {
-            }
+            onPress: () => {},
           },
           {
             text: translate('screens/RestoreWallet', 'Discard'),
             style: 'destructive',
-            onPress: () => navigation.dispatch(e.data.action)
-          }
-        ]
-      })
-    })
+            onPress: () => navigation.dispatch(e.data.action),
+          },
+        ],
+      });
+    });
     return () => {
-      navigation.removeListener('beforeRemove', () => {
-      })
-    }
-  }, [navigation, isDirty])
+      navigation.removeListener('beforeRemove', () => {});
+    };
+  }, [navigation, isDirty]);
 
-  async function onRestore (): Promise<void> {
-    setIsSubmitting(true)
-    const words = Object.values(getValues())
+  async function onRestore(): Promise<void> {
+    setIsSubmitting(true);
+    const words = Object.values(getValues());
     if (isValid && validateMnemonicSentence(words)) {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
+      DFXPersistence.verifiedBackup();
       navigation.navigate({
         name: 'PinCreation',
         params: {
           words,
           pinLength: 6,
-          type: 'restore'
+          type: 'restore',
         },
-        merge: true
-      })
+        merge: true,
+      });
     } else {
-      setIsSubmitting(false)
+      setIsSubmitting(false);
       WalletAlert({
         title: translate('screens/RestoreWallet', 'Error'),
-        message: translate('screens/RestoreWallet', 'The recovery words you have entered are invalid. Please double check and try again.'),
-        buttons: [
-          { text: 'OK' }
-        ]
-      })
+        message: translate(
+          'screens/RestoreWallet',
+          'The recovery words you have entered are invalid. Please double check and try again.',
+        ),
+        buttons: [{ text: 'OK' }],
+      });
     }
   }
 
   return (
     <KeyboardAwareScrollView style={tailwind(`${isLight ? 'bg-white' : 'bg-dfxblue-900'}`)}>
-      <CreateWalletStepIndicator
-        current={1}
-        steps={RESTORE_STEPS}
-        style={tailwind('py-4 px-1')}
-      />
+      <CreateWalletStepIndicator current={1} steps={RESTORE_STEPS} style={tailwind('py-4 px-1')} />
 
       <View style={tailwind('justify-center p-4')}>
         <ThemedText
@@ -137,94 +134,86 @@ export function RestoreMnemonicWallet (): JSX.Element {
         </ThemedText>
       </View>
 
-      {recoveryWords.map((order) => (
-        (inputRefMap?.[order] != null)
-          ? (<Controller
-              control={control}
-              defaultValue=''
-              key={order}
-              name={`recover_word_${order}`}
-              render={({
-              field: {
-                name,
-                value,
-                onChange
-              },
-              fieldState: {
-                invalid,
-                isTouched,
-                error
-              }
-            }) => (
+      {recoveryWords.map((order) =>
+        inputRefMap?.[order] != null ? (
+          <Controller
+            control={control}
+            defaultValue=""
+            key={order}
+            name={`recover_word_${order}`}
+            render={({ field: { name, value, onChange }, fieldState: { invalid, isTouched, error } }) => (
               <ThemedView
                 dark={tailwind('bg-dfxblue-800')}
                 light={tailwind('bg-white')}
                 style={tailwind('flex-row pb-1')}
               >
-                <ThemedText style={tailwind('mx-3 mt-4 text-sm w-6 text-center')}>
-                  {`${order}.`}
-                </ThemedText>
+                <ThemedText style={tailwind('mx-3 mt-4 text-sm w-6 text-center')}>{`${order}.`}</ThemedText>
                 <WalletTextInput
-                  autoCapitalize='none'
-                  autoComplete='off'
+                  autoCapitalize="none"
+                  autoComplete="off"
                   blurOnSubmit={false}
                   onBlur={async () => {
-                    onChange(value.trim())
-                    await trigger(name)
+                    onChange(value.trim());
+                    await trigger(name);
                   }}
-                  inputType='default'
-                  keyboardType='default'
+                  inputType="default"
+                  keyboardType="default"
                   onChangeText={onChange}
                   onSubmitEditing={async () => {
                     if (inputRefMap[order + 1] !== undefined) {
-                      inputRefMap[order + 1].current?.focus()
+                      inputRefMap[order + 1].current?.focus();
                     } else {
-                      await onRestore()
+                      await onRestore();
                     }
                   }}
                   placeholder={translate('screens/RestoreWallet', 'Enter word #{{order}}', { order })}
-                  placeholderTextColor={isLight
-                    ? `${invalid && isTouched
-                      ? 'rgba(255, 0, 0, 1)'
-                      : 'rgba(0, 0, 0, 0.4)'}`
-                    : `${invalid && isTouched ? 'rgba(255, 0, 0, 1)' : '#828282'}`}
+                  placeholderTextColor={
+                    isLight
+                      ? `${invalid && isTouched ? 'rgba(255, 0, 0, 1)' : 'rgba(0, 0, 0, 0.4)'}`
+                      : `${invalid && isTouched ? 'rgba(255, 0, 0, 1)' : '#828282'}`
+                  }
                   ref={inputRefMap[order]}
                   returnKeyType={order === 24 ? 'done' : 'next'}
-                  containerStyle='w-10/12'
+                  containerStyle="w-10/12"
                   style={tailwind('w-full')}
                   valid={!invalid}
                   testID={`recover_word_${order}`}
                   value={value}
                   inlineText={{
                     type: 'error',
-                    text: error?.message
+                    text: error?.message,
                   }}
                 />
               </ThemedView>
             )}
-              rules={{
+            rules={{
               validate: (value) => {
-                const trimmedValue = value.trim()
+                const trimmedValue = value.trim();
                 if (trimmedValue === undefined || trimmedValue === '') {
-                  return translate('screens/RestoreWallet', 'Required field is missing')
+                  return translate('screens/RestoreWallet', 'Required field is missing');
                 } else if (!/^[a-z]+$/.test(trimmedValue)) {
-                  return translate('screens/RestoreWallet', 'Uppercase, numbers and special characters are not allowed')
+                  return translate(
+                    'screens/RestoreWallet',
+                    'Uppercase, numbers and special characters are not allowed',
+                  );
                 }
 
-                return true
-              }
+                return true;
+              },
             }}
-             />)
-          : <SkeletonLoader key={order} row={1} screen={SkeletonLoaderScreen.MnemonicWord} />
-      ))}
+          />
+        ) : (
+          <SkeletonLoader key={order} row={1} screen={SkeletonLoaderScreen.MnemonicWord} />
+        ),
+      )}
 
       <Button
         disabled={!isValid || isSubmitting}
         label={translate('screens/RestoreWallet', 'RESTORE WALLET')}
         onPress={onRestore}
-        testID='recover_wallet_button'
-        title='recover_wallet'
+        testID="recover_wallet_button"
+        title="recover_wallet"
       />
     </KeyboardAwareScrollView>
-  )
+  );
 }
