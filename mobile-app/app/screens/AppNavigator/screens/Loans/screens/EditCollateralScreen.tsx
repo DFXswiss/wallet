@@ -245,6 +245,9 @@ export function EditCollateralScreen({ navigation, route }: Props): JSX.Element 
                   headerTitle: '',
                   headerBackTitleVisible: false,
                 },
+                initialParam: {
+                  collateralTokens,
+                },
               },
             ]);
             expandModal();
