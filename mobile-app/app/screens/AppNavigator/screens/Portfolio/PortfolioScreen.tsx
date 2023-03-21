@@ -23,7 +23,7 @@ import { PortfolioParamList } from './PortfolioNavigator';
 import { Announcements } from '@screens/AppNavigator/screens/Portfolio/components/Announcements';
 import { DFIBalanceCard } from '@screens/AppNavigator/screens/Portfolio/components/DFIBalanceCard';
 import { translate } from '@translations';
-import { Platform, RefreshControl, View, TouchableOpacity } from 'react-native';
+import { Platform, RefreshControl, View, TouchableOpacity, Text } from 'react-native';
 import { RootState } from '@store';
 import { useTokenPrice } from './hooks/TokenPrice';
 import { PortfolioButtonGroupTabKey, TotalPortfolio } from './components/TotalPortfolio';
@@ -49,7 +49,8 @@ import { LockStakingCard } from './LOCK/LockStakingCard';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 import { BackupSeedWarning } from '@components/BackupSeedWarning';
-import { Logging } from '@api';
+import * as Updates from 'expo-updates';
+import { useLogger } from '@shared-contexts/NativeLoggingProvider';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
 
@@ -58,6 +59,7 @@ export interface PortfolioRowToken extends WalletToken {
 }
 
 export function PortfolioScreen({ navigation }: Props): JSX.Element {
+  const logger = useLogger();
   const {
     debouncedAddress,
     isNotAllowedInCountry,
@@ -72,6 +74,8 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const whaleRpcClient = useWhaleRpcClient();
   const { address, addressLength } = useWalletContext();
   const { denominationCurrency, setDenominationCurrency } = useDenominationCurrency();
+  const [showsUpdate, setShowsUpdate] = useState(false);
+  const [isLoadingUpdate, setIsLoadingUpdate] = useState(false);
 
   const { getTokenPrice } = useTokenPrice(denominationCurrency);
   const prices = useSelector((state: RootState) => dexPricesSelectorByDenomination(state.wallet, denominationCurrency));
@@ -504,98 +508,124 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
     setRefreshing(false);
   }, [address, client, dispatch]);
 
+  useEffect(() => {
+    if (__DEV__) {
+      const value = true;
+      logger.info(`set showsUpdate to ${value}`);
+      setShowsUpdate(value);
+    } else {
+      Updates.checkForUpdateAsync()
+        .then(() => {
+          setShowsUpdate(true);
+          Updates.fetchUpdateAsync()
+            .then(() => Updates.reloadAsync())
+            .catch((e) => logger.error(e));
+        })
+        .catch((e) => {
+          console.error(e);
+          setShowsUpdate(false);
+        });
+    }
+  }, []);
+
   return (
     <View ref={containerRef} style={tailwind('flex-1')}>
-      <ThemedScrollView
-        ref={ref}
-        light={tailwind('bg-gray-50')}
-        contentContainerStyle={tailwind('pb-8')}
-        testID="portfolio_list"
-        refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
-      >
-        <Announcements />
-        {showsBackupVerify && <BackupSeedWarning />}
-        <DfxButtons />
-        <TotalPortfolio
-          totalAvailableValue={totalAvailableValue}
-          totalLockedValue={totalLockedValue}
-          totalLoansValue={totalLoansValue}
-          staked={staked}
-          hasFetchedStakingBalance={hasFetchedStakingBalance}
-          onToggleDisplayBalances={onToggleDisplayBalances}
-          isBalancesDisplayed={isBalancesDisplayed}
-          portfolioButtonGroupOptions={{
-            activePortfolioButtonGroup: denominationCurrency,
-            setActivePortfolioButtonGroup: setDenominationCurrency,
-          }}
-          portfolioButtonGroup={portfolioButtonGroup}
-          denominationCurrency={denominationCurrency}
-        />
-        <BalanceActionSection navigation={navigation} isZeroBalance={isZeroBalance} />
-
-        {lockWithAddress != null && (
-          <LockStakingCard denominationCurrency={denominationCurrency} refreshTrigger={lockRefetchTrigger} />
-        )}
-
-        {hasPendingFutureSwap && <FutureSwapCta navigation={navigation} />}
-        {/* to show bottom sheet for asset sort */}
-        <AssetSortRow
-          assetSortType={assetSortType}
-          onPress={() => {
-            setShowAssetSortBottomSheet(true);
-            expandModal(true);
-          }}
-          isSorted={isSorted}
-          hideIcon={hideIcon}
-          modifiedDenominationCurrency={modifiedDenominationCurrency}
-        />
-        <DFIBalanceCard denominationCurrency={denominationCurrency} staked={staked} />
-        {!hasFetchedToken ? (
-          <View style={tailwind('p-4')}>
-            <SkeletonLoader row={2} screen={SkeletonLoaderScreen.Portfolio} />
-          </View>
-        ) : (
-          <PortfolioCard
-            isZeroBalance={isZeroBalance}
-            dstTokens={combinedTokens}
-            filteredTokens={sortTokensAssetOnType(assetSortType)}
-            navigation={navigation}
-            buttonGroupOptions={{
-              activeButtonGroup: activeButtonGroup,
-              setActiveButtonGroup: setActiveButtonGroup,
-              onButtonGroupPress: handleButtonFilter,
+      {showsUpdate ? (
+        <View style={tailwind('flex flex-col items-center justify-center h-full')}>
+          <Text style={tailwind('text-white')}>TODO write cool text</Text>
+        </View>
+      ) : (
+        <ThemedScrollView
+          ref={ref}
+          light={tailwind('bg-gray-50')}
+          contentContainerStyle={tailwind('pb-8')}
+          testID="portfolio_list"
+          refreshControl={<RefreshControl onRefresh={onRefresh} refreshing={refreshing} />}
+        >
+          <Announcements />
+          {showsBackupVerify && <BackupSeedWarning />}
+          <DfxButtons />
+          <TotalPortfolio
+            totalAvailableValue={totalAvailableValue}
+            totalLockedValue={totalLockedValue}
+            totalLoansValue={totalLoansValue}
+            staked={staked}
+            hasFetchedStakingBalance={hasFetchedStakingBalance}
+            onToggleDisplayBalances={onToggleDisplayBalances}
+            isBalancesDisplayed={isBalancesDisplayed}
+            portfolioButtonGroupOptions={{
+              activePortfolioButtonGroup: denominationCurrency,
+              setActivePortfolioButtonGroup: setDenominationCurrency,
             }}
+            portfolioButtonGroup={portfolioButtonGroup}
             denominationCurrency={denominationCurrency}
           />
-        )}
-        {Platform.OS === 'web' ? (
-          <BottomSheetWebWithNav
-            modalRef={containerRef}
-            screenList={showAssetSortBottomSheet ? assetSortBottomSheetScreen : addressBottomSheetScreen}
-            isModalDisplayed={isModalDisplayed}
-            modalStyle={{
-              position: 'absolute',
-              bottom: '0',
-              height: '505px',
-              width: '375px',
-              zIndex: 50,
+          <BalanceActionSection navigation={navigation} isZeroBalance={isZeroBalance} />
+
+          {lockWithAddress != null && (
+            <LockStakingCard denominationCurrency={denominationCurrency} refreshTrigger={lockRefetchTrigger} />
+          )}
+
+          {hasPendingFutureSwap && <FutureSwapCta navigation={navigation} />}
+          {/* to show bottom sheet for asset sort */}
+          <AssetSortRow
+            assetSortType={assetSortType}
+            onPress={() => {
+              setShowAssetSortBottomSheet(true);
+              expandModal(true);
             }}
+            isSorted={isSorted}
+            hideIcon={hideIcon}
+            modifiedDenominationCurrency={modifiedDenominationCurrency}
           />
-        ) : (
-          <>
-            <BottomSheetWithNav
-              modalRef={bottomSheetSortRef}
-              screenList={assetSortBottomSheetScreen}
-              snapPoints={modalSortingSnapPoints}
+          <DFIBalanceCard denominationCurrency={denominationCurrency} staked={staked} />
+          {!hasFetchedToken ? (
+            <View style={tailwind('p-4')}>
+              <SkeletonLoader row={2} screen={SkeletonLoaderScreen.Portfolio} />
+            </View>
+          ) : (
+            <PortfolioCard
+              isZeroBalance={isZeroBalance}
+              dstTokens={combinedTokens}
+              filteredTokens={sortTokensAssetOnType(assetSortType)}
+              navigation={navigation}
+              buttonGroupOptions={{
+                activeButtonGroup: activeButtonGroup,
+                setActiveButtonGroup: setActiveButtonGroup,
+                onButtonGroupPress: handleButtonFilter,
+              }}
+              denominationCurrency={denominationCurrency}
             />
-            <BottomSheetWithNav
-              modalRef={bottomSheetRef}
-              screenList={addressBottomSheetScreen}
-              snapPoints={modalSnapPoints}
+          )}
+          {Platform.OS === 'web' ? (
+            <BottomSheetWebWithNav
+              modalRef={containerRef}
+              screenList={showAssetSortBottomSheet ? assetSortBottomSheetScreen : addressBottomSheetScreen}
+              isModalDisplayed={isModalDisplayed}
+              modalStyle={{
+                position: 'absolute',
+                bottom: '0',
+                height: '505px',
+                width: '375px',
+                zIndex: 50,
+              }}
             />
-          </>
-        )}
-      </ThemedScrollView>
+          ) : (
+            <>
+              <BottomSheetWithNav
+                modalRef={bottomSheetSortRef}
+                screenList={assetSortBottomSheetScreen}
+                snapPoints={modalSortingSnapPoints}
+              />
+              <BottomSheetWithNav
+                modalRef={bottomSheetRef}
+                screenList={addressBottomSheetScreen}
+                snapPoints={modalSnapPoints}
+              />
+            </>
+          )}
+        </ThemedScrollView>
+      )}
     </View>
   );
 }
