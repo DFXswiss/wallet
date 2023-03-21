@@ -39,7 +39,7 @@ export function CreateWalletGuidelines({ navigation }: Props): JSX.Element {
       <View style={tailwind('flex flex-col flex-grow justify-end')}>
         <TouchableOpacity
           onPress={async () =>
-            await openURL(translate('screens/Guidelines', 'https://dfx.swiss/en/terms-and-conditions/'))
+            await openURL(translate('screens/Guidelines', 'https://dfx.swiss/terms-and-conditions/'))
           }
           style={tailwind('mb-2 self-center')}
           testID="recovery_words_button"

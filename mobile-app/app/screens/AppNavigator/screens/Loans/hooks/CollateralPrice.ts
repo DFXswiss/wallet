@@ -19,6 +19,7 @@ interface TotalCollateralValueProps {
   isAdd: boolean;
   collateralInputValue: string | number;
   activePriceAmount: BigNumber;
+  collateralTokens: CollateralItem[];
 }
 
 export function useTotalCollateralValue({
@@ -27,6 +28,7 @@ export function useTotalCollateralValue({
   isAdd,
   collateralInputValue,
   activePriceAmount,
+  collateralTokens,
 }: TotalCollateralValueProps): { totalCollateralValueInUSD: BigNumber } {
   let totalCollateralValueInUSD = vault?.collateralAmounts.reduce((total, collateral) => {
     let newColValue = new BigNumber(collateral.amount);
@@ -36,8 +38,11 @@ export function useTotalCollateralValue({
       newColValue = new BigNumber(collateral.amount).minus(collateralInputValue);
     }
 
+    const collateralToken: CollateralItem | undefined = collateralTokens.find((c) => c.token.id === collateral.id);
     return total.plus(
-      new BigNumber(newColValue).multipliedBy(getActivePrice(collateral.symbol, collateral.activePrice)),
+      new BigNumber(newColValue).multipliedBy(
+        getActivePrice(collateral.symbol, collateral.activePrice, collateralToken?.factor),
+      ),
     );
   }, new BigNumber(0));
 
