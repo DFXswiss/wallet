@@ -54,7 +54,7 @@ export function BackupExplanation(): JSX.Element {
       title: translate('screens/BackupExplanation', 'Secret words'),
       text: translate(
         'screens/BackupExplanation',
-        'Your recovery phrase is a list of 12 secret words in a predefined order that back up your private key.',
+        'Your recovery phrase is a list of 24 secret words in a predefined order that back up your private key.',
       ),
       icon: <MaterialCommunityIcons style={tailwind('pt-1')} name="file-document-outline" size={18} color="#F5516C" />,
     },
@@ -70,7 +70,7 @@ export function BackupExplanation(): JSX.Element {
       title: translate('screens/BackupExplanation', 'Only Chance'),
       text: translate(
         'screens/BackupExplanation',
-        'This phrase is your only chance to recover access to your funds if your DFX Bitcoin App or usual device is unavailable for you.',
+        'This phrase is your only chance to recover access to your funds if your DFX DeFiChain App or usual device is unavailable for you.',
       ),
       icon: <Octicons style={tailwind('pt-1')} name="key" size={18} color="#F5516C" />,
     },

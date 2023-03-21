@@ -717,7 +717,7 @@
     "Unrestorable": "Unrestorable",
     "if you lose your recovery phrase, you will de unable to access your funds, as nobody will be able to restore it.": "Si vous perdez votre phrase de récupération, vous ne pourrez plus accéder à vos fonds, car personne ne pourra la restaurer.",
     "Only Chance": "Seule chance",
-    "This phrase is your only chance to recover access to your funds if your DFX DeFiChain Appor usual device is unavailable for you.": "Cette phrase est votre seule chance de récupérer l'accès à vos fonds si votre DFX DeFiChain Appou votre appareil habituel est indisponible pour vous."
+    "This phrase is your only chance to recover access to your funds if your DFX DeFiChain App or usual device is unavailable for you.": "Cette phrase est votre seule chance de récupérer l'accès à vos fonds si votre application DFX DeFiChain ou votre appareil habituel n'est pas disponible pour vous."
   },
   "screens/RecoveryWordsScreen": {
     "Backup phrase": "Phrase de sauvegarde",

@@ -679,7 +679,7 @@
     "Unrestorable": "No se puede recuperar",
     "if you lose your recovery phrase, you will de unable to access your funds, as nobody will be able to restore it.": "Si pierdes tu frase de recuperación, no podrás acceder a tus fondos, ya que nadie podrá restaurarla.",
     "Only Chance": "Única oportunidad",
-    "This phrase is your only chance to recover access to your funds if your DFX DeFiChain Appor usual device is unavailable for you.": "Esta frase es su única oportunidad de recuperar el acceso a sus fondos si su DFX DeFiChain Appo dispositivo habitual no está disponible para usted."
+    "This phrase is your only chance to recover access to your funds if your DFX DeFiChain App or usual device is unavailable for you.": "Esta frase es su única oportunidad de recuperar el acceso a sus fondos si su DFX DeFiChain App o dispositivo habitual no está disponible para usted."
   },
   "screens/RecoveryWordsScreen": {
     "Backup phrase": "Frase de recuperación",
