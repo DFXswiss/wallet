@@ -1685,7 +1685,7 @@
     "Bitcoin Deposit": "Deposito di Bitcoin",
     "Please note the MINIMUM deposit amount is {{MinimumBtcAmount}}!": "Si prega di notare il deposito minimo di {{MinimumBtcAmount}}!",
     "Ref bonus": "Ref bonus",
-    "Please click here to finish the KYC process to receive your bitcoin address": "Per favore, clicca qui per terminare il processo di KYC e ricevere il tuo indirizzo Bitcoin."
+    "Please click here to complete the KYC process and make a deposit or withdrawal to get your bitcoin address.": "Cliccate qui per completare il processo KYC ed effettuare un deposito o un prelievo per ottenere il vostro indirizzo bitcoin."
   },
   "screens/DfxButtons": {
     "DFI.Tax": "DFI.tax",

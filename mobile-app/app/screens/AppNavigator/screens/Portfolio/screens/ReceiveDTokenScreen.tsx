@@ -231,7 +231,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
             <ThemedText style={tailwind('text-center')}>
               {translate(
                 'screens/ReceiveDTokenScreen',
-                'Please click here to finish the KYC process to receive your bitcoin address',
+                'Please click here to complete the KYC process and make a deposit or withdrawal to get your bitcoin address.',
               )}
             </ThemedText>
             {isLoadingKyc && (

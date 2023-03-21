@@ -9,7 +9,7 @@ import { DefaultToken } from './DefaultToken';
 export function _Default(symbol: string): (props: SvgProps) => JSX.Element {
   const tokenDetail = useSelector((state: RootState) => tokenSelectorByDisplaySymbol(state.wallet, symbol));
 
-  if (tokenDetail?.isLoanToken) {
+  if (tokenDetail?.isLoanToken || tokenDetail?.symbolKey === 'csETH') {
     return DefaultLoanToken(symbol);
   }
 

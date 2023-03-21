@@ -1655,7 +1655,7 @@
     "Bitcoin Deposit": "比特幣存款",
     "Please note the MINIMUM deposit amount is {{MinimumBtcAmount}}!": "請注意最低存款金額 {{MinimumBtcAmount}}!",
     "Ref bonus": "參考獎金",
-    "Please click here to finish the KYC process to receive your bitcoin address": "请点击这里完成KYC程序，以获得你的比特币地址。"
+    "Please click here to complete the KYC process and make a deposit or withdrawal to get your bitcoin address.": "請點擊此處完成 KYC 流程並進行存款或取款以獲取您的比特幣地址。"
   },
   "screens/DfxButtons": {
     "Buy": "购买 ",

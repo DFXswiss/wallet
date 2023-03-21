@@ -413,7 +413,7 @@ export function PortfolioNavigator (): JSX.Element {
             return (
               <HeaderTitle containerTestID={headerContainerTestId}>
                 <View style={tailwind('flex-row items-center')}>
-                  <Icon />
+                  <Icon height={32} width={32} />
 
                   <View style={tailwind('flex-col ml-2')}>
                     <ThemedText style={tailwind('font-semibold')}>
