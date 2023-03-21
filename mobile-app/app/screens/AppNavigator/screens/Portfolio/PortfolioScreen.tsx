@@ -523,18 +523,20 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
       }, 1000);
     } else {
       Updates.checkForUpdateAsync()
-        .then(() => {
-          setShowsUpdate(true);
-          setUpdateDebug('fetching update');
-          Updates.fetchUpdateAsync()
-            .then(() => {
-              setUpdateDebug('done fetching');
-              setUpdateIsDisabled(false);
-            })
-            .catch((e) => {
-              logger.error(e);
-              setUpdateDebug('some error happened');
-            });
+        .then((update) => {
+          setShowsUpdate(update.isAvailable);
+          if (update.isAvailable) {
+            setUpdateDebug('fetching update');
+            Updates.fetchUpdateAsync()
+              .then(() => {
+                setUpdateDebug('done fetching');
+                setUpdateIsDisabled(false);
+              })
+              .catch((e) => {
+                logger.error(e);
+                setUpdateDebug('some error happened');
+              });
+          }
         })
         .catch((e) => {
           console.error(e);

@@ -43,6 +43,14 @@
       "eas": {
         "projectId": "21b4cf58-e50b-497b-ac75-45508d88ff29"
       }
-    }
+    },
+    "plugins": [
+      [
+        "expo-updates",
+        {
+          "username": "dfxag"
+        }
+      ]
+    ]
   }
 }
