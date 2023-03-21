@@ -166,6 +166,11 @@ export function DfxButtons(): JSX.Element {
           label: 'delete session',
           onPress: () => AuthService.deleteSession(),
         },
+        {
+          Svg: DfxIcon,
+          label: 'delete backupVerified',
+          onPress: () => DFXPersistence.removeVerifiedBackup(),
+        },
       ]
     : [];
 
@@ -277,6 +282,7 @@ export function DfxButtons(): JSX.Element {
 
 interface SvgButtonProps extends TouchableOpacityProps {
   Svg: React.FC<SvgProps>;
+  flex?: number;
   label?: string;
   // source: ImageSourcePropType
   loading?: boolean;
@@ -286,7 +292,7 @@ export function SvgButton(props: SvgButtonProps): JSX.Element {
   const styles = StyleSheet.create({
     button: {
       aspectRatio: 1,
-      flex: 2,
+      flex: props.flex ?? 2,
       marginBottom: 8,
     },
   });
@@ -333,12 +339,12 @@ const BottomSheetPartnerServices = ({
 
     return (
       <ScrollView>
-        <View style={tailwind('flex flex-row')}>
+        <View style={tailwind('flex flex-row flex-wrap')}>
           {partnerServiceButtons
             .filter((btn) => !(btn.hide ?? false))
             .map((btn, i) => (
-              <View key={`ov${i}`} style={tailwind('p-4')}>
-                <SvgButton Svg={btn.Svg} label={btn.label} onPress={async () => await btn.onPress()} />
+              <View key={`ov${i}`} style={tailwind('flex p-4')}>
+                <SvgButton Svg={btn.Svg} label={btn.label} onPress={async () => await btn.onPress()} flex={0} />
               </View>
             ))}
         </View>
