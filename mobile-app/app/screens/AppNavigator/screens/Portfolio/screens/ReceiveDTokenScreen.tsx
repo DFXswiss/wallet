@@ -2,7 +2,6 @@
 import * as Clipboard from 'expo-clipboard';
 import React, { useCallback, useEffect, useState } from 'react';
 import { Share, TouchableOpacity, View } from 'react-native';
-import QRCode from 'react-qr-code';
 import {
   ThemedActivityIndicator,
   ThemedIcon,
@@ -32,6 +31,7 @@ import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 // import BtcIconSvg from '@assets/images/dfx_buttons/crypto/Bitcoin_icon.svg'
 import BtcTodBtc from '@assets/images/dfx_buttons/crypto/BTC_to_dBTC.svg';
 import { HeaderTitle } from '@components/HeaderTitle';
+import QRCode from 'react-native-qrcode-svg';
 
 export async function onShare(address: string, logger: NativeLoggingProps): Promise<void> {
   try {
