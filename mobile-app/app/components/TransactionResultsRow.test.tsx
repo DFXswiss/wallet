@@ -1,8 +1,8 @@
-import { render } from '@testing-library/react-native'
+import { render } from '@testing-library/react-native';
 
-import { TransactionResultsRow } from './TransactionResultsRow'
+import { TransactionResultsRow } from './TransactionResultsRow';
 
-jest.mock('@shared-contexts/ThemeProvider')
+jest.mock('@shared-contexts/ThemeProvider');
 
 describe('Transaction Results Row', () => {
   it('should match snapshot', async () => {
@@ -10,15 +10,15 @@ describe('Transaction Results Row', () => {
       {
         symbol: 'DFI',
         value: '0.00000001',
-        suffix: 'DFI'
+        suffix: 'DFI',
       },
       {
         symbol: 'dBTC',
         value: '0.00000001',
-        suffix: 'dBTC'
-      }
-    ]
-    const rendered = render(<TransactionResultsRow tokens={tokens} />)
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
-})
+        suffix: 'dBTC',
+      },
+    ];
+    const rendered = render(<TransactionResultsRow tokens={tokens} />);
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
+});

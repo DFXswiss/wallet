@@ -1,11 +1,11 @@
-import { configureStore } from '@reduxjs/toolkit'
-import { RootState } from '@store'
-import { userPreferences } from '@store/userPreferences'
-import { render } from '@testing-library/react-native'
-import { Provider } from 'react-redux'
-import { AddressListEditButton } from './AddressListEditButton'
+import { configureStore } from '@reduxjs/toolkit';
+import { RootState } from '@store';
+import { userPreferences } from '@store/userPreferences';
+import { render } from '@testing-library/react-native';
+import { Provider } from 'react-redux';
+import { AddressListEditButton } from './AddressListEditButton';
 
-jest.mock('@shared-contexts/ThemeProvider')
+jest.mock('@shared-contexts/ThemeProvider');
 
 describe('Address List Edit Button', () => {
   it('should match snapshot', async () => {
@@ -15,29 +15,29 @@ describe('Address List Edit Button', () => {
           foo: {
             address: 'foo',
             label: 'foo',
-            isMine: true
-          }
+            isMine: true,
+          },
         },
         addressBook: {
           bar: {
             address: 'bar',
             label: 'bar',
-            isMine: false
-          }
-        }
-      }
-    }
+            isMine: false,
+          },
+        },
+      },
+    };
     const store = configureStore({
       preloadedState: initialState,
-      reducer: { userPreferences: userPreferences.reducer }
-    })
+      reducer: { userPreferences: userPreferences.reducer },
+    });
 
     const rendered = render(
       <Provider store={store}>
         <AddressListEditButton isEditing handleOnPress={jest.fn} />
-      </Provider>
-    )
+      </Provider>,
+    );
 
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
-})
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
+});

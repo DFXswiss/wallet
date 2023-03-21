@@ -1,28 +1,25 @@
-import { ThemedIcon, ThemedText, ThemedTouchableOpacity } from '@components/themed'
-import { WalletAlert } from '@components/WalletAlert'
-import { useNetworkContext } from '@shared-contexts/NetworkContext'
-import { EnvironmentNetwork, isPlayground } from '@environment'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { SettingsParamList } from '@screens/AppNavigator/screens/Settings/SettingsNavigator'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
+import { ThemedIcon, ThemedText, ThemedTouchableOpacity } from '@components/themed';
+import { WalletAlert } from '@components/WalletAlert';
+import { useNetworkContext } from '@shared-contexts/NetworkContext';
+import { EnvironmentNetwork, isPlayground } from '@environment';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { SettingsParamList } from '@screens/AppNavigator/screens/Settings/SettingsNavigator';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
 
 interface RowNetworkItemProps {
-  network: EnvironmentNetwork
-  alertMessage: string
+  network: EnvironmentNetwork;
+  alertMessage: string;
 }
 
-export function RowNetworkItem (props: RowNetworkItemProps): JSX.Element {
-  const navigation = useNavigation<NavigationProp<SettingsParamList>>()
-  const {
-    network,
-    updateNetwork
-  } = useNetworkContext()
+export function RowNetworkItem(props: RowNetworkItemProps): JSX.Element {
+  const navigation = useNavigation<NavigationProp<SettingsParamList>>();
+  const { network, updateNetwork } = useNetworkContext();
 
   const onPress = async (): Promise<void> => {
     if (props.network === network) {
       if (isPlayground(props.network)) {
-        navigation.navigate('Playground')
+        navigation.navigate('Playground');
       }
     } else {
       WalletAlert({
@@ -31,19 +28,19 @@ export function RowNetworkItem (props: RowNetworkItemProps): JSX.Element {
         buttons: [
           {
             text: translate('screens/Settings', 'No'),
-            style: 'cancel'
+            style: 'cancel',
           },
           {
             text: translate('screens/Settings', 'Yes'),
             style: 'destructive',
             onPress: async () => {
-              await updateNetwork(props.network)
-            }
-          }
-        ]
-      })
+              await updateNetwork(props.network);
+            },
+          },
+        ],
+      });
     }
-  }
+  };
 
   return (
     <ThemedTouchableOpacity
@@ -51,23 +48,18 @@ export function RowNetworkItem (props: RowNetworkItemProps): JSX.Element {
       style={tailwind('flex flex-row p-4 pr-2 items-center justify-between')}
       testID={`button_network_${props.network}`}
     >
-      <ThemedText style={tailwind('font-medium')}>
-        {props.network}
-      </ThemedText>
+      <ThemedText style={tailwind('font-medium')}>{props.network}</ThemedText>
 
-      {
-        props.network === network &&
-        (
-          <ThemedIcon
-            dark={tailwind('text-dfxred-500')}
-            iconType='MaterialIcons'
-            light={tailwind('text-primary-500')}
-            name='check'
-            size={24}
-            testID={`button_network_${props.network}_check`}
-          />
-        )
-      }
+      {props.network === network && (
+        <ThemedIcon
+          dark={tailwind('text-dfxred-500')}
+          iconType="MaterialIcons"
+          light={tailwind('text-primary-500')}
+          name="check"
+          size={24}
+          testID={`button_network_${props.network}_check`}
+        />
+      )}
     </ThemedTouchableOpacity>
-  )
+  );
 }

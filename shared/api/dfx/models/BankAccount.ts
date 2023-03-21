@@ -1,25 +1,25 @@
-import { Fiat } from './Fiat'
+import { Fiat } from './Fiat';
 
 export interface BankAccountDto {
-  id: string
-  iban: string
-  preferredCurrency: Fiat | null
-  label: string | null
-  sepaInstant: boolean
+  id: string;
+  iban: string;
+  preferredCurrency: Fiat | null;
+  label: string | null;
+  sepaInstant: boolean;
 }
 
 export interface BankAccount {
-  id: string
-  iban: string
-  fiat: Fiat | null
-  label: string | null
-  sepaInstant: boolean
+  id: string;
+  iban: string;
+  fiat: Fiat | null;
+  label: string | null;
+  sepaInstant: boolean;
 }
 
 export interface BankAccountData {
-  iban: string
-  preferredCurrency: Fiat | null
-  label: string | null
+  iban: string;
+  preferredCurrency: Fiat | null;
+  label: string | null;
 }
 
 export const fromBankAccountDto = (route: BankAccountDto): BankAccount => ({
@@ -27,11 +27,11 @@ export const fromBankAccountDto = (route: BankAccountDto): BankAccount => ({
   iban: route.iban.replace(/(.{4})/g, '$1 '),
   fiat: route.preferredCurrency,
   label: route.label,
-  sepaInstant: route.sepaInstant
-})
+  sepaInstant: route.sepaInstant,
+});
 
 export const toBankAccountDto = (route: BankAccountData): BankAccountData => ({
   iban: route.iban.split(' ').join(''),
   preferredCurrency: route.preferredCurrency,
-  label: route.label
-})
+  label: route.label,
+});

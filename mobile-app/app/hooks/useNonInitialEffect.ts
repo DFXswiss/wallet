@@ -1,4 +1,4 @@
-import { useEffect, EffectCallback, DependencyList, useRef } from 'react'
+import { useEffect, EffectCallback, DependencyList, useRef } from 'react';
 
 /**
  * This hook gets called only when the dependencies change but not during initial render.
@@ -14,18 +14,18 @@ import { useEffect, EffectCallback, DependencyList, useRef } from 'react'
  * ```
  */
 export const useNonInitialEffect = (effect: EffectCallback, deps?: DependencyList): void => {
-  const initialRender = useRef(true)
+  const initialRender = useRef(true);
 
   useEffect(() => {
-    let effectReturns
+    let effectReturns;
     if (initialRender.current) {
-      initialRender.current = false
+      initialRender.current = false;
     } else {
-      effectReturns = effect()
+      effectReturns = effect();
     }
 
-    if ((effectReturns != null) && typeof effectReturns === 'function') {
-      return effectReturns
+    if (effectReturns != null && typeof effectReturns === 'function') {
+      return effectReturns;
     }
-  }, deps)
-}
+  }, deps);
+};

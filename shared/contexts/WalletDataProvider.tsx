@@ -1,57 +1,59 @@
-import React, { useEffect, PropsWithChildren } from 'react'
-import { batch, useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { useNetworkContext } from '@shared-contexts/NetworkContext'
-import { useWhaleApiClient } from './WhaleContext'
-import { fetchDexPrice, fetchPoolPairs, fetchTokens } from '@store/wallet'
-import { fetchUserPreferences } from '@store/userPreferences'
-import { useWalletPersistenceContext } from '@shared-contexts/WalletPersistenceContext'
-import { useWalletContext } from '@shared-contexts/WalletContext'
-import { fetchVaults } from '@store/loans'
-import { useAppDispatch } from '@hooks/useAppDispatch'
+import React, { useEffect, PropsWithChildren } from 'react';
+import { batch, useSelector } from 'react-redux';
+import { RootState } from '@store';
+import { useNetworkContext } from '@shared-contexts/NetworkContext';
+import { useWhaleApiClient } from './WhaleContext';
+import { fetchDexPrice, fetchPoolPairs, fetchTokens } from '@store/wallet';
+import { fetchUserPreferences } from '@store/userPreferences';
+import { useWalletPersistenceContext } from '@shared-contexts/WalletPersistenceContext';
+import { useWalletContext } from '@shared-contexts/WalletContext';
+import { fetchVaults } from '@store/loans';
+import { useAppDispatch } from '@hooks/useAppDispatch';
 
-export function WalletDataProvider (props: PropsWithChildren<any>): JSX.Element | null {
-  const blockCount = useSelector((state: RootState) => state.block.count)
-  const client = useWhaleApiClient()
-  const { network } = useNetworkContext()
-  const dispatch = useAppDispatch()
-  const { address } = useWalletContext()
-  const { wallets } = useWalletPersistenceContext()
+export function WalletDataProvider(props: PropsWithChildren<any>): JSX.Element | null {
+  const blockCount = useSelector((state: RootState) => state.block.count);
+  const client = useWhaleApiClient();
+  const { network } = useNetworkContext();
+  const dispatch = useAppDispatch();
+  const { address } = useWalletContext();
+  const { wallets } = useWalletPersistenceContext();
 
   // Global polling based on blockCount and network, so no need to fetch per page
   useEffect(() => {
     batch(() => {
-      dispatch(fetchPoolPairs({ client }))
-      dispatch(fetchDexPrice({
-        client,
-        denomination: 'USDT'
-      }))
-    })
-  }, [blockCount, network])
+      dispatch(fetchPoolPairs({ client }));
+      dispatch(
+        fetchDexPrice({
+          client,
+          denomination: 'USDT',
+        }),
+      );
+    });
+  }, [blockCount, network]);
 
   // Fetch user data on start up
   // Will only refetch on network or wallet change
   useEffect(() => {
-    dispatch(fetchUserPreferences(network))
-  }, [network, wallets])
+    dispatch(fetchUserPreferences(network));
+  }, [network, wallets]);
 
   /* Global polling based on blockCount, network and address */
   useEffect(() => {
     batch(() => {
-      dispatch(fetchTokens({
-        client,
-        address
-      }))
-      dispatch(fetchVaults({
-        client,
-        address
-      }))
-    })
-  }, [blockCount, network, address])
+      dispatch(
+        fetchTokens({
+          client,
+          address,
+        }),
+      );
+      dispatch(
+        fetchVaults({
+          client,
+          address,
+        }),
+      );
+    });
+  }, [blockCount, network, address]);
 
-  return (
-    <>
-      {props.children}
-    </>
-  )
+  return <>{props.children}</>;
 }

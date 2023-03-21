@@ -1,56 +1,51 @@
-import { StackScreenProps } from '@react-navigation/stack'
-import { BarCodeScanner as DefaultBarCodeScanner } from 'expo-barcode-scanner'
-import { useEffect, useState } from 'react'
-import { StyleSheet } from 'react-native'
-import tailwind from 'tailwind-rn'
-import { View } from '.'
-import { PortfolioParamList } from '@screens/AppNavigator/screens/Portfolio/PortfolioNavigator'
-import { translate } from '@translations'
-import { ThemedText, ThemedView } from './themed'
-import { useLogger } from '@shared-contexts/NativeLoggingProvider'
+import { StackScreenProps } from '@react-navigation/stack';
+import { BarCodeScanner as DefaultBarCodeScanner } from 'expo-barcode-scanner';
+import { useEffect, useState } from 'react';
+import { StyleSheet } from 'react-native';
+import tailwind from 'tailwind-rn';
+import { View } from '.';
+import { PortfolioParamList } from '@screens/AppNavigator/screens/Portfolio/PortfolioNavigator';
+import { translate } from '@translations';
+import { ThemedText, ThemedView } from './themed';
+import { useLogger } from '@shared-contexts/NativeLoggingProvider';
 
-type Props = StackScreenProps<PortfolioParamList, 'BarCodeScanner'>
+type Props = StackScreenProps<PortfolioParamList, 'BarCodeScanner'>;
 
-export function BarCodeScanner ({
-  route,
-  navigation
-}: Props): JSX.Element {
+export function BarCodeScanner({ route, navigation }: Props): JSX.Element {
   // null => undetermined
-  const [hasPermission, setHasPermission] = useState<boolean | null>(null)
-  const [value, setValue] = useState<string>()
-  const logger = useLogger()
+  const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+  const [value, setValue] = useState<string>();
+  const logger = useLogger();
 
   // to ensure callback only can be fired once as value change
   useEffect(() => {
     if (value !== undefined) {
-      route.params.onQrScanned(value)
-      navigation.pop()
+      route.params.onQrScanned(value);
+      navigation.pop();
     }
-  }, [value])
+  }, [value]);
 
   useEffect(() => {
     DefaultBarCodeScanner.requestPermissionsAsync()
       .then(({ status }) => {
         switch (status) {
           case 'granted':
-            setHasPermission(true)
-            break
+            setHasPermission(true);
+            break;
           case 'denied':
-            setHasPermission(false)
-            break
+            setHasPermission(false);
+            break;
         }
       })
-      .catch(logger.error)
-  }, [])
+      .catch(logger.error);
+  }, []);
 
   if (hasPermission === null) {
     return (
       <ThemedView style={tailwind('flex-col flex-1 justify-center items-center')}>
-        <ThemedText>
-          {translate('components/BarCodeScanner', 'Requesting for camera permission')}
-        </ThemedText>
+        <ThemedText>{translate('components/BarCodeScanner', 'Requesting for camera permission')}</ThemedText>
       </ThemedView>
-    )
+    );
   }
   if (!hasPermission) {
     return (
@@ -59,43 +54,43 @@ export function BarCodeScanner ({
           {translate('components/BarCodeScanner', 'You have denied the permission request to use your camera')}
         </ThemedText>
       </View>
-    )
+    );
   }
 
-  const opacity = 'rgba(0, 0, 0, .6)'
+  const opacity = 'rgba(0, 0, 0, .6)';
   const styles = StyleSheet.create({
     focused: {
-      flex: 5
+      flex: 5,
     },
     layerBottom: {
       backgroundColor: opacity,
-      flex: 2
+      flex: 2,
     },
     layerCenter: {
       flex: 3,
       // aspectRatio: 1,
-      flexDirection: 'row'
+      flexDirection: 'row',
     },
     layerLeft: {
       backgroundColor: opacity,
-      flex: 1
+      flex: 1,
     },
     layerRight: {
       backgroundColor: opacity,
-      flex: 1
+      flex: 1,
     },
     layerTop: {
       backgroundColor: opacity,
-      flex: 2
-    }
-  })
+      flex: 2,
+    },
+  });
 
   return (
     <>
       <DefaultBarCodeScanner
         barCodeTypes={[DefaultBarCodeScanner.Constants.BarCodeType.qr]}
         onBarCodeScanned={(e) => {
-          setValue(e.data)
+          setValue(e.data);
         }}
         style={tailwind('flex-1 absolute inset-0')}
       />
@@ -120,5 +115,5 @@ export function BarCodeScanner ({
 
       <View style={styles.layerBottom} />
     </>
-  )
+  );
 }

@@ -1,17 +1,17 @@
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { StyleProp, TextStyle, TouchableOpacity, ViewStyle } from 'react-native'
-import { ThemedIcon, ThemedText } from './themed'
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { StyleProp, TextStyle, TouchableOpacity, ViewStyle } from 'react-native';
+import { ThemedIcon, ThemedText } from './themed';
 
 interface InfoTextLinkProps {
-  onPress: () => void
-  text: string
-  testId?: string
-  containerStyle?: StyleProp<ViewStyle>
-  textStyle?: StyleProp<TextStyle>
+  onPress: () => void;
+  text: string;
+  testId?: string;
+  containerStyle?: StyleProp<ViewStyle>;
+  textStyle?: StyleProp<TextStyle>;
 }
 
-export function InfoTextLink (props: InfoTextLinkProps): JSX.Element {
+export function InfoTextLink(props: InfoTextLinkProps): JSX.Element {
   return (
     <TouchableOpacity
       onPress={props.onPress}
@@ -20,9 +20,9 @@ export function InfoTextLink (props: InfoTextLinkProps): JSX.Element {
     >
       <ThemedIcon
         dark={tailwind('text-dfxred-500')}
-        iconType='MaterialIcons'
+        iconType="MaterialIcons"
         light={tailwind('text-primary-500')}
-        name='help'
+        name="help"
         size={16}
       />
 
@@ -34,5 +34,5 @@ export function InfoTextLink (props: InfoTextLinkProps): JSX.Element {
         {translate('components/InfoTextLink', props.text)}
       </ThemedText>
     </TouchableOpacity>
-  )
+  );
 }

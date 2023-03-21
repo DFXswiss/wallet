@@ -22,10 +22,10 @@ export enum FundOrigin {
 }
 
 export interface LimitRequest {
-  limit: Limit
-  investmentDate: InvestmentDate
-  fundOrigin: FundOrigin
-  fundOriginText?: string
-  documentProof?: string
-  documentProofName?: string
+  limit: Limit;
+  investmentDate: InvestmentDate;
+  fundOrigin: FundOrigin;
+  fundOriginText?: string;
+  documentProof?: string;
+  documentProofName?: string;
 }

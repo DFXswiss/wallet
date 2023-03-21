@@ -1,45 +1,45 @@
-import { getEnvironment } from '@environment'
-import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react'
-import { AdvertisementData, AnnouncementData, DefiChainStatus, FeatureFlag } from '@shared-types/website'
-import { getReleaseChannel } from '@api/releaseChannel'
+import { getEnvironment } from '@environment';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { AdvertisementData, AnnouncementData, DefiChainStatus, FeatureFlag } from '@shared-types/website';
+import { getReleaseChannel } from '@api/releaseChannel';
 
 export const statusWebsiteSlice = createApi({
   reducerPath: 'websiteStatus',
   baseQuery: fetchBaseQuery({
-    baseUrl: 'https://api.status.jellyfishsdk.com'
+    baseUrl: 'https://api.status.jellyfishsdk.com',
   }),
-  endpoints: builder => ({
+  endpoints: (builder) => ({
     getBlockchainStatus: builder.query<DefiChainStatus, any>({
       query: () => ({
         url: '/blockchain',
-        method: 'GET'
-      })
+        method: 'GET',
+      }),
     }),
     // Ocean API
     getOceanStatus: builder.query<DefiChainStatus, any>({
       query: () => ({
         url: '/overall',
-        method: 'GET'
-      })
-    })
-  })
-})
+        method: 'GET',
+      }),
+    }),
+  }),
+});
 
 export const announcementWebsiteSlice = createApi({
   reducerPath: 'website',
   baseQuery: fetchBaseQuery({
-    baseUrl: getEnvironment(getReleaseChannel()).dfx.apiUrl
+    baseUrl: getEnvironment(getReleaseChannel()).dfx.apiUrl,
   }),
-  endpoints: builder => ({
+  endpoints: (builder) => ({
     getAnnouncements: builder.query<AnnouncementData[], any>({
       query: () => ({
         url: '/app/announcements',
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
-          mode: 'no-cors'
-        }
-      })
+          mode: 'no-cors',
+        },
+      }),
     }),
     getFeatureFlags: builder.query<FeatureFlag[], any>({
       query: () => ({
@@ -47,34 +47,27 @@ export const announcementWebsiteSlice = createApi({
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
-          mode: 'no-cors'
-        }
-      })
+          mode: 'no-cors',
+        },
+      }),
     }),
     getAdvertisement: builder.query<AdvertisementData, any>({
-      query: ({ id, date, lang }: { id: string, date: string, lang: string }) => ({
+      query: ({ id, date, lang }: { id: string; date: string; lang: string }) => ({
         url: '/app/advertisements/',
         params: { id, lang, date },
         method: 'GET',
         headers: {
           'Access-Control-Allow-Origin': '*',
-          mode: 'no-cors'
-        }
-      })
-    })
-  })
-})
+          mode: 'no-cors',
+        },
+      }),
+    }),
+  }),
+});
 
-const {
-  useGetBlockchainStatusQuery,
-  useGetOceanStatusQuery
-} = statusWebsiteSlice
-const {
-  useGetAnnouncementsQuery,
-  useGetFeatureFlagsQuery,
-  useLazyGetAdvertisementQuery,
-  usePrefetch
-} = announcementWebsiteSlice
+const { useGetBlockchainStatusQuery, useGetOceanStatusQuery } = statusWebsiteSlice;
+const { useGetAnnouncementsQuery, useGetFeatureFlagsQuery, useLazyGetAdvertisementQuery, usePrefetch } =
+  announcementWebsiteSlice;
 
 export {
   useGetBlockchainStatusQuery,
@@ -82,5 +75,5 @@ export {
   useGetAnnouncementsQuery,
   useGetFeatureFlagsQuery,
   useLazyGetAdvertisementQuery,
-  usePrefetch
-}
+  usePrefetch,
+};

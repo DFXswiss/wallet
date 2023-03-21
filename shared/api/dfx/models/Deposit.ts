@@ -1,5 +1,5 @@
 export interface Deposit {
-  id: number
-  address: string
-  used: boolean
+  id: number;
+  address: string;
+  used: boolean;
 }

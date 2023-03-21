@@ -1,22 +1,22 @@
-import { configureStore } from '@reduxjs/toolkit'
-import { RootState } from '@store'
-import { block } from '@store/block'
-import { ocean } from '@store/ocean'
-import { transactionQueue } from '@store/transaction_queue'
-import { render } from '@testing-library/react-native'
-import { Provider } from 'react-redux'
-import { NetworkSelectionScreenV2 } from './NetworkSelectionScreenV2'
+import { configureStore } from '@reduxjs/toolkit';
+import { RootState } from '@store';
+import { block } from '@store/block';
+import { ocean } from '@store/ocean';
+import { transactionQueue } from '@store/transaction_queue';
+import { render } from '@testing-library/react-native';
+import { Provider } from 'react-redux';
+import { NetworkSelectionScreenV2 } from './NetworkSelectionScreenV2';
 
 jest.mock('@react-navigation/native', () => ({
-  useNavigation: jest.fn()
-}))
+  useNavigation: jest.fn(),
+}));
 jest.mock('@shared-contexts/DeFiScanContext', () => ({
   useDeFiScanContext: () => {
-    return { getblocksUrl: jest.fn() }
-  }
-}))
-jest.mock('@shared-contexts/NetworkContext')
-jest.mock('@shared-contexts/ThemeProvider')
+    return { getblocksUrl: jest.fn() };
+  },
+}));
+jest.mock('@shared-contexts/NetworkContext');
+jest.mock('@shared-contexts/ThemeProvider');
 
 describe('onboarding network selection screen', () => {
   it('should render', async () => {
@@ -26,32 +26,32 @@ describe('onboarding network selection screen', () => {
         masternodeCount: 10,
         lastSuccessfulSync: 'Tue, 14 Sep 2021 15:37:10 GMT',
         connected: true,
-        isPolling: true
+        isPolling: true,
       },
       transactionQueue: {
-        transactions: []
+        transactions: [],
       },
       ocean: {
         transactions: [],
         height: 0,
-        err: undefined
-      }
-    }
+        err: undefined,
+      },
+    };
 
     const store = configureStore({
       preloadedState: initialState,
       reducer: {
         block: block.reducer,
         transactionQueue: transactionQueue.reducer,
-        ocean: ocean.reducer
-      }
-    })
+        ocean: ocean.reducer,
+      },
+    });
 
     const rendered = render(
       <Provider store={store}>
         <NetworkSelectionScreenV2 />
-      </Provider>
-    )
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
-})
+      </Provider>,
+    );
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
+});

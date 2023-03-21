@@ -1,137 +1,143 @@
-import { InputHelperText } from '@components/InputHelperText'
-import { WalletTextInput } from '@components/WalletTextInput'
-import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { StackScreenProps } from '@react-navigation/stack'
-import BigNumber from 'bignumber.js'
-import { useCallback, useEffect, useState } from 'react'
-import { View } from '@components'
-import { NumberRow } from '@components/NumberRow'
-import { AmountButtonTypes, SetAmountButton } from '@components/SetAmountButton'
-import { ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { DexParamList } from './DexNavigator'
-import { InfoRow, InfoType } from '@components/InfoRow'
-import { useWhaleApiClient } from '@shared-contexts/WhaleContext'
-import { DFITokenSelector, DFIUtxoSelector, tokensSelector, WalletToken } from '@store/wallet'
-import { ConversionInfoText } from '@components/ConversionInfoText'
-import { useSelector } from 'react-redux'
-import { RootState } from '@store'
-import { hasTxQueued } from '@store/transaction_queue'
-import { hasTxQueued as hasBroadcastQueued } from '@store/ocean'
-import { ReservedDFIInfoText } from '@components/ReservedDFIInfoText'
-import { queueConvertTransaction, useConversion } from '@hooks/wallet/Conversion'
-import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { SubmitButtonGroup } from '@components/SubmitButtonGroup'
-import { PricesSection } from '@components/PricesSection'
-import { useAppDispatch } from '@hooks/useAppDispatch'
+import { InputHelperText } from '@components/InputHelperText';
+import { WalletTextInput } from '@components/WalletTextInput';
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
+import BigNumber from 'bignumber.js';
+import { useCallback, useEffect, useState } from 'react';
+import { View } from '@components';
+import { NumberRow } from '@components/NumberRow';
+import { AmountButtonTypes, SetAmountButton } from '@components/SetAmountButton';
+import { ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { DexParamList } from './DexNavigator';
+import { InfoRow, InfoType } from '@components/InfoRow';
+import { useWhaleApiClient } from '@shared-contexts/WhaleContext';
+import { DFITokenSelector, DFIUtxoSelector, tokensSelector, WalletToken } from '@store/wallet';
+import { ConversionInfoText } from '@components/ConversionInfoText';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store';
+import { hasTxQueued } from '@store/transaction_queue';
+import { hasTxQueued as hasBroadcastQueued } from '@store/ocean';
+import { ReservedDFIInfoText } from '@components/ReservedDFIInfoText';
+import { queueConvertTransaction, useConversion } from '@hooks/wallet/Conversion';
+import { useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { SubmitButtonGroup } from '@components/SubmitButtonGroup';
+import { PricesSection } from '@components/PricesSection';
+import { useAppDispatch } from '@hooks/useAppDispatch';
 
-type Props = StackScreenProps<DexParamList, 'AddLiquidity'>
-type EditingAmount = 'primary' | 'secondary'
+type Props = StackScreenProps<DexParamList, 'AddLiquidity'>;
+type EditingAmount = 'primary' | 'secondary';
 
 interface ExtPoolPairData extends PoolPairData {
-  aSymbol: string
-  bSymbol: string
-  aToBRate: BigNumber
-  bToARate: BigNumber
+  aSymbol: string;
+  bSymbol: string;
+  aToBRate: BigNumber;
+  bToARate: BigNumber;
 }
 
-export function AddLiquidityScreen (props: Props): JSX.Element {
-  const logger = useLogger()
-  const navigation = useNavigation<NavigationProp<DexParamList>>()
-  const client = useWhaleApiClient()
-  const dispatch = useAppDispatch()
-  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet))
-  const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet))
-  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
-  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
-  const pairs = useSelector((state: RootState) => state.wallet.poolpairs)
-  const tokens = useSelector((state: RootState) => tokensSelector(state.wallet))
+export function AddLiquidityScreen(props: Props): JSX.Element {
+  const logger = useLogger();
+  const navigation = useNavigation<NavigationProp<DexParamList>>();
+  const client = useWhaleApiClient();
+  const dispatch = useAppDispatch();
+  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet));
+  const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
+  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
+  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
+  const pairs = useSelector((state: RootState) => state.wallet.poolpairs);
+  const tokens = useSelector((state: RootState) => tokensSelector(state.wallet));
 
   // this component UI state
-  const [tokenAAmount, setTokenAAmount] = useState<string>('')
-  const [tokenBAmount, setTokenBAmount] = useState<string>('')
-  const [sharePercentage, setSharePercentage] = useState<BigNumber>(new BigNumber(0))
-  const [canContinue, setCanContinue] = useState(false)
-  const [fee, setFee] = useState<BigNumber>(new BigNumber(0.0001))
+  const [tokenAAmount, setTokenAAmount] = useState<string>('');
+  const [tokenBAmount, setTokenBAmount] = useState<string>('');
+  const [sharePercentage, setSharePercentage] = useState<BigNumber>(new BigNumber(0));
+  const [canContinue, setCanContinue] = useState(false);
+  const [fee, setFee] = useState<BigNumber>(new BigNumber(0.0001));
 
   // derived from props
-  const [balanceA, setBalanceA] = useState(new BigNumber(0))
-  const [balanceB, setBalanceB] = useState(new BigNumber(0))
-  const [pair, setPair] = useState<ExtPoolPairData>()
-  const {
-    isConversionRequired,
-    conversionAmount
-  } = useConversion({
+  const [balanceA, setBalanceA] = useState(new BigNumber(0));
+  const [balanceB, setBalanceB] = useState(new BigNumber(0));
+  const [pair, setPair] = useState<ExtPoolPairData>();
+  const { isConversionRequired, conversionAmount } = useConversion({
     inputToken: {
       type: 'token',
-      amount: new BigNumber(pair?.tokenA.id === '0' ? tokenAAmount : tokenBAmount)
+      amount: new BigNumber(pair?.tokenA.id === '0' ? tokenAAmount : tokenBAmount),
     },
-    deps: [pair, tokenAAmount, tokenBAmount, balanceA, balanceB]
-  })
+    deps: [pair, tokenAAmount, tokenBAmount, balanceA, balanceB],
+  });
 
-  const buildSummary = useCallback((ref: EditingAmount, amountString: string): void => {
-    const refAmount = amountString.length === 0 || isNaN(+amountString) ? new BigNumber(0) : new BigNumber(amountString)
-    if (pair === undefined) {
-      return
-    }
-    if (ref === 'primary') {
-      setTokenAAmount(amountString)
-      setTokenBAmount(refAmount.times(pair.aToBRate).toFixed(8))
-      setSharePercentage(refAmount.div(pair.tokenA.reserve))
-    } else {
-      setTokenBAmount(amountString)
-      setTokenAAmount(refAmount.times(pair.bToARate).toFixed(8))
-      setSharePercentage(refAmount.div(pair.tokenB.reserve))
-    }
-  }, [pair])
+  const buildSummary = useCallback(
+    (ref: EditingAmount, amountString: string): void => {
+      const refAmount =
+        amountString.length === 0 || isNaN(+amountString) ? new BigNumber(0) : new BigNumber(amountString);
+      if (pair === undefined) {
+        return;
+      }
+      if (ref === 'primary') {
+        setTokenAAmount(amountString);
+        setTokenBAmount(refAmount.times(pair.aToBRate).toFixed(8));
+        setSharePercentage(refAmount.div(pair.tokenA.reserve));
+      } else {
+        setTokenBAmount(amountString);
+        setTokenAAmount(refAmount.times(pair.bToARate).toFixed(8));
+        setSharePercentage(refAmount.div(pair.tokenB.reserve));
+      }
+    },
+    [pair],
+  );
 
   const getAddressTokenById = (poolpairTokenId: string): WalletToken | undefined => {
-    return tokens.find(token => {
+    return tokens.find((token) => {
       if (poolpairTokenId === '0' || poolpairTokenId === '0_utxo') {
-        return token.id === '0_unified'
+        return token.id === '0_unified';
       }
-      return token.id === poolpairTokenId
-    })
-  }
+      return token.id === poolpairTokenId;
+    });
+  };
 
-  async function onSubmit (): Promise<void> {
+  async function onSubmit(): Promise<void> {
     if (hasPendingJob || hasPendingBroadcastJob) {
-      return
+      return;
     }
 
     if (!canContinue || pair === undefined) {
-      return
+      return;
     }
 
     if (isConversionRequired) {
-      queueConvertTransaction({
-        mode: 'utxosToAccount',
-        amount: conversionAmount
-      }, dispatch, () => {
-        navigation.navigate({
-          name: 'ConfirmAddLiquidity',
-          params: {
-            summary: {
-              fee: new BigNumber(0.0001),
-              tokenAAmount: new BigNumber(tokenAAmount),
-              tokenBAmount: new BigNumber(tokenBAmount),
-              percentage: sharePercentage,
-              tokenABalance: balanceA,
-              tokenBBalance: balanceB
+      queueConvertTransaction(
+        {
+          mode: 'utxosToAccount',
+          amount: conversionAmount,
+        },
+        dispatch,
+        () => {
+          navigation.navigate({
+            name: 'ConfirmAddLiquidity',
+            params: {
+              summary: {
+                fee: new BigNumber(0.0001),
+                tokenAAmount: new BigNumber(tokenAAmount),
+                tokenBAmount: new BigNumber(tokenBAmount),
+                percentage: sharePercentage,
+                tokenABalance: balanceA,
+                tokenBBalance: balanceB,
+              },
+              pair,
+              conversion: {
+                isConversionRequired,
+                DFIToken,
+                DFIUtxo,
+                conversionAmount,
+              },
             },
-            pair,
-            conversion: {
-              isConversionRequired,
-              DFIToken,
-              DFIUtxo,
-              conversionAmount
-            }
-          },
-          merge: true
-        })
-      }, logger)
+            merge: true,
+          });
+        },
+        logger,
+      );
     } else {
       navigation.navigate({
         name: 'ConfirmAddLiquidity',
@@ -142,43 +148,38 @@ export function AddLiquidityScreen (props: Props): JSX.Element {
             tokenBAmount: new BigNumber(tokenBAmount),
             percentage: sharePercentage,
             tokenABalance: balanceA,
-            tokenBBalance: balanceB
+            tokenBBalance: balanceB,
           },
-          pair
+          pair,
         },
-        merge: true
-      })
+        merge: true,
+      });
     }
   }
 
   useEffect(() => {
-    client.fee.estimate()
+    client.fee
+      .estimate()
       .then((f) => setFee(new BigNumber(f)))
-      .catch(logger.error)
-  }, [])
+      .catch(logger.error);
+  }, []);
 
   useEffect(() => {
     if (pair === undefined) {
-      return
+      return;
     }
-    setCanContinue(canAddLiquidity(
-      pair,
-      new BigNumber(tokenAAmount),
-      new BigNumber(tokenBAmount),
-      balanceA,
-      balanceB
-    ))
-  }, [pair, tokenAAmount, tokenBAmount, balanceA, balanceB])
+    setCanContinue(canAddLiquidity(pair, new BigNumber(tokenAAmount), new BigNumber(tokenBAmount), balanceA, balanceB));
+  }, [pair, tokenAAmount, tokenBAmount, balanceA, balanceB]);
 
   // prop/global state change
   useEffect(() => {
-    const { pair: poolPairData } = props.route.params
-    const poolpair = pairs.find((p) => p.data.id === poolPairData.id)?.data
-    const reservedDfi = 0.1
+    const { pair: poolPairData } = props.route.params;
+    const poolpair = pairs.find((p) => p.data.id === poolPairData.id)?.data;
+    const reservedDfi = 0.1;
     if (poolpair !== undefined) {
-      const [aSymbol, bSymbol] = poolpair.symbol.split('-')
-      const addressTokenA = getAddressTokenById(poolpair.tokenA.id)
-      const addressTokenB = getAddressTokenById(poolpair.tokenB.id)
+      const [aSymbol, bSymbol] = poolpair.symbol.split('-');
+      const addressTokenA = getAddressTokenById(poolpair.tokenA.id);
+      const addressTokenB = getAddressTokenById(poolpair.tokenB.id);
 
       // side effect to state
       setPair({
@@ -186,19 +187,27 @@ export function AddLiquidityScreen (props: Props): JSX.Element {
         aSymbol,
         bSymbol,
         aToBRate: new BigNumber(poolpair.tokenB.reserve).div(poolpair.tokenA.reserve),
-        bToARate: new BigNumber(poolpair.tokenA.reserve).div(poolpair.tokenB.reserve)
-      })
+        bToARate: new BigNumber(poolpair.tokenA.reserve).div(poolpair.tokenB.reserve),
+      });
       if (addressTokenA !== undefined) {
-        setBalanceA(addressTokenA.id === '0_unified' ? new BigNumber(addressTokenA.amount).minus(reservedDfi) : new BigNumber(addressTokenA.amount))
+        setBalanceA(
+          addressTokenA.id === '0_unified'
+            ? new BigNumber(addressTokenA.amount).minus(reservedDfi)
+            : new BigNumber(addressTokenA.amount),
+        );
       }
       if (addressTokenB !== undefined) {
-        setBalanceB(addressTokenB.id === '0_unified' ? new BigNumber(addressTokenB.amount).minus(reservedDfi) : new BigNumber(addressTokenB.amount))
+        setBalanceB(
+          addressTokenB.id === '0_unified'
+            ? new BigNumber(addressTokenB.amount).minus(reservedDfi)
+            : new BigNumber(addressTokenB.amount),
+        );
       }
     }
-  }, [props.route.params.pair, JSON.stringify(tokens), pairs])
+  }, [props.route.params.pair, JSON.stringify(tokens), pairs]);
 
   if (pair === undefined) {
-    return <></>
+    return <></>;
   }
 
   return (
@@ -208,47 +217,49 @@ export function AddLiquidityScreen (props: Props): JSX.Element {
           balance={balanceA}
           current={tokenAAmount}
           onChange={(amount) => {
-            buildSummary('primary', amount)
+            buildSummary('primary', amount);
           }}
           symbol={pair?.tokenA?.displaySymbol}
-          type='primary'
+          type="primary"
         />
 
         <TokenInput
           balance={balanceB}
           current={tokenBAmount}
           onChange={(amount) => {
-            buildSummary('secondary', amount)
+            buildSummary('secondary', amount);
           }}
           symbol={pair?.tokenB?.displaySymbol}
-          type='secondary'
+          type="secondary"
         />
         <ReservedDFIInfoText />
-        {isConversionRequired &&
+        {isConversionRequired && (
           <View style={tailwind('mt-2')}>
             <ConversionInfoText />
-          </View>}
+          </View>
+        )}
       </View>
       <PricesSection
-        testID='pricerate_value'
-        priceRates={[{
-          label: translate('components/PricesSection', '1 {{token}}', {
-            token: pair.tokenA.displaySymbol
-          }),
-          value: pair.aToBRate.toFixed(8),
-          aSymbol: pair.tokenA.displaySymbol,
-          bSymbol: pair.tokenB.displaySymbol
-        },
-        {
-          label: translate('components/PricesSection', '1 {{token}}', {
-            token: pair.tokenB.displaySymbol
-          }),
-          value: pair.bToARate.toFixed(8),
-          aSymbol: pair.tokenB.displaySymbol,
-          bSymbol: pair.tokenA.displaySymbol
-        }
+        testID="pricerate_value"
+        priceRates={[
+          {
+            label: translate('components/PricesSection', '1 {{token}}', {
+              token: pair.tokenA.displaySymbol,
+            }),
+            value: pair.aToBRate.toFixed(8),
+            aSymbol: pair.tokenA.displaySymbol,
+            bSymbol: pair.tokenB.displaySymbol,
+          },
+          {
+            label: translate('components/PricesSection', '1 {{token}}', {
+              token: pair.tokenB.displaySymbol,
+            }),
+            value: pair.bToARate.toFixed(8),
+            aSymbol: pair.tokenB.displaySymbol,
+            bSymbol: pair.tokenA.displaySymbol,
+          },
         ]}
-        sectionTitle='PRICES'
+        sectionTitle="PRICES"
       />
       <TransactionDetailsSection
         pair={pair}
@@ -259,7 +270,7 @@ export function AddLiquidityScreen (props: Props): JSX.Element {
       />
 
       <ThemedText
-        testID='transaction_details_hint_text'
+        testID="transaction_details_hint_text"
         light={tailwind('text-gray-600')}
         dark={tailwind('text-dfxgray-300')}
         style={tailwind('pt-4 pb-2 px-4 text-sm')}
@@ -269,16 +280,18 @@ export function AddLiquidityScreen (props: Props): JSX.Element {
           : translate('screens/AddLiquidity', 'Review full transaction details in the next screen')}
       </ThemedText>
 
-      <ContinueButton
-        isProcessing={hasPendingJob || hasPendingBroadcastJob}
-        enabled={canContinue}
-        onPress={onSubmit}
-      />
+      <ContinueButton isProcessing={hasPendingJob || hasPendingBroadcastJob} enabled={canContinue} onPress={onSubmit} />
     </ThemedScrollView>
-  )
+  );
 }
 
-function TokenInput (props: { symbol: string, balance: BigNumber, current: string, type: EditingAmount, onChange: (amount: string) => void }): JSX.Element {
+function TokenInput(props: {
+  symbol: string;
+  balance: BigNumber;
+  current: string;
+  type: EditingAmount;
+  onChange: (amount: string) => void;
+}): JSX.Element {
   return (
     <ThemedView
       dark={tailwind('bg-transparent')}
@@ -286,27 +299,19 @@ function TokenInput (props: { symbol: string, balance: BigNumber, current: strin
       style={tailwind('flex-col w-full')}
     >
       <WalletTextInput
-        onChangeText={txt => props.onChange(txt)}
+        onChangeText={(txt) => props.onChange(txt)}
         placeholder={translate('screens/AddLiquidity', 'Enter an amount')}
         style={tailwind('flex-grow w-2/5')}
         testID={`token_input_${props.type}`}
         value={props.current}
         title={translate('screens/AddLiquidity', 'How much {{symbol}} to supply?', { symbol: props.symbol })}
         titleTestID={`token_input_${props.type}_title`}
-        inputType='numeric'
+        inputType="numeric"
         displayClearButton={props.current !== ''}
         onClearButtonPress={() => props.onChange('')}
       >
-        <SetAmountButton
-          amount={props.balance}
-          onPress={props.onChange}
-          type={AmountButtonTypes.half}
-        />
-        <SetAmountButton
-          amount={props.balance}
-          onPress={props.onChange}
-          type={AmountButtonTypes.max}
-        />
+        <SetAmountButton amount={props.balance} onPress={props.onChange} type={AmountButtonTypes.half} />
+        <SetAmountButton amount={props.balance} onPress={props.onChange} type={AmountButtonTypes.max} />
       </WalletTextInput>
       <InputHelperText
         testID={`token_balance_${props.type}`}
@@ -315,39 +320,39 @@ function TokenInput (props: { symbol: string, balance: BigNumber, current: strin
         suffix={` ${props.symbol}`}
       />
     </ThemedView>
-  )
+  );
 }
 
-function TransactionDetailsSection (props: { pair: ExtPoolPairData, sharePercentage: BigNumber, fee: BigNumber, isConversionRequired: boolean, amountToConvert: BigNumber }): JSX.Element {
-  const {
-    pair,
-    sharePercentage,
-    isConversionRequired
-  } = props
+function TransactionDetailsSection(props: {
+  pair: ExtPoolPairData;
+  sharePercentage: BigNumber;
+  fee: BigNumber;
+  isConversionRequired: boolean;
+  amountToConvert: BigNumber;
+}): JSX.Element {
+  const { pair, sharePercentage, isConversionRequired } = props;
 
   return (
     <>
-      <ThemedSectionTitle
-        testID='title_add_detail'
-        text={translate('screens/AddLiquidity', 'TRANSACTION DETAILS')}
-      />
-      {isConversionRequired &&
+      <ThemedSectionTitle testID="title_add_detail" text={translate('screens/AddLiquidity', 'TRANSACTION DETAILS')} />
+      {isConversionRequired && (
         <NumberRow
           lhs={translate('screens/AddLiquidity', 'UTXO to be converted')}
           rhs={{
             value: props.amountToConvert.toFixed(8),
             testID: 'text_amount_to_convert',
             suffixType: 'text',
-            suffix: 'DFI'
+            suffix: 'DFI',
           }}
-        />}
+        />
+      )}
       <NumberRow
         lhs={translate('screens/AddLiquidity', 'Share of pool')}
         rhs={{
           value: sharePercentage.times(100).toFixed(8),
           suffix: '%',
           testID: 'share_of_pool',
-          suffixType: 'text'
+          suffixType: 'text',
         }}
       />
 
@@ -357,7 +362,7 @@ function TransactionDetailsSection (props: { pair: ExtPoolPairData, sharePercent
           value: pair.tokenA.reserve,
           testID: `pooled_${pair?.tokenA?.displaySymbol}`,
           suffixType: 'text',
-          suffix: pair?.tokenA?.displaySymbol
+          suffix: pair?.tokenA?.displaySymbol,
         }}
       />
 
@@ -367,48 +372,48 @@ function TransactionDetailsSection (props: { pair: ExtPoolPairData, sharePercent
           value: pair.tokenB.reserve,
           testID: `pooled_${pair?.tokenB?.displaySymbol}`,
           suffixType: 'text',
-          suffix: pair?.tokenB?.displaySymbol
+          suffix: pair?.tokenB?.displaySymbol,
         }}
       />
-      <InfoRow
-        type={InfoType.EstimatedFee}
-        value={props.fee.toFixed(8)}
-        testID='text_fee'
-        suffix='DFI'
-      />
+      <InfoRow type={InfoType.EstimatedFee} value={props.fee.toFixed(8)} testID="text_fee" suffix="DFI" />
     </>
-  )
+  );
 }
 
-function ContinueButton (props: { enabled: boolean, onPress: () => Promise<void>, isProcessing: boolean }): JSX.Element {
+function ContinueButton(props: { enabled: boolean; onPress: () => Promise<void>; isProcessing: boolean }): JSX.Element {
   return (
     <SubmitButtonGroup
       isDisabled={!props.enabled}
       label={translate('components/Button', 'CONTINUE')}
       processingLabel={translate('components/Button', 'CONTINUE')}
       onSubmit={props.onPress}
-      title='continue_add_liq'
+      title="continue_add_liq"
       isProcessing={props.isProcessing}
       displayCancelBtn={false}
     />
-  )
+  );
 }
 
 // just leave it as it is now, will be moved to network drawer
-function canAddLiquidity (pair: ExtPoolPairData, tokenAAmount: BigNumber, tokenBAmount: BigNumber, balanceA: BigNumber | undefined, balanceB: BigNumber | undefined): boolean {
+function canAddLiquidity(
+  pair: ExtPoolPairData,
+  tokenAAmount: BigNumber,
+  tokenBAmount: BigNumber,
+  balanceA: BigNumber | undefined,
+  balanceB: BigNumber | undefined,
+): boolean {
   if (tokenAAmount.isNaN() || tokenBAmount.isNaN()) {
     // empty string, use still input-ing
-    return false
+    return false;
   }
 
   if (tokenAAmount.lte(0) || tokenBAmount.lte(0)) {
-    return false
+    return false;
   }
 
   if (tokenAAmount.gt(pair.tokenA.reserve) || tokenBAmount.gt(pair.tokenB.reserve)) {
-    return false
+    return false;
   }
 
-  return !(balanceA === undefined || balanceA.lt(tokenAAmount) ||
-    balanceB === undefined || balanceB.lt(tokenBAmount))
+  return !(balanceA === undefined || balanceA.lt(tokenAAmount) || balanceB === undefined || balanceB.lt(tokenBAmount));
 }

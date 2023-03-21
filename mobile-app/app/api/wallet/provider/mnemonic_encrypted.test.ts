@@ -1,11 +1,11 @@
-import { EncryptedProviderData } from '@defichain/jellyfish-wallet-encrypted'
-import { MnemonicEncrypted } from '@api/wallet'
-import { EnvironmentNetwork } from '@environment'
-import { WalletPersistenceDataI, WalletType } from '@shared-contexts/WalletPersistenceContext'
+import { EncryptedProviderData } from '@defichain/jellyfish-wallet-encrypted';
+import { MnemonicEncrypted } from '@api/wallet';
+import { EnvironmentNetwork } from '@environment';
+import { WalletPersistenceDataI, WalletType } from '@shared-contexts/WalletPersistenceContext';
 
 beforeEach(() => {
-  jest.clearAllMocks()
-})
+  jest.clearAllMocks();
+});
 
 describe('getMnemonicHdNodeProvider for encrypted mnemonic', () => {
   it('should throw error when wallet type is not encrypted or version is not v1', () => {
@@ -15,13 +15,13 @@ describe('getMnemonicHdNodeProvider for encrypted mnemonic', () => {
       raw: {
         pubKey: '',
         chainCode: '',
-        encryptedPrivKey: ''
-      }
-    }
-    const options = EnvironmentNetwork.LocalPlayground
-    const prompt = { prompt: jest.fn() }
+        encryptedPrivKey: '',
+      },
+    };
+    const options = EnvironmentNetwork.LocalPlayground;
+    const prompt = { prompt: jest.fn() };
     expect(() => {
-      MnemonicEncrypted.initProvider(data, options, prompt)
-    }).toThrowError('Unexpected WalletPersistenceDataI')
-  })
-})
+      MnemonicEncrypted.initProvider(data, options, prompt);
+    }).toThrowError('Unexpected WalletPersistenceDataI');
+  });
+});

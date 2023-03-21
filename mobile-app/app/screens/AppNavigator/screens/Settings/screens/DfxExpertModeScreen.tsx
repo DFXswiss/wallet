@@ -1,75 +1,72 @@
-import { ThemedScrollViewV2, ThemedText, ThemedView } from '@components/themed'
-import { Switch } from '@components/index'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { useEffect, useState } from 'react'
-import { View } from 'react-native'
-import { FeatureFlag, FEATURE_FLAG_ID } from '@shared-types/website'
-import { useFeatureFlagContext } from '@contexts/FeatureFlagContext'
-import { WalletAlert } from '@components/WalletAlert'
+import { ThemedScrollViewV2, ThemedText, ThemedView } from '@components/themed';
+import { Switch } from '@components/index';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { useEffect, useState } from 'react';
+import { View } from 'react-native';
+import { FeatureFlag, FEATURE_FLAG_ID } from '@shared-types/website';
+import { useFeatureFlagContext } from '@contexts/FeatureFlagContext';
+import { WalletAlert } from '@components/WalletAlert';
 
 export interface ExpertFeaturesI extends FeatureFlag {
-  value: boolean
+  value: boolean;
 }
 
-export function DfxExpertModeScreen (): JSX.Element {
-  const {
-    featureFlags,
-    enabledFeatures,
-    updateEnabledFeatures
-  } = useFeatureFlagContext()
-  const [expertFeatures, setExpertFeatures] = useState<ExpertFeaturesI []>([])
+export function DfxExpertModeScreen(): JSX.Element {
+  const { featureFlags, enabledFeatures, updateEnabledFeatures } = useFeatureFlagContext();
+  const [expertFeatures, setExpertFeatures] = useState<ExpertFeaturesI[]>([]);
 
   const getExpertFeature = (flags: FEATURE_FLAG_ID[]): ExpertFeaturesI[] => {
     return featureFlags.reduce((features: ExpertFeaturesI[], item: FeatureFlag) => {
       if (item.stage === 'expert') {
         features.push({
           ...item,
-          value: flags.includes(item.id)
-        })
+          value: flags.includes(item.id),
+        });
       }
-      return features
-    }, [])
-  }
+      return features;
+    }, []);
+  };
 
   useEffect(() => {
-    setExpertFeatures(getExpertFeature(enabledFeatures))
-  }, [])
+    setExpertFeatures(getExpertFeature(enabledFeatures));
+  }, []);
 
   const onFeatureChange = async (feature: FeatureFlag, value: boolean): Promise<void> => {
-    const flags: FEATURE_FLAG_ID[] = value ? [...enabledFeatures, feature.id] : enabledFeatures.filter(e => e !== feature.id)
+    const flags: FEATURE_FLAG_ID[] = value
+      ? [...enabledFeatures, feature.id]
+      : enabledFeatures.filter((e) => e !== feature.id);
     if (value) {
       WalletAlert({
-        title: translate('screens/DfxExpertModeScreen', 'Enable {{feature}} (Expert)', { feature: translate('screens/Settings', feature.name) }),
-        message: translate(
-          'screens/DfxExpertModeScreen', 'Expert feature. Do you want to continue?'),
+        title: translate('screens/DfxExpertModeScreen', 'Enable {{feature}} (Expert)', {
+          feature: translate('screens/Settings', feature.name),
+        }),
+        message: translate('screens/DfxExpertModeScreen', 'Expert feature. Do you want to continue?'),
         buttons: [
           {
             text: translate('screens/DfxExpertModeScreen', 'Cancel'),
-            style: 'cancel'
+            style: 'cancel',
           },
           {
             text: translate('screens/DfxExpertModeScreen', 'Continue'),
             style: 'destructive',
             onPress: async () => {
-              setExpertFeatures(getExpertFeature(flags))
-              await updateEnabledFeatures(flags)
-            }
-          }
-        ]
-      })
+              setExpertFeatures(getExpertFeature(flags));
+              await updateEnabledFeatures(flags);
+            },
+          },
+        ],
+      });
     } else {
-      setExpertFeatures(getExpertFeature(flags))
-      await updateEnabledFeatures(flags)
+      setExpertFeatures(getExpertFeature(flags));
+      await updateEnabledFeatures(flags);
     }
-  }
+  };
 
   return (
-    <ThemedScrollViewV2 testID='features_flag_screen'>
+    <ThemedScrollViewV2 testID="features_flag_screen">
       <View style={tailwind('flex-1 p-4 pt-6')}>
-        <ThemedText
-          style={tailwind('text-base font-semibold')}
-        >
+        <ThemedText style={tailwind('text-base font-semibold')}>
           {translate('screens/DfxExpertModeScreen', 'Expert Features')}
         </ThemedText>
 
@@ -78,29 +75,25 @@ export function DfxExpertModeScreen (): JSX.Element {
           light={tailwind('text-dfxgray-500')}
           style={tailwind('text-sm font-normal')}
         >
-          {translate('screens/DfxExpertModeScreen', 'The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.')}
+          {translate(
+            'screens/DfxExpertModeScreen',
+            'The expert mode of DFX Wallet requires extensive knowledge about DeFiChain and its functionalities. Special caution is required while using it. DFX assumes no liability for any losses.',
+          )}
         </ThemedText>
       </View>
       {expertFeatures.map((item: ExpertFeaturesI) => (
-        <FeatureFlagItem
-          key={item.id}
-          item={item}
-          onChange={onFeatureChange}
-        />
+        <FeatureFlagItem key={item.id} item={item} onChange={onFeatureChange} />
       ))}
     </ThemedScrollViewV2>
-  )
+  );
 }
 
 interface FeatureFlagItemProps {
-  item: ExpertFeaturesI
-  onChange: (feature: FeatureFlag, value: boolean) => void
+  item: ExpertFeaturesI;
+  onChange: (feature: FeatureFlag, value: boolean) => void;
 }
 
-export function FeatureFlagItem ({
-  item,
-  onChange
-}: FeatureFlagItemProps): JSX.Element {
+export function FeatureFlagItem({ item, onChange }: FeatureFlagItemProps): JSX.Element {
   return (
     <View testID={`feature_${item.id}_row`}>
       <ThemedView
@@ -119,7 +112,7 @@ export function FeatureFlagItem ({
         <View style={tailwind('flex-row items-center')}>
           <Switch
             onValueChange={(v: boolean) => {
-              onChange(item, v)
+              onChange(item, v);
             }}
             testID={`feature_${item.id}_switch`}
             value={item.value}
@@ -134,5 +127,5 @@ export function FeatureFlagItem ({
         {translate('screens/DfxExpertModeScreen', item.description)}
       </ThemedText>
     </View>
-  )
+  );
 }

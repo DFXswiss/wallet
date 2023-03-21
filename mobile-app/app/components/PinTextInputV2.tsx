@@ -1,33 +1,38 @@
-
-import { StyleSheet, View } from 'react-native'
-import { CodeField, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field'
-import { getColor, tailwind } from '@tailwind'
-import { useThemeContext } from '@shared-contexts/ThemeProvider'
+import { StyleSheet, View } from 'react-native';
+import { CodeField, useBlurOnFulfill, useClearByFocusCell } from 'react-native-confirmation-code-field';
+import { getColor, tailwind } from '@tailwind';
+import { useThemeContext } from '@shared-contexts/ThemeProvider';
 
 export interface PinTextInputItem {
-  cellCount: number
-  testID: string
-  value: string
-  onChange: (text: string) => void
-  autofocus?: boolean
+  cellCount: number;
+  testID: string;
+  value: string;
+  onChange: (text: string) => void;
+  autofocus?: boolean;
 }
 
 export interface RenderCellItem {
-  index: number
-  symbol: string
-  isFocused: boolean
+  index: number;
+  symbol: string;
+  isFocused: boolean;
 }
 
-export function PinTextInputV2 ({ cellCount, testID, value, onChange, autofocus = true }: PinTextInputItem): JSX.Element {
-  const ref = useBlurOnFulfill({ value, cellCount })
-  const { isLight } = useThemeContext()
+export function PinTextInputV2({
+  cellCount,
+  testID,
+  value,
+  onChange,
+  autofocus = true,
+}: PinTextInputItem): JSX.Element {
+  const ref = useBlurOnFulfill({ value, cellCount });
+  const { isLight } = useThemeContext();
   const [props, getCellOnLayoutHandler] = useClearByFocusCell({
     value,
-    setValue: onChange
-  })
+    setValue: onChange,
+  });
 
   const renderCell = ({ index, symbol }: RenderCellItem): JSX.Element => {
-    const hasValue = symbol !== undefined && symbol !== ''
+    const hasValue = symbol !== undefined && symbol !== '';
     return (
       <View
         key={index}
@@ -38,12 +43,12 @@ export function PinTextInputV2 ({ cellCount, testID, value, onChange, autofocus 
           !isLight && styles.borderColorDark,
           hasValue && isLight && styles.filledCellLight,
           hasValue && !isLight && styles.filledCellDark,
-          index === 0 && { marginLeft: 0 }
+          index === 0 && { marginLeft: 0 },
         ]}
         testID={`${testID}_${index}`}
       />
-    )
-  }
+    );
+  };
 
   return (
     <View style={tailwind('flex-row justify-center')}>
@@ -52,23 +57,23 @@ export function PinTextInputV2 ({ cellCount, testID, value, onChange, autofocus 
         {...props}
         autoFocus={autofocus}
         cellCount={cellCount}
-        keyboardType='number-pad'
+        keyboardType="number-pad"
         onChangeText={onChange}
         renderCell={renderCell}
         testID={testID}
-        textContentType='oneTimeCode'
+        textContentType="oneTimeCode"
         value={value}
       />
     </View>
-  )
+  );
 }
 
 const styles = StyleSheet.create({
   borderColorDark: {
-    borderColor: getColor('mono-dark-v2-900')
+    borderColor: getColor('mono-dark-v2-900'),
   },
   borderColorLight: {
-    borderColor: getColor('mono-light-v2-900')
+    borderColor: getColor('mono-light-v2-900'),
   },
   cell: {
     alignItems: 'center',
@@ -86,16 +91,16 @@ const styles = StyleSheet.create({
     paddingLeft: 1,
     paddingTop: 1,
     textAlign: 'center',
-    width: 20
+    width: 20,
   },
   filledCellDark: {
     backgroundColor: getColor('mono-dark-v2-900'),
     borderColor: getColor('mono-dark-v2-900'),
-    borderRadius: 10
+    borderRadius: 10,
   },
   filledCellLight: {
     backgroundColor: getColor('mono-light-v2-900'),
     borderColor: getColor('mono-light-v2-900'),
-    borderRadius: 10
-  }
-})
+    borderRadius: 10,
+  },
+});
