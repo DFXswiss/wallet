@@ -51,6 +51,7 @@ import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 import { BackupSeedWarning } from '@components/BackupSeedWarning';
 import * as Updates from 'expo-updates';
 import { useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { Button } from '@components/Button';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
 
@@ -508,18 +509,32 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
     setRefreshing(false);
   }, [address, client, dispatch]);
 
+  const [updateDebug, setUpdateDebug] = useState<string>();
+  const [updateIsDisabled, setUpdateIsDisabled] = useState(true);
+
   useEffect(() => {
     if (__DEV__) {
       const value = true;
       logger.info(`set showsUpdate to ${value}`);
+      setUpdateDebug('DEV is running');
       setShowsUpdate(value);
+      setTimeout(() => {
+        setUpdateIsDisabled(false);
+      }, 1000);
     } else {
       Updates.checkForUpdateAsync()
         .then(() => {
           setShowsUpdate(true);
+          setUpdateDebug('fetching update');
           Updates.fetchUpdateAsync()
-            .then(() => Updates.reloadAsync())
-            .catch((e) => logger.error(e));
+            .then(() => {
+              setUpdateDebug('done fetching');
+              setUpdateIsDisabled(false);
+            })
+            .catch((e) => {
+              logger.error(e);
+              setUpdateDebug('some error happened');
+            });
         })
         .catch((e) => {
           console.error(e);
@@ -532,7 +547,10 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
     <View ref={containerRef} style={tailwind('flex-1')}>
       {showsUpdate ? (
         <View style={tailwind('flex flex-col items-center justify-center h-full')}>
-          <Text style={tailwind('text-white')}>TODO write cool text</Text>
+          <Text style={tailwind('text-white')}>{updateDebug}</Text>
+          <View style={tailwind('flex-none')}>
+            <Button onPress={() => Updates.reloadAsync()} label={'Restart'} disabled={updateIsDisabled} />
+          </View>
         </View>
       ) : (
         <ThemedScrollView
