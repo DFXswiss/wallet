@@ -675,11 +675,11 @@
     "Recovery phrase backup": "Recuperación frase copia de seguridad",
     "Find a safe and private place. Set a pen and some paper to write down your recovery phrase.": "Encuentre un lugar seguro y privado. Prepara un bolígrafo y papel para escribir tu frase de recuperación.",
     "Secret words": "Palabras secretas",
-    "Your recovery phrase is a list of 12 secret words in a predefined order that back up your private key.": "Tu frase de recuperación es una lista de 12 palabras secretas en un orden predefinido que respaldan tu clave privada.",
+    "Your recovery phrase is a list of 24 secret words in a predefined order that back up your private key.": "Tu frase de recuperación es una lista de 24 palabras secretas en un orden predefinido que respaldan tu clave privada.",
     "Unrestorable": "No se puede recuperar",
     "if you lose your recovery phrase, you will de unable to access your funds, as nobody will be able to restore it.": "Si pierdes tu frase de recuperación, no podrás acceder a tus fondos, ya que nadie podrá restaurarla.",
     "Only Chance": "Única oportunidad",
-    "This phrase is your only chance to recover access to your funds if your DFX Bitcoin App or usual device is unavailable for you.": "Esta frase es su única oportunidad de recuperar el acceso a sus fondos si su DFX Bitcoin App o dispositivo habitual no está disponible para usted."
+    "This phrase is your only chance to recover access to your funds if your DFX DeFiChain Appor usual device is unavailable for you.": "Esta frase es su única oportunidad de recuperar el acceso a sus fondos si su DFX DeFiChain Appo dispositivo habitual no está disponible para usted."
   },
   "screens/RecoveryWordsScreen": {
     "Backup phrase": "Frase de recuperación",
