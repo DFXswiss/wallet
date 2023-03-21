@@ -19,7 +19,7 @@ interface TotalCollateralValueProps {
   isAdd: boolean;
   collateralInputValue: string | number;
   activePriceAmount: BigNumber;
-  collateralTokens: CollateralItem[];
+  collateralTokens?: CollateralItem[];
 }
 
 export function useTotalCollateralValue({
@@ -38,7 +38,7 @@ export function useTotalCollateralValue({
       newColValue = new BigNumber(collateral.amount).minus(collateralInputValue);
     }
 
-    const collateralToken: CollateralItem | undefined = collateralTokens.find((c) => c.token.id === collateral.id);
+    const collateralToken: CollateralItem | undefined = collateralTokens?.find((c) => c.token.id === collateral.id);
     return total.plus(
       new BigNumber(newColValue).multipliedBy(
         getActivePrice(collateral.symbol, collateral.activePrice, collateralToken?.factor),
