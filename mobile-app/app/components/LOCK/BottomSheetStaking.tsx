@@ -293,7 +293,7 @@ function UtxoHint({ onPress }: { onPress: () => void }): JSX.Element {
       <Text style={tailwind('text-lock-100 font-medium text-xs py-2')}>
         {translate(
           'LOCK/LockDashboardScreen',
-          'Please note that currently only DFI UTXO can be added to staking. You can exchange DFI tokens by pressing here.',
+          'Please note that currently only DFI UTXO can be deposited. You can exchange DFI tokens by pressing here.',
         )}
       </Text>
     </TouchableOpacity>
@@ -321,7 +321,7 @@ function AdditionalDepositInformation({
   return (
     <View style={tailwind({ 'mt-4': hasTopMargin })}>
       <Text style={tailwind('text-black text-base font-medium')}>
-        {translate('LOCK/LockDashboardScreen', '{{token}} Deposit address (optional)', { token })}
+        {translate('LOCK/LockDashboardScreen', '{{token}} deposit address (optional)', { token })}
       </Text>
       <TouchableOpacity
         style={tailwind('flex flex-row items-center bg-lock-600 rounded-md mt-1')}
@@ -333,7 +333,7 @@ function AdditionalDepositInformation({
       <InfoText
         text={translate(
           'LOCK/LockDashboardScreen',
-          'You can also deposit {{token}} directly from an other Defichain address. Simply send the {{token}} to this {{depositType}} deposit address.',
+          'You can also deposit {{token}} directly from another DeFiChain address. Simply send the {{token}} to this {{depositType}} deposit address.',
           { token, depositType },
         )}
         noBorder
