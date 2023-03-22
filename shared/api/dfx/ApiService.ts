@@ -190,8 +190,9 @@ export interface WithdrawalDraftOutputDto {
   signMessage: string;
 }
 
-export enum TransactionPayoutTarget {
-  REINVEST = 'Reinvest',
+export enum TransactionTarget {
+  MASTERNODE = 'Masternode',
+  LIQUIDITY_MINING = 'LiquidityMining',
   WALLET = 'Wallet',
   EXTERNAL = 'External',
 }
@@ -219,12 +220,13 @@ export interface TransactionDto {
   amountInEur: number;
   amountInChf: number;
   amountInUsd: number;
-  payoutTarget: TransactionPayoutTarget;
   txId: string;
   date: string;
   type: TransactionType;
   status: TransactionStatus;
-  stakingStrategy: StakingStrategy;
+  source: TransactionTarget;
+  target: TransactionTarget;
+  targetAddress: string;
 }
 
 // --- AUTH --- //
