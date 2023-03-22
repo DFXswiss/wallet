@@ -34,8 +34,12 @@ import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider
 import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { RewardStrategy } from '@components/LOCK/RewardStrategy';
+import { StackScreenProps } from '@react-navigation/stack';
+import { PortfolioParamList } from '../PortfolioNavigator';
 
-export function LockDashboardScreen(): JSX.Element {
+type Props = StackScreenProps<PortfolioParamList, 'LockDashboardScreen'>;
+
+export function LockDashboardScreen({ navigation }: Props): JSX.Element {
   const { openCfpVoting } = useLock();
   const { address } = useWalletContext();
   const {
@@ -155,6 +159,14 @@ export function LockDashboardScreen(): JSX.Element {
               // wait for pass code modal to close
               setTimeout(() => dismissModal(), 1000);
               setTimeout(() => dismissModal(), 2000);
+            },
+            onConvert: () => {
+              navigation.navigate({
+                name: 'Convert',
+                params: { mode: 'accountToUtxos' },
+                merge: true,
+              });
+              dismissModal();
             },
             stakingInfo: info,
             action,
