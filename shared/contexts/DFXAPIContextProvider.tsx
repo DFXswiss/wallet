@@ -287,6 +287,11 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
               await DFXPersistence.setToken(pair.addr, respWithToken);
             })
             .catch(async (resp) => {
+              if (resp.statusCode === 403) {
+                setIsNotAllowedInCountry(true);
+                return '';
+              }
+
               if (resp.message !== undefined) {
                 throw new Error(resp.message);
               }
@@ -343,6 +348,11 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
               return accessToken;
             })
             .catch(async (resp) => {
+              if (resp.statusCode === 403) {
+                LOCKsetIsNotAllowedInCountry(true);
+                return '';
+              }
+
               if (resp.message !== undefined) {
                 throw new Error(resp.message);
               }
