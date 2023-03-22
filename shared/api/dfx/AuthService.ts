@@ -113,6 +113,10 @@ class AuthServiceClass {
     return await this.updateSession({ accessToken: undefined }, forApiDomain);
   }
 
+  public async getSession(forApiDomain?: ApiDomain): Promise<Session> {
+    return new Session(await StorageService.getValue<ISession>(AuthServiceClass.SessionKey(forApiDomain)));
+  }
+
   public setHookAccessor(dfxApiHook: DFXAPIContextI): void {
     this.dfxApiHook = dfxApiHook;
   }
