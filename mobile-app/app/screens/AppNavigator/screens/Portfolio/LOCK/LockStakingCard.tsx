@@ -57,9 +57,11 @@ export function LockStakingCard({ refreshTrigger, denominationCurrency }: LockSt
       return;
     }
     LOCKcreateWebToken()
-      .then(() => {
-        setLoggedIn(true);
-        fetchLockData(true);
+      .then((token) => {
+        if (token && token.length > 0) {
+          setLoggedIn(true);
+          fetchLockData(true);
+        }
       })
       .catch(WalletAlertErrorApi);
   };
