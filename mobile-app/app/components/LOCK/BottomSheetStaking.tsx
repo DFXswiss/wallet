@@ -18,6 +18,7 @@ import {
   LOCKwithdrawalSign,
   StakingOutputDto,
   StakingStatus,
+  StakingStrategy,
   WithdrawalDraftOutputDto,
 } from '@shared-api/dfx/ApiService';
 import { useLogger } from '@shared-contexts/NativeLoggingProvider';
@@ -261,6 +262,8 @@ export const BottomSheetStaking = ({
           {showsAdditionalInformation && (
             <AdditionalDepositInformation
               depositAddress={stakingInfo.depositAddress}
+              depositType={stakingInfo.strategy === StakingStrategy.MASTERNODE ? 'staking' : 'Yield Machine'}
+              token={token?.displaySymbol}
               copyToClipboard={copyToClipboard}
               hasTopMargin={!showsUtxoHint}
             />
@@ -290,7 +293,7 @@ function UtxoHint({ onPress }: { onPress: () => void }): JSX.Element {
       <Text style={tailwind('text-lock-100 font-medium text-xs py-2')}>
         {translate(
           'LOCK/LockDashboardScreen',
-          'Please note that currently only DFI UTXO can be added to staking. You can exchange DFI tokens by pressing here.',
+          'Please note that currently only DFI UTXO can be deposited. You can exchange DFI tokens by pressing here.',
         )}
       </Text>
     </TouchableOpacity>
@@ -299,10 +302,14 @@ function UtxoHint({ onPress }: { onPress: () => void }): JSX.Element {
 
 function AdditionalDepositInformation({
   depositAddress,
+  depositType,
+  token,
   copyToClipboard,
   hasTopMargin,
 }: {
   depositAddress: string;
+  depositType: string;
+  token?: string;
   copyToClipboard: DebouncedFunc<() => void>;
   hasTopMargin: boolean;
 }): JSX.Element {
@@ -314,7 +321,7 @@ function AdditionalDepositInformation({
   return (
     <View style={tailwind({ 'mt-4': hasTopMargin })}>
       <Text style={tailwind('text-black text-base font-medium')}>
-        {translate('LOCK/LockDashboardScreen', 'DFI Deposit address (optional)')}
+        {translate('LOCK/LockDashboardScreen', '{{token}} deposit address (optional)', { token })}
       </Text>
       <TouchableOpacity
         style={tailwind('flex flex-row items-center bg-lock-600 rounded-md mt-1')}
@@ -326,7 +333,8 @@ function AdditionalDepositInformation({
       <InfoText
         text={translate(
           'LOCK/LockDashboardScreen',
-          'You can also deposit DFI directly from an other Defichain address. Simply send the DFI to this staking deposit address.',
+          'You can also deposit {{token}} directly from another DeFiChain address. Simply send the {{token}} to this {{depositType}} deposit address.',
+          { token, depositType },
         )}
         noBorder
         lock
