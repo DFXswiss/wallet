@@ -1,6 +1,7 @@
 import { Text, View } from '@components';
+import { InfoText } from '@components/InfoText';
 import { Loading } from '@components/Loading';
-import { ThemedFlatList, ThemedIcon } from '@components/themed';
+import { ThemedFlatList, ThemedIcon, ThemedView } from '@components/themed';
 import { WalletAlertErrorApi } from '@components/WalletAlert';
 import {
   LOCKgetTransactions,
@@ -13,16 +14,47 @@ import { useWalletContext } from '@shared-contexts/WalletContext';
 import { tailwind } from '@tailwind';
 import { translate } from '@translations';
 import BigNumber from 'bignumber.js';
-import { useEffect, useState } from 'react';
-import { ScrollView, TouchableOpacity } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Linking, Platform, ScrollView, TouchableOpacity } from 'react-native';
+import { ButtonGroup } from '../../Dex/components/ButtonGroup';
+import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext';
+import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import { RewardStrategyInfo } from '@components/LOCK/modals/RewardStrategyInfo';
+import { PendingRewardInfo } from '@components/LOCK/modals/PendingRewardInfo';
+
+enum RewardType {
+  PAID_OUT = 'Paid out',
+  PENDING = 'Pending',
+}
 
 export function LockTransactions(): JSX.Element {
   const { address } = useWalletContext();
   const [transactions, setTransactions] = useState<TransactionDto[]>();
   const [isLoading, setIsLoading] = useState(true);
   const [selectedType, setSelectedType] = useState<TransactionType>();
+  const [activeTab, setActiveTab] = useState<RewardType>(RewardType.PAID_OUT);
   const [page, setPage] = useState(0);
   const pageSize = 50;
+
+  const [isModalDisplayed, setIsModalDisplayed] = useState(false);
+  const [bottomSheetScreen, setBottomSheetScreen] = useState<BottomSheetNavScreen[]>([]);
+  const containerRef = useRef(null);
+  const bottomSheetRef = useRef<BottomSheetModal>(null);
+  const expandModal = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setIsModalDisplayed(true);
+    } else {
+      bottomSheetRef.current?.present();
+    }
+  }, []);
+  const dismissModal = useCallback(() => {
+    if (Platform.OS === 'web') {
+      setIsModalDisplayed(false);
+    } else {
+      bottomSheetRef.current?.close();
+    }
+  }, []);
 
   useEffect(() => {
     setIsLoading(true);
@@ -36,6 +68,56 @@ export function LockTransactions(): JSX.Element {
     setPage(page + 1);
   }
 
+  const buttonGroup = [
+    {
+      id: RewardType.PAID_OUT,
+      label: translate('LOCK/LockDashboardScreen', RewardType.PAID_OUT),
+      handleOnPress: () => setActiveTab(RewardType.PAID_OUT),
+    },
+    {
+      id: RewardType.PENDING,
+      label: translate('LOCK/LockDashboardScreen', RewardType.PENDING),
+      handleOnPress: () => setActiveTab(RewardType.PENDING),
+    },
+  ];
+
+  function openInfo() {
+    setBottomSheetScreen([
+      {
+        stackScreenName: 'PendingRewardInfo',
+        component: PendingRewardInfo(),
+        option: {
+          header: () => {
+            return (
+              <ThemedView
+                light={tailwind('bg-white border-0')}
+                dark={tailwind('bg-white border-0')}
+                style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b', {
+                  'py-3.5 border-t -mb-px': Platform.OS === 'android',
+                })} // border top on android to handle 1px of horizontal transparent line when scroll past header
+              >
+                <Text style={tailwind('text-base font-medium text-black')}>
+                  {translate('LOCK/LockDashboardScreen', 'Note to the transaction')}
+                </Text>
+                <TouchableOpacity onPress={() => dismissModal()}>
+                  <ThemedIcon
+                    iconType="MaterialIcons"
+                    name="close"
+                    size={20}
+                    light={tailwind('text-black')}
+                    dark={tailwind('text-black')}
+                  />
+                </TouchableOpacity>
+              </ThemedView>
+            );
+          },
+          headerBackTitleVisible: false,
+        },
+      },
+    ]);
+    expandModal();
+  }
+
   return (
     <View style={tailwind('flex-1 bg-white', { 'justify-center': isLoading })}>
       {isLoading ? (
@@ -45,17 +127,58 @@ export function LockTransactions(): JSX.Element {
           <TransactionTypeSelector current={selectedType} onChanged={setSelectedType} />
           <ThemedFlatList
             data={transactions
-              ?.filter((t) =>
-                selectedType ? t.type === selectedType : t.status !== TransactionStatus.WAITING_FOR_BALANCE,
+              ?.filter((t) => (selectedType ? t.type === selectedType : true))
+              .filter((t) =>
+                selectedType === TransactionType.REWARD
+                  ? activeTab === RewardType.PAID_OUT
+                    ? t.status !== TransactionStatus.WAITING_FOR_BALANCE
+                    : t.status === TransactionStatus.WAITING_FOR_BALANCE
+                  : true,
               )
               .filter((_, i) => i < (page + 1) * pageSize)}
-            renderItem={({ item }: { item: TransactionDto }): JSX.Element => <TransactionRow transaction={item} />}
+            renderItem={({ item }: { item: TransactionDto }): JSX.Element => (
+              <TransactionRow transaction={item} openInfo={openInfo} />
+            )}
             keyExtractor={(item, i) => `${item.type}-${i}`}
-            style={tailwind('bg-white pt-2')}
+            ListHeaderComponent={
+              selectedType === TransactionType.REWARD ? (
+                <View style={tailwind('px-4 py-2 bg-white')}>
+                  <ButtonGroup buttons={buttonGroup} activeButtonGroupItem={activeTab} testID="dex_button_group" lock />
+                  <InfoText
+                    text={translate(
+                      'LOCK/LockDashboardScreen',
+                      'Please note that we will collect and pay out all amounts below 0.0001 for tokens in the corresponding token assets for you as soon as the value is >= 0.0001. For Liquidity Pool tokens this value equals 1$',
+                    )}
+                    noBorder
+                    lock
+                  />
+                </View>
+              ) : (
+                <></>
+              )
+            }
+            stickyHeaderIndices={[0]}
+            style={tailwind('bg-white')}
             onEndReached={onLoadMore}
             onEndReachedThreshold={0.2}
             lock
           />
+          {Platform.OS === 'web' && (
+            <BottomSheetWebWithNav
+              modalRef={containerRef}
+              screenList={bottomSheetScreen}
+              isModalDisplayed={isModalDisplayed}
+              modalStyle={{
+                position: 'absolute',
+                height: '350px',
+                width: '375px',
+                zIndex: 50,
+                bottom: '0',
+              }}
+            />
+          )}
+
+          {Platform.OS !== 'web' && <BottomSheetWithNav modalRef={bottomSheetRef} screenList={bottomSheetScreen} />}
         </>
       )}
     </View>
@@ -102,7 +225,8 @@ function TransactionTypeSelector({
   );
 }
 
-function TransactionRow({ transaction }: { transaction: TransactionDto }): JSX.Element {
+function TransactionRow({ transaction, openInfo }: { transaction: TransactionDto; openInfo: () => void }): JSX.Element {
+  const { getTransactionUrl } = useDeFiScanContext();
   const date = new Date(transaction.date);
 
   function sourceOrTarget(): string {
@@ -128,8 +252,16 @@ function TransactionRow({ transaction }: { transaction: TransactionDto }): JSX.E
     }
   }
 
+  async function handleOnPress() {
+    if (transaction.txId) {
+      await Linking.openURL(getTransactionUrl(transaction.txId));
+    } else {
+      openInfo();
+    }
+  }
+
   return (
-    <View style={tailwind('flex flex-row p-2 justify-between')}>
+    <TouchableOpacity style={tailwind('flex flex-row p-2 justify-between')} onPress={handleOnPress}>
       <View style={tailwind('flex flex-row')}>
         <TransactionIcon transaction={transaction} />
         <View style={tailwind('flex flex-col ml-2 justify-start')}>
@@ -140,7 +272,7 @@ function TransactionRow({ transaction }: { transaction: TransactionDto }): JSX.E
         </View>
       </View>
       <TransactionAmount transaction={transaction} />
-    </View>
+    </TouchableOpacity>
   );
 }
 
