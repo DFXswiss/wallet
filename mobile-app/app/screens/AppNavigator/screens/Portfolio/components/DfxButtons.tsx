@@ -44,7 +44,7 @@ interface DfxButton {
 
 export function DfxButtons(): JSX.Element {
   const { address } = useWalletContext();
-  const { isNotAllowedInCountry, openDfxServices } = useDFXAPIContext();
+  const { debouncedAddress, isNotAllowedInCountry, openDfxServices } = useDFXAPIContext();
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>();
 
   const [isLoadingKycInfo, setIsLoadingKycInfo] = useState<boolean>();
@@ -164,7 +164,10 @@ export function DfxButtons(): JSX.Element {
         {
           Svg: DfxIcon,
           label: 'delete session',
-          onPress: () => AuthService.deleteSession(),
+          onPress: () => {
+            debouncedAddress && DFXPersistence.resetToken(debouncedAddress);
+            AuthService.deleteSession();
+          },
         },
         {
           Svg: DfxIcon,

@@ -133,12 +133,12 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   // returns webtoken string of current active Wallet address
   const getActiveWebToken = async (): Promise<string> => {
-    let webToken = await DFXPersistence.getToken(address).catch(() => {});
-    Logging.info(`${address} has token? ${webToken === undefined || webToken.length === 0 ? 'no' : 'yes'}`);
+    let webToken = await DFXPersistence.getToken(debouncedAddress).catch(() => {});
+    const isExpired = await isSessionExpired();
 
-    if (webToken === undefined || webToken.length === 0) {
-      await createWebToken(address);
-      webToken = await DFXPersistence.getToken(address);
+    if (webToken === undefined || webToken.length === 0 || isExpired) {
+      await createWebToken(debouncedAddress);
+      webToken = await DFXPersistence.getToken(debouncedAddress);
     }
 
     if (webToken !== undefined) {
@@ -149,7 +149,7 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   // check if Web session is expired
   const isSessionExpired = async (): Promise<boolean> => {
-    const session = await AuthService.Session();
+    const session = await AuthService.getSession();
     Logging.info(`isSessionExpired ${session.isExpired}`);
     return session.isExpired;
   };
@@ -243,7 +243,7 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   // start sign in/up process and set web token to pair
   const createWebToken = async (address: string): Promise<void> => {
-    if (isNotAllowedInCountry) return;
+    if (isNotAllowedInCountry || address?.length === 0) return;
 
     const pair = await DFXPersistence.getPair(address).catch(() => {
       return { addr: address, signature: undefined };
