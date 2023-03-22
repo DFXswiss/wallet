@@ -60,9 +60,6 @@
           "username": "dfxag"
         }
       ]
-    ],
-    "runtimeVersion": {
-      "policy": "sdkVersion"
-    }
+    ]
   }
 }
