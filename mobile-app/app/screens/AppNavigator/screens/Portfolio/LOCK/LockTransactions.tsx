@@ -20,7 +20,6 @@ import { ButtonGroup } from '../../Dex/components/ButtonGroup';
 import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext';
 import { BottomSheetNavScreen, BottomSheetWebWithNav, BottomSheetWithNav } from '@components/BottomSheetWithNav';
 import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import { RewardStrategyInfo } from '@components/LOCK/modals/RewardStrategyInfo';
 import { PendingRewardInfo } from '@components/LOCK/modals/PendingRewardInfo';
 
 enum RewardType {
@@ -158,7 +157,7 @@ export function LockTransactions(): JSX.Element {
               )
             }
             stickyHeaderIndices={[0]}
-            style={tailwind('bg-white')}
+            style={tailwind('bg-white h-full')}
             onEndReached={onLoadMore}
             onEndReachedThreshold={0.2}
             lock
