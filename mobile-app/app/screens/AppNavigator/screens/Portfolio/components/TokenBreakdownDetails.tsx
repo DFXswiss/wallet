@@ -17,8 +17,6 @@ interface TokenBreakdownDetailProps {
   lockedValue: BigNumber;
   availableAmount: BigNumber;
   availableValue: BigNumber;
-  stakedAmount: BigNumber;
-  stakedValue: BigNumber;
   dfiUtxo?: WalletToken;
   dfiToken?: WalletToken;
   testID: string;

@@ -544,7 +544,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
           hideIcon={hideIcon}
           modifiedDenominationCurrency={modifiedDenominationCurrency}
         />
-        <DFIBalanceCard denominationCurrency={denominationCurrency} staked={staked} />
+        <DFIBalanceCard denominationCurrency={denominationCurrency} />
         {!hasFetchedToken ? (
           <View style={tailwind('p-4')}>
             <SkeletonLoader row={2} screen={SkeletonLoaderScreen.Portfolio} />
