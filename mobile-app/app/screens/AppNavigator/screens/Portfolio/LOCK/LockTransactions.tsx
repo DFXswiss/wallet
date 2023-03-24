@@ -64,7 +64,7 @@ export function LockTransactions(): JSX.Element {
   }, []);
 
   function onLoadMore() {
-    setPage(page + 1);
+    setPage((p) => p + 1);
   }
 
   const buttonGroup = [
@@ -130,11 +130,11 @@ export function LockTransactions(): JSX.Element {
               .filter((t) =>
                 selectedType === TransactionType.REWARD
                   ? activeTab === RewardType.PAID_OUT
-                    ? t.status !== TransactionStatus.WAITING_FOR_BALANCE
-                    : t.status === TransactionStatus.WAITING_FOR_BALANCE
+                    ? t.status === TransactionStatus.CONFIRMED
+                    : t.status !== TransactionStatus.CONFIRMED
                   : true,
               )
-              .filter((_, i) => i < (page + 1) * pageSize)}
+              .slice(0, (page + 1) * pageSize)}
             renderItem={({ item }: { item: TransactionDto }): JSX.Element => (
               <TransactionRow transaction={item} openInfo={openInfo} />
             )}
@@ -146,7 +146,7 @@ export function LockTransactions(): JSX.Element {
                   <InfoText
                     text={translate(
                       'LOCK/LockDashboardScreen',
-                      'Please note that we will collect and pay out all amounts below 0.0001 for tokens in the corresponding token assets for you as soon as the value is >= 0.0001. For Liquidity Pool tokens this value equals 1$',
+                      'Please note that only amounts >0.0001 will be paid out directly, otherwise accumulated until the amount is >0.0001 in the respective assets. For liquidity pool tokens this value equals 1$.',
                     )}
                     noBorder
                     lock
