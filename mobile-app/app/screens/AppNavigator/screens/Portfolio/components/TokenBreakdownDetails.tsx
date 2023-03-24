@@ -29,10 +29,11 @@ export function TokenBreakdownDetails(props: TokenBreakdownDetailProps): JSX.Ele
   return (
     <>
       {/* Staking rows */}
-      <TokenBreakdownDetailsRow
+      {/* Krysh: deactivated until decision was made */}
+      {/* <TokenBreakdownDetailsRow
         testID={`${props.testID}_staked`}
         amount={props.stakedAmount.toFixed(8)}
-        label="Staked @ DFX"
+        label={translate('screens/PortfolioScreen', 'deposited @ LOCK')}
         hasFetchedToken={props.hasFetchedToken}
         labelTextStyle={tailwind('font-medium')}
         valueThemeProps={{
@@ -54,7 +55,7 @@ export function TokenBreakdownDetails(props: TokenBreakdownDetailProps): JSX.Ele
         suffix={
           props.denominationCurrency !== PortfolioButtonGroupTabKey.USDT ? ` ${props.denominationCurrency}` : undefined
         }
-      />
+      /> */}
 
       {/* Locked rows */}
       <TokenBreakdownDetailsRow
