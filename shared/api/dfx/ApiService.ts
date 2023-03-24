@@ -293,7 +293,9 @@ export const LOCKgetAssets = async (): Promise<Asset[]> => {
 };
 
 export const LOCKgetBalance = async (address: string): Promise<StakingBalanceOutput[]> => {
-  return await fetchFromLOCK<StakingBalanceOutput[]>(`${LOCKBalanceUrl}?userAddress=${address}`, 'GET');
+  return await fetchFromLOCK<StakingBalanceOutput[]>(`${LOCKBalanceUrl}?userAddress=${address}`, 'GET', undefined, {
+    withoutJWT: true,
+  });
 };
 
 const fetchFromLOCK = async <T>(

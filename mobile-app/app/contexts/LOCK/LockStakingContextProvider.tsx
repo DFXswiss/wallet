@@ -33,6 +33,7 @@ interface LockStakingInterface {
   isLoading: boolean;
   fetch: () => Promise<void>;
 
+  fetchBalances: () => Promise<void>;
   totalBalance?: BigNumber;
 
   activeTab: LockStakingTab;
@@ -159,8 +160,18 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   );
 
   useEffect(() => {
-    debouncedAddress && LOCKgetBalance(debouncedAddress).then(setBalances).catch(WalletAlertErrorApi);
+    fetchBalances();
   }, [debouncedAddress]);
+
+  async function fetchBalances(): Promise<void> {
+    debouncedAddress &&
+      LOCKgetBalance(debouncedAddress)
+        .then(setBalances)
+        .catch((e) => {
+          setBalances([]);
+          WalletAlertErrorApi(e);
+        });
+  }
 
   // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
   // TODO: check for possible refactor to dispatch / component lifecycle-independence
@@ -270,6 +281,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   const context: LockStakingInterface = {
     isLoading,
     fetch,
+    fetchBalances,
     totalBalance,
     activeTab,
     setActiveTab,

@@ -28,35 +28,6 @@ interface TokenBreakdownDetailProps {
 export function TokenBreakdownDetails(props: TokenBreakdownDetailProps): JSX.Element {
   return (
     <>
-      {/* Staking rows */}
-      {/* Krysh: deactivated until decision was made */}
-      {/* <TokenBreakdownDetailsRow
-        testID={`${props.testID}_staked`}
-        amount={props.stakedAmount.toFixed(8)}
-        label={translate('screens/PortfolioScreen', 'deposited @ LOCK')}
-        hasFetchedToken={props.hasFetchedToken}
-        labelTextStyle={tailwind('font-medium')}
-        valueThemeProps={{
-          light: tailwind('text-black'),
-          dark: tailwind('text-white'),
-        }}
-      />
-      <TokenBreakdownDetailsRow
-        testID={`${props.testID}_staked_value`}
-        amount={getPrecisedTokenValue(props.stakedValue)}
-        label=""
-        hasFetchedToken={props.hasFetchedToken}
-        valueThemeProps={{
-          light: tailwind('text-gray-500'),
-          dark: tailwind('text-dfxgray-400'),
-        }}
-        containerStyle={tailwind('mb-2')}
-        prefix={props.denominationCurrency === PortfolioButtonGroupTabKey.USDT ? '≈ $' : undefined}
-        suffix={
-          props.denominationCurrency !== PortfolioButtonGroupTabKey.USDT ? ` ${props.denominationCurrency}` : undefined
-        }
-      /> */}
-
       {/* Locked rows */}
       <TokenBreakdownDetailsRow
         testID={`${props.testID}_locked`}
