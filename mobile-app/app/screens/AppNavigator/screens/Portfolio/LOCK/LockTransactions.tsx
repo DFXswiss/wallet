@@ -204,6 +204,9 @@ function TransactionTypeSelector({
     <ScrollView
       style={tailwind('border-b border-lockGray-100')}
       contentContainerStyle={tailwind('flex flex-row w-full justify-between px-8 h-10 items-end')}
+      showsVerticalScrollIndicator={false}
+      showsHorizontalScrollIndicator={false}
+      directionalLockEnabled
       horizontal
     >
       {types.map((t) => (
