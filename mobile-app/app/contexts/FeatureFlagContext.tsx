@@ -172,10 +172,6 @@ export function FeatureFlagProvider(props: React.PropsWithChildren<any>): JSX.El
     ),
   };
 
-  if (isError && !isLoading && retries < MAX_RETRY) {
-    return <></>;
-  }
-
   return <FeatureFlagContext.Provider value={context}>{props.children}</FeatureFlagContext.Provider>;
 }
 
