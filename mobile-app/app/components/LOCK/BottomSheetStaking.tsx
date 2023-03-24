@@ -290,7 +290,7 @@ function UtxoHint({ onPress }: { onPress: () => void }): JSX.Element {
   return (
     <TouchableOpacity style={tailwind('bg-lock-600 flex flex-row items-center rounded-md my-2')} onPress={onPress}>
       <MaterialIcons style={tailwind('p-2')} color={'#21500C'} name="swap-horiz" size={15} />
-      <Text style={tailwind('text-lock-100 font-medium text-xs py-2')}>
+      <Text style={tailwind('flex-shrink text-lock-100 font-medium text-xs py-2 pr-2')}>
         {translate(
           'LOCK/LockDashboardScreen',
           'Please note that currently only DFI UTXO can be deposited. You can exchange DFI tokens by pressing here.',
