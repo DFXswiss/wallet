@@ -176,7 +176,7 @@ export function TotalPortfolio(props: TotalPortfolioProps): JSX.Element {
             <USDValueRow
               testId="total_staked_usd_amount"
               isLoading={!props.hasFetchedStakingBalance}
-              label={translate('screens/PortfolioScreen', 'staked @ DFX')}
+              label={translate('screens/PortfolioScreen', 'deposited @ LOCK')}
               value={stakedValueForSelectedCurrency}
               isAddition
               denominationCurrency={denominationCurrency}

@@ -3,6 +3,7 @@ import { LockStakingTab } from '@constants/LOCK/LockStakingTab';
 import { RewardRouteDestination } from '@constants/LOCK/RewardRouteDestination';
 import { TransactionCache } from '@constants/LOCK/TransactionCache';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
+import { useDenominationCurrency } from '@screens/AppNavigator/screens/Portfolio/hooks/PortfolioCurrency';
 import { useTokenPrice } from '@screens/AppNavigator/screens/Portfolio/hooks/TokenPrice';
 import {
   LOCKgetAssets,
@@ -15,19 +16,25 @@ import {
   StakingOutputDto,
   StakingStrategy,
   StakingStatus,
+  StakingBalanceOutput,
+  LOCKgetBalance,
 } from '@shared-api/dfx/ApiService';
 import { Asset } from '@shared-api/dfx/models/Asset';
+import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { useWalletContext } from '@shared-contexts/WalletContext';
 import { RootState } from '@store';
 import { firstTransactionSelector } from '@store/ocean';
 import { allTokens } from '@store/wallet';
 import BigNumber from 'bignumber.js';
-import { createContext, PropsWithChildren, useContext, useEffect, useState } from 'react';
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo, useState } from 'react';
 import { useSelector } from 'react-redux';
 
 interface LockStakingInterface {
   isLoading: boolean;
   fetch: () => Promise<void>;
+
+  fetchBalances: () => Promise<void>;
+  totalBalance?: BigNumber;
 
   activeTab: LockStakingTab;
   setActiveTab: (tab: LockStakingTab) => void;
@@ -66,6 +73,11 @@ export function useLockStakingContext(): LockStakingInterface {
 export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useWalletContext();
+  const { debouncedAddress } = useDFXAPIContext();
+
+  const [balances, setBalances] = useState<StakingBalanceOutput[]>();
+  const { denominationCurrency } = useDenominationCurrency();
+  const denominatedTokenPrice = useTokenPrice(denominationCurrency);
 
   const transaction = useSelector((state: RootState) => firstTransactionSelector(state.ocean));
   const [transactionCache, setTransactionCache] = useState<TransactionCache>();
@@ -137,6 +149,28 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
 
   async function fetchAssets(): Promise<void> {
     await LOCKgetAssets().then(setAssets).catch(WalletAlertErrorApi);
+  }
+
+  const totalBalance = useMemo(
+    () =>
+      balances
+        ?.map((balance) => denominatedTokenPrice.getTokenPrice(balance.asset, new BigNumber(balance.balance), false))
+        .reduce((prev, curr) => prev.plus(curr), new BigNumber(0)),
+    [balances, denominationCurrency],
+  );
+
+  useEffect(() => {
+    fetchBalances();
+  }, [debouncedAddress]);
+
+  async function fetchBalances(): Promise<void> {
+    debouncedAddress &&
+      LOCKgetBalance(debouncedAddress)
+        .then(setBalances)
+        .catch((e) => {
+          setBalances([]);
+          WalletAlertErrorApi(e);
+        });
   }
 
   // listen for broadcasted staking-transaction and notify LOCK Api with txId (+ amount)
@@ -247,6 +281,8 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   const context: LockStakingInterface = {
     isLoading,
     fetch,
+    fetchBalances,
+    totalBalance,
     activeTab,
     setActiveTab,
     info,
