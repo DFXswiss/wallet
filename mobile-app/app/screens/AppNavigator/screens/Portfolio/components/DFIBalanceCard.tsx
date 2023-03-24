@@ -26,9 +26,9 @@ import { TokenBreakdownDetails } from './TokenBreakdownDetails'
 import NumberFormat from 'react-number-format'
 import { BalanceText } from './BalanceText'
 import { translate } from '@translations'
+
 interface DFIBalaceCardProps {
   denominationCurrency: string
-  staked: number
 }
 
 export function DFIBalanceCard({ denominationCurrency }: DFIBalaceCardProps): JSX.Element {
