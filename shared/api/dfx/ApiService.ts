@@ -78,6 +78,7 @@ const LOCKKycUrl = 'kyc';
 const LOCKStakingUrl = 'staking';
 const LOCKBalanceUrl = 'staking/balance';
 const LOCKAssetUrl = 'asset';
+const LOCKHistoryUrl = 'analytics/history/compact';
 
 export enum StakingStrategy {
   MASTERNODE = 'Masternode',
@@ -189,6 +190,45 @@ export interface WithdrawalDraftOutputDto {
   signMessage: string;
 }
 
+export enum TransactionTarget {
+  MASTERNODE = 'Masternode',
+  LIQUIDITY_MINING = 'LiquidityMining',
+  WALLET = 'Wallet',
+  EXTERNAL = 'External',
+}
+
+export enum TransactionType {
+  DEPOSIT = 'Deposit',
+  WITHDRAWAL = 'Withdrawal',
+  REWARD = 'Reward',
+}
+
+export enum TransactionStatus {
+  WAITING_FOR_BALANCE = 'WaitingForBalance',
+  PENDING = 'Pending',
+  CONFIRMED = 'Confirmed',
+  FAILED = 'Failed',
+}
+
+export interface TransactionDto {
+  inputAmount: number;
+  inputAsset: string;
+  outputAmount: number;
+  outputAsset: string;
+  feeAmount: number;
+  feeAsset: string;
+  amountInEur: number;
+  amountInChf: number;
+  amountInUsd: number;
+  txId: string;
+  date: string;
+  type: TransactionType;
+  status: TransactionStatus;
+  source: TransactionTarget;
+  target: TransactionTarget;
+  targetAddress: string;
+}
+
 // --- AUTH --- //
 export const LOCKsignIn = async (credentials?: Credentials): Promise<string> => {
   return await fetchFromLOCK<AuthResponse>(`${AuthUrl}/sign-in`, 'POST', credentials, { withoutJWT: true }).then(
@@ -296,6 +336,10 @@ export const LOCKgetBalance = async (address: string): Promise<StakingBalanceOut
   return await fetchFromLOCK<StakingBalanceOutput[]>(`${LOCKBalanceUrl}?userAddress=${address}`, 'GET', undefined, {
     withoutJWT: true,
   });
+};
+
+export const LOCKgetTransactions = async (address: string): Promise<TransactionDto[]> => {
+  return await fetchFromLOCK<TransactionDto[]>(`${LOCKHistoryUrl}?userAddress=${address}&type=json`, 'GET');
 };
 
 const fetchFromLOCK = async <T>(

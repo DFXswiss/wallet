@@ -53,11 +53,13 @@ import { LockDashboardScreen } from './LOCK/LockDashboardScreen';
 import { BuyScreen } from './screens/BuyScreen';
 import { BuyConfirmationScreen } from './screens/BuyConfirmationScreen';
 import { BuyPaymentInfoDto } from '@shared-api/dfx/models/BuyRoute';
+import { LockTransactions } from './LOCK/LockTransactions';
 
 export interface PortfolioParamList {
   PortfolioScreen: undefined;
   LockKycScreen: undefined;
   LockDashboardScreen: undefined;
+  LockTransactions: undefined;
   ReceiveScreen: undefined;
   ReceiveDTokenScreen: { crypto?: CryptoButtonGroupTabKey; fromReceiveScreen?: boolean };
   BuyScreen: { token?: WalletToken };
@@ -225,6 +227,20 @@ export function PortfolioNavigator(): JSX.Element {
           headerTitle: () => (
             <HeaderTitle
               text={translate('LOCK/LockDashboardScreen', 'LOCK Dashboard')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false,
+        }}
+      />
+
+      <PortfolioStack.Screen
+        component={LockTransactions}
+        name="LockTransactions"
+        options={{
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('LOCK/LockDashboardScreen', 'LOCK Transactions')}
               containerTestID={headerContainerTestId}
             />
           ),
