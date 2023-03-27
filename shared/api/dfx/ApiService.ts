@@ -76,6 +76,7 @@ const LockBaseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl;
 const LOCKanalytics = 'analytics/staking/filter';
 const LOCKKycUrl = 'kyc';
 const LOCKStakingUrl = 'staking';
+const LOCKBalanceUrl = 'staking/balance';
 const LOCKAssetUrl = 'asset';
 
 export enum StakingStrategy {
@@ -120,9 +121,10 @@ export interface LockUserDto {
   kycLink: string;
 }
 
-export interface StakingQueryDto {
-  asset?: string;
-  blockchain?: Blockchain;
+export interface StakingBalanceOutput {
+  asset: string;
+  balance: number;
+  blockchain: Blockchain;
   strategy: StakingStrategy;
 }
 
@@ -288,6 +290,12 @@ export const LOCKrewardRoutes = async (
 
 export const LOCKgetAssets = async (): Promise<Asset[]> => {
   return await fetchFromLOCK<Asset[]>(`${LOCKAssetUrl}`, 'GET');
+};
+
+export const LOCKgetBalance = async (address: string): Promise<StakingBalanceOutput[]> => {
+  return await fetchFromLOCK<StakingBalanceOutput[]>(`${LOCKBalanceUrl}?userAddress=${address}`, 'GET', undefined, {
+    withoutJWT: true,
+  });
 };
 
 const fetchFromLOCK = async <T>(

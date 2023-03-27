@@ -49,7 +49,7 @@ import { LockStakingCard } from './LOCK/LockStakingCard';
 import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { WalletAlertNotAvailableInCountry } from '@components/WalletAlert';
 import { BackupSeedWarning } from '@components/BackupSeedWarning';
-import { Logging } from '@api';
+import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 
 type Props = StackScreenProps<PortfolioParamList, 'PortfolioScreen'>;
 
@@ -58,13 +58,9 @@ export interface PortfolioRowToken extends WalletToken {
 }
 
 export function PortfolioScreen({ navigation }: Props): JSX.Element {
-  const {
-    debouncedAddress,
-    isNotAllowedInCountry,
-    LOCKisNotAllowedInCountry,
-    getUnavailableServices,
-    hasVerifiedBackup,
-  } = useDFXAPIContext();
+  const { isNotAllowedInCountry, LOCKisNotAllowedInCountry, getUnavailableServices, hasVerifiedBackup } =
+    useDFXAPIContext();
+  const { totalBalance, fetchBalances } = useLockStakingContext();
   const { isLight } = useThemeContext();
   const isFocused = useIsFocused();
   const height = useBottomTabBarHeight();
@@ -90,9 +86,8 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const ref = useRef(null);
   useScrollToTop(ref);
 
-  // TODO: LOCK staking balance
-  const [staked, setStaked] = useState(0);
-  const [hasFetchedStakingBalance, setHasFetchedStakingBalance] = useState(false);
+  const staked = useMemo(() => totalBalance?.toNumber() ?? 0, [totalBalance]);
+  const hasFetchedStakingBalance = useMemo(() => Boolean(totalBalance), [totalBalance]);
 
   useEffect(() => {
     if (isNotAllowedInCountry || LOCKisNotAllowedInCountry) {
@@ -499,7 +494,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const onRefresh = useCallback(async () => {
     setRefreshing(true);
     fetchPortfolioData();
-    // TODO: fetch LOCK staking balance
+    fetchBalances();
     setLockRefetchTrigger((value) => !value);
     setRefreshing(false);
   }, [address, client, dispatch]);
@@ -549,7 +544,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
           hideIcon={hideIcon}
           modifiedDenominationCurrency={modifiedDenominationCurrency}
         />
-        <DFIBalanceCard denominationCurrency={denominationCurrency} staked={staked} />
+        <DFIBalanceCard denominationCurrency={denominationCurrency} />
         {!hasFetchedToken ? (
           <View style={tailwind('p-4')}>
             <SkeletonLoader row={2} screen={SkeletonLoaderScreen.Portfolio} />

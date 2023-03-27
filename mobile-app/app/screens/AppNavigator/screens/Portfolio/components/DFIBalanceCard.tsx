@@ -31,20 +31,21 @@ interface DFIBalaceCardProps {
   staked: number
 }
 
-export function DFIBalanceCard ({ denominationCurrency, staked }: DFIBalaceCardProps): JSX.Element {
-  const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
-  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet))
-  const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet))
-  const DFIUnified = useSelector((state: RootState) => unifiedDFISelector(state.wallet))
-  const { hasFetchedToken } = useSelector((state: RootState) => state.wallet)
-  const { getTokenPrice } = useTokenPrice(denominationCurrency) // input based on selected denomination from portfolio tab
-  const { isBalancesDisplayed } = useDisplayBalancesContext()
-  const lockedToken = useTokenLockedBalance({ displaySymbol: 'DFI', denominationCurrency }) as LockedBalance ?? { amount: new BigNumber(0), tokenValue: new BigNumber(0) }
-  const usdAmount = getTokenPrice(DFIUnified.symbol, new BigNumber(DFIUnified.amount), DFIUnified.isLPS)
-  const availableValue = getTokenPrice(DFIUnified.symbol, new BigNumber(DFIUnified.amount))
-  const stakedAmount = new BigNumber(staked)
-  const stakedValue = getTokenPrice(DFIUnified.symbol, new BigNumber(staked))
-  const DFIIcon = getNativeIcon('_UTXO')
+export function DFIBalanceCard({ denominationCurrency }: DFIBalaceCardProps): JSX.Element {
+  const navigation = useNavigation<NavigationProp<PortfolioParamList>>();
+  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet));
+  const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
+  const DFIUnified = useSelector((state: RootState) => unifiedDFISelector(state.wallet));
+  const { hasFetchedToken } = useSelector((state: RootState) => state.wallet);
+  const { getTokenPrice } = useTokenPrice(denominationCurrency); // input based on selected denomination from portfolio tab
+  const { isBalancesDisplayed } = useDisplayBalancesContext();
+  const lockedToken = (useTokenLockedBalance({ displaySymbol: 'DFI', denominationCurrency }) as LockedBalance) ?? {
+    amount: new BigNumber(0),
+    tokenValue: new BigNumber(0),
+  };
+  const usdAmount = getTokenPrice(DFIUnified.symbol, new BigNumber(DFIUnified.amount), DFIUnified.isLPS);
+  const availableValue = getTokenPrice(DFIUnified.symbol, new BigNumber(DFIUnified.amount));
+  const DFIIcon = getNativeIcon('_UTXO');
   // const { isLight } = useThemeContext()
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false)
   const onBreakdownPress = (): void => {
@@ -189,9 +190,7 @@ export function DFIBalanceCard ({ denominationCurrency, staked }: DFIBalaceCardP
             lockedValue={lockedToken.tokenValue}
             availableAmount={new BigNumber(DFIUnified.amount)}
             availableValue={availableValue}
-            stakedAmount={new BigNumber(stakedAmount)}
-            stakedValue={stakedValue}
-            testID='dfi'
+            testID="dfi"
             dfiUtxo={DFIUtxo}
             dfiToken={DFIToken}
             denominationCurrency={denominationCurrency}
