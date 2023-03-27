@@ -193,6 +193,14 @@ export function LockDashboardScreen({ navigation }: Props): JSX.Element {
     setRefreshing(false);
   }, []);
 
+  const onTransactions = useCallback(async () => {
+    navigation.navigate({
+      name: 'LockTransactions',
+      params: undefined,
+      merge: true,
+    });
+  }, [address]);
+
   const onCsvExport = useCallback(async () => {
     const baseUrl = getEnvironment(getReleaseChannel()).lock.apiUrl;
     await openURL(`${baseUrl}/analytics/history/ChainReport?userAddress=${address ?? ''}&type=csv`);
@@ -254,20 +262,32 @@ export function LockDashboardScreen({ navigation }: Props): JSX.Element {
                 />
               </View>
 
-              <View style={tailwind('h-8')} />
+              <View style={tailwind('h-24')} />
               <Button
-                label={translate('LOCK/LockDashboardScreen', 'CSV EXPORT')}
-                onPress={onCsvExport}
-                margin={''}
+                label={translate('LOCK/LockDashboardScreen', 'Transactions')}
+                onPress={onTransactions}
+                margin=""
+                padding="py-1"
                 lock
                 fill="outline"
                 color="secondary"
               />
               <View style={tailwind('h-4')} />
               <Button
-                label={translate('LOCK/LockDashboardScreen', 'CFP VOTING')}
+                label={translate('LOCK/LockDashboardScreen', 'CSV Export')}
+                onPress={onCsvExport}
+                margin=""
+                padding="py-1"
+                lock
+                fill="outline"
+                color="secondary"
+              />
+              <View style={tailwind('h-4')} />
+              <Button
+                label={translate('LOCK/LockDashboardScreen', 'CFP Voting')}
                 onPress={openCfpVoting}
-                margin={''}
+                margin=""
+                padding="py-1"
                 lock
                 fill="outline"
                 color="secondary"

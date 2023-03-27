@@ -1,11 +1,5 @@
 import { PinTextInput } from '@components/PinTextInput';
-import {
-  ThemedActivityIndicator,
-  ThemedIcon,
-  ThemedText,
-  ThemedTouchableOpacity,
-  ThemedView,
-} from '@components/themed';
+import { ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedView } from '@components/themed';
 import { useThemeContext } from '@shared-contexts/ThemeProvider';
 import { DfTxSigner } from '@store/transaction_queue';
 import { tailwind } from '@tailwind';
@@ -16,6 +10,7 @@ import { BottomSheetBackdropProps, BottomSheetBackgroundProps, BottomSheetModal 
 import { BottomSheetModalMethods } from '@gorhom/bottom-sheet/lib/typescript/types';
 import * as React from 'react';
 import Modal from 'react-overlays/Modal';
+import { Loading } from '@components/Loading';
 
 interface PasscodePromptProps {
   onCancel: (err: string) => void;
@@ -282,19 +277,6 @@ function SuccessMessage ({ message }: { message?: { title: string, description: 
       <ThemedText style={tailwind('text-center text-xl font-bold mt-5')}>{message.title}</ThemedText>
 
       <ThemedText style={tailwind('text-sm text-center')}>{message.description}</ThemedText>
-    </View>
-  );
-}
-
-function Loading({ message }: { message?: string }): JSX.Element | null {
-  if (message === undefined) {
-    return null;
-  }
-  return (
-    <View style={tailwind('flex-row justify-center p-2')}>
-      <ThemedActivityIndicator />
-
-      <ThemedText style={tailwind('ml-2 text-sm')}>{message}</ThemedText>
     </View>
   );
 }
