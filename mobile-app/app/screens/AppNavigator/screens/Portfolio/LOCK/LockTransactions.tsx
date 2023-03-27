@@ -146,7 +146,7 @@ export function LockTransactions(): JSX.Element {
                   <InfoText
                     text={translate(
                       'LOCK/LockDashboardScreen',
-                      'Please note that only amounts >0.0001 will be paid out directly, otherwise accumulated until the amount is >0.0001 in the respective assets. For liquidity pool tokens this value equals 1$.',
+                      'Rewards are distributed on a daily basis. Please note that the blockchain-side transaction will be performed once the rewards are at least 1$.',
                     )}
                     noBorder
                     lock
