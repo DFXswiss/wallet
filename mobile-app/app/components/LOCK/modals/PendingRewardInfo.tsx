@@ -12,7 +12,7 @@ export const PendingRewardInfo = (): React.MemoExoticComponent<() => JSX.Element
           <Text style={tailwind('text-black text-base font-normal')}>
             {translate(
               'LOCK/LockDashboardScreen',
-              'Please note that the blockchain-side transaction will be performed once the rewards in the selected asset are at least $1.',
+              'Rewards are distributed on a daily basis. Please note that the blockchain-side transaction will be performed once the rewards are at least 1$.',
             )}
           </Text>
         </View>
