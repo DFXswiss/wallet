@@ -103,7 +103,8 @@
     "AVAILABLE ASSETS": "ASSET DISPONIBILI",
     "Asset value": "Valore degli asset",
     "Availability": "Disponibilità",
-    "Unfortunately, {{service}} service is not available in your country.": "Purtroppo il servizio {{service}} non è disponibile nel vostro paese."
+    "Unfortunately, {{service}} service is not available in your country.": "Purtroppo il servizio {{service}} non è disponibile nel vostro paese.",
+    "Backup not verified": "Backup non verificato"
   },
   "screens/GetDFIScreen": {
     "Get DFI": "Get DFI",
@@ -581,8 +582,8 @@
     "Keep the passcode for your wallet confidential.": "Keep the passcode for your wallet confidential."
   },
   "screens/PinCreation": {
-    "Well done! Your wallet is created. Keep your wallet private and secure by creating a passcode for it.": "Perfetto! Il tuo wallet è stato creato. Mantieni il tuo wallet privato e sicuro creando un codice di accesso.",
-    "Well done! Your wallet is restored. Keep your wallet private and secure by creating a passcode for it.": "Perfetto! Il tuo wallet è stato ripristinato. Mantieni il tuo wallet privato e sicuro creando un codice di accesso.",
+    "Well done! Your wallet is created.": "Perfetto! Il tuo wallet è stato creato.",
+    "Well done! Your wallet is restored.": "Perfetto! Il tuo wallet è stato ripristinato.",
     "Keep your passcode private": "Mantieni il tuo codice di accesso privato",
     "CREATE PASSCODE": "CREA IL CODICE DI ACCESSO",
     "CHANGE PASSCODE": "CAMBIA IL CODICE DI ACCESSO",
@@ -675,8 +676,23 @@
     "Create new passcode for your wallet": "Crea un nuovo codice di accesso per il tuo wallet",
     "Keep the passcode for your wallet confidential.": "Keep the passcode for your wallet confidential."
   },
+  "screens/BackupExplanation": {
+    "Backup phrase": "Frase di backup",
+    "Recovery phrase backup": "Frase di recupero backup",
+    "Find a safe and private place. Set a pen and some paper to write down your recovery phrase.": "Trovate un luogo sicuro e riservato. Prendete carta e penna per scrivere la vostra frase di recupero.",
+    "Secret words": "Parole segrete",
+    "Your recovery phrase is a list of 24 secret words in a predefined order that back up your private key.": "La frase di recupero è un elenco di 24 parole segrete, in un ordine predefinito, che costituiscono il backup della chiave privata.",
+    "Unrestorable": "Non ripristinabile",
+    "if you lose your recovery phrase, you will de unable to access your funds, as nobody will be able to restore it.": "Se perdete la vostra frase di recupero, non potrete accedere ai vostri fondi, perché nessuno sarà in grado di ripristinarli.",
+    "Only Chance": "Unica possibilità",
+    "This phrase is your only chance to recover access to your funds if your DFX DeFiChain App or usual device is unavailable for you.": "Questa frase è l'unica possibilità di recuperare l'accesso ai propri fondi se l'App DFX DeFiChain o il dispositivo abituale non sono disponibili."
+  },
   "screens/RecoveryWordsScreen": {
-    "Keep your recovery words safe and private.": "Mantieni le tue parole di recupero al sicuro e private.",
+    "Backup phrase": "Frase di backup",
+    "Your Recovery phrase": "La vostra frase di recupero",
+    "Never share recovery phrase with anyone, store it securely!": "Non condividete mai la frase di recupero con nessuno, conservatela in modo sicuro!",
+    "Write down these words in the right order and save them somewhere safe.": "Scrivete queste parole nell'ordine giusto e salvatele in un posto sicuro.",
+    "I understand that if I lose my recovery phrase, I will not be able to access my funds.": "Sono consapevole che se perdo la mia frase di recupero, non potrò accedere ai miei fondi.",
     "Take note of the correct spelling and order. Keep your recovery words confidential and secure.": "Take note of the correct spelling and order. Keep your recovery words confidential and secure."
   },
   "screens/AddLiquidity": {
@@ -771,6 +787,7 @@
     "Max": "Max"
   },
   "components/Button": {
+    "READY": "PRONTO",
     "CONTINUE": "CONTINUA",
     "CLOSE": "CHIUDI"
   },
@@ -895,6 +912,7 @@
     "Transaction signed": "Transazione firmata."
   },
   "components/CreateWalletIndicator": {
+    "Create": "Creare",
     "Recovery": "Recupera",
     "Verify": "Verifica",
     "Secure": "Assicura",
@@ -1667,7 +1685,7 @@
     "Bitcoin Deposit": "Deposito di Bitcoin",
     "Please note the MINIMUM deposit amount is {{MinimumBtcAmount}}!": "Si prega di notare il deposito minimo di {{MinimumBtcAmount}}!",
     "Ref bonus": "Ref bonus",
-    "Please click here to finish the KYC process to receive your bitcoin address": "Per favore, clicca qui per terminare il processo di KYC e ricevere il tuo indirizzo Bitcoin."
+    "Please click here to complete the KYC process and make a deposit or withdrawal to get your bitcoin address.": "Cliccate qui per completare il processo KYC ed effettuare un deposito o un prelievo per ottenere il vostro indirizzo bitcoin."
   },
   "screens/DfxButtons": {
     "DFI.Tax": "DFI.tax",

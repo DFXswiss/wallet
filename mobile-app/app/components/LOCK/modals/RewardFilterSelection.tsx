@@ -3,10 +3,12 @@ import { BottomSheetWithNavRouteParam } from '@components/BottomSheetWithNav';
 import { PoolPairIcon } from '@components/icons/PoolPairIcon';
 import { SymbolIcon } from '@components/SymbolIcon';
 import { ThemedFlatList, ThemedIcon, ThemedText, ThemedTouchableOpacity, ThemedView } from '@components/themed';
+import { useLockStakingContext } from '@contexts/LOCK/LockStakingContextProvider';
 import { BottomSheetFlatList } from '@gorhom/bottom-sheet';
 import { NavigationProp, useNavigation } from '@react-navigation/native';
 import { ButtonGroup } from '@screens/AppNavigator/screens/Dex/components/ButtonGroup';
 import { CollateralItem } from '@screens/AppNavigator/screens/Loans/screens/EditCollateralScreen';
+import { AssetCategory } from '@shared-api/dfx/models/Asset';
 import { tailwind } from '@tailwind';
 import { translate } from '@translations';
 import { memo, useMemo, useState } from 'react';
@@ -24,8 +26,6 @@ interface RewardFilterSelectionProps {
   onSelection: (item: BottomSheetToken, address?: string) => void;
 }
 
-const cryptos = ['DFI', 'dBTC', 'dETH', 'dUSDT', 'dUSDC', 'dDOGE', 'dLTC', 'dBCH'];
-
 export const RewardFilterSelection = ({
   onSelection,
   onCloseButtonPress,
@@ -38,18 +38,20 @@ export const RewardFilterSelection = ({
       web: ThemedFlatList,
     };
     const FlatList = Platform.OS === 'web' ? flatListComponents.web : flatListComponents.mobile;
+    const { assets } = useLockStakingContext();
     const [activeFilter, setActiveFilter] = useState<Filter>(Filter.CRYPTO);
 
     const filteredTokens = useMemo(() => {
+      const cryptos = assets?.filter((a) => a.category === AssetCategory.CRYPTO).map((a) => a.displayName);
       switch (activeFilter) {
         case Filter.POOL:
           return tokens.filter((t) => t.token.isLPS);
         case Filter.CRYPTO:
-          return tokens.filter((t) => !t.token.isLPS && cryptos.includes(t.token.displaySymbol));
+          return tokens.filter((t) => !t.token.isLPS && cryptos?.includes(t.token.displaySymbol));
         case Filter.TOKEN:
-          return tokens.filter((t) => !t.token.isLPS && !cryptos.includes(t.token.displaySymbol));
+          return tokens.filter((t) => !t.token.isLPS && !cryptos?.includes(t.token.displaySymbol));
       }
-    }, [activeFilter]);
+    }, [activeFilter, assets]);
 
     return (
       <FlatList

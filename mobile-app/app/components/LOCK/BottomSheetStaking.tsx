@@ -1,6 +1,7 @@
 import { onTransactionBroadcast } from '@api/transaction/transaction_commands';
 import { SubmitButtonGroup } from '@components/SubmitButtonGroup';
 import { ThemedScrollView } from '@components/themed';
+import { InfoText } from '@components/InfoText';
 import { CustomAlertOption, WalletAlert, WalletAlertErrorApi } from '@components/WalletAlert';
 import { TokenData } from '@defichain/whale-api-client/dist/api/tokens';
 import { isStake, StakingAction } from '@constants/LOCK/StakingAction';
@@ -16,6 +17,8 @@ import {
   LOCKwithdrawalDrafts,
   LOCKwithdrawalSign,
   StakingOutputDto,
+  StakingStatus,
+  StakingStrategy,
   WithdrawalDraftOutputDto,
 } from '@shared-api/dfx/ApiService';
 import { useLogger } from '@shared-contexts/NativeLoggingProvider';
@@ -27,17 +30,21 @@ import { WalletToken } from '@store/wallet';
 import { tailwind } from '@tailwind';
 import { translate } from '@translations';
 import BigNumber from 'bignumber.js';
-import { memo, useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { AlertButton, Platform, Text, TouchableOpacity, View } from 'react-native';
 import { useSelector } from 'react-redux';
 import { AmountRow } from './AmountRow';
+import { debounce, DebouncedFunc } from 'lodash';
+import { useToast } from 'react-native-toast-notifications';
+import * as Clipboard from 'expo-clipboard';
 
 interface BottomSheetStakingProps {
   headerLabel: string;
   onCloseButtonPress: () => void;
   onStaked: (stakingTransaction: TransactionCache) => void;
   onUnstaked: (newStakingInfo: StakingOutputDto) => void;
+  onConvert: () => void;
   token?: WalletToken | TokenData;
   stakingInfo: StakingOutputDto;
   action: StakingAction;
@@ -49,6 +56,7 @@ export const BottomSheetStaking = ({
   onCloseButtonPress,
   onStaked,
   onUnstaked,
+  onConvert,
   token,
   stakingInfo,
   action,
@@ -67,6 +75,14 @@ export const BottomSheetStaking = ({
 
     const [isOnPage, setIsOnPage] = useState<boolean>(true);
 
+    const isDeposit = action === 'Deposit' || action === 'Stake';
+    const showsUtxoHint = isDeposit && token?.symbolKey === 'DFI';
+    const showsAdditionalInformation = isDeposit && stakingInfo.status === StakingStatus.ACTIVE;
+
+    const [showToast, setShowToast] = useState(false);
+    const toast = useToast();
+    const TOAST_DURATION = 2000;
+
     // modal scrollView setup
     const bottomSheetComponents = {
       mobile: BottomSheetScrollView,
@@ -80,6 +96,29 @@ export const BottomSheetStaking = ({
         setIsOnPage(false);
       };
     }, []);
+
+    const copyToClipboard = useCallback(
+      debounce(() => {
+        if (showToast) {
+          return;
+        }
+        setShowToast(true);
+        setTimeout(() => setShowToast(false), TOAST_DURATION);
+      }, 500),
+      [showToast],
+    );
+
+    useEffect(() => {
+      if (showToast) {
+        toast.show(translate('components/toaster', 'Copied'), {
+          type: 'wallet_toast',
+          placement: 'bottom',
+          duration: TOAST_DURATION,
+        });
+      } else {
+        toast.hideAll();
+      }
+    }, [showToast]);
 
     async function onSubmit(): Promise<void> {
       if (hasPendingJob || hasPendingBroadcastJob || token === undefined) {
@@ -185,11 +224,14 @@ export const BottomSheetStaking = ({
     }
 
     return (
-      <ScrollView style={tailwind('flex-1 bg-lockGray-100')}>
+      <ScrollView style={tailwind('flex-1 bg-white')}>
         <View
-          style={tailwind('flex flex-row justify-between items-center px-4 py-2 border-b border-lockGray-200', {
-            'py-3.5 border-t -mb-px': Platform.OS === 'android',
-          })} // border top on android to handle 1px of horizontal transparent line when scroll past header
+          style={tailwind(
+            'flex flex-row justify-between items-center px-4 py-2 border-b border-lockGray-200 bg-lockGray-100',
+            {
+              'py-3.5 border-t -mb-px': Platform.OS === 'android',
+            },
+          )} // border top on android to handle 1px of horizontal transparent line when scroll past header
         >
           <Text style={tailwind('text-lg font-medium')}>{headerLabel}</Text>
           <TouchableOpacity onPress={onCloseButtonPress}>
@@ -197,7 +239,7 @@ export const BottomSheetStaking = ({
           </TouchableOpacity>
         </View>
 
-        <View style={tailwind('px-4')}>
+        <View style={tailwind('px-4 bg-white')}>
           <AmountRow
             control={control}
             onAmountChange={async (amount) => {
@@ -213,9 +255,21 @@ export const BottomSheetStaking = ({
             staking={stakingInfo}
             balance={stakingInfo.balances.find((b) => b.asset === token?.symbolKey)}
             showMinDeposit
+            smallTopMargin
           />
 
-          <View style={tailwind('my-6')}>
+          {showsUtxoHint && <UtxoHint onPress={onConvert} />}
+          {showsAdditionalInformation && (
+            <AdditionalDepositInformation
+              depositAddress={stakingInfo.depositAddress}
+              depositType={stakingInfo.strategy === StakingStrategy.MASTERNODE ? 'staking' : 'Yield Machine'}
+              token={token?.displaySymbol}
+              copyToClipboard={copyToClipboard}
+              hasTopMargin={!showsUtxoHint}
+            />
+          )}
+
+          <View style={tailwind('my-6', { 'my-0 mb-6': showsAdditionalInformation })}>
             <SubmitButtonGroup
               isDisabled={!formState.isValid || isSubmitting}
               label={translate('LOCK/LockDashboardScreen', 'CONTINUE')}
@@ -231,3 +285,60 @@ export const BottomSheetStaking = ({
       </ScrollView>
     );
   });
+
+function UtxoHint({ onPress }: { onPress: () => void }): JSX.Element {
+  return (
+    <TouchableOpacity style={tailwind('bg-lock-600 flex flex-row items-center rounded-md my-2')} onPress={onPress}>
+      <MaterialIcons style={tailwind('p-2')} color={'#21500C'} name="swap-horiz" size={15} />
+      <Text style={tailwind('flex-shrink text-lock-100 font-medium text-xs py-2 pr-2')}>
+        {translate(
+          'LOCK/LockDashboardScreen',
+          'Please note that currently only DFI UTXO can be deposited. You can exchange DFI tokens by pressing here.',
+        )}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+function AdditionalDepositInformation({
+  depositAddress,
+  depositType,
+  token,
+  copyToClipboard,
+  hasTopMargin,
+}: {
+  depositAddress: string;
+  depositType: string;
+  token?: string;
+  copyToClipboard: DebouncedFunc<() => void>;
+  hasTopMargin: boolean;
+}): JSX.Element {
+  function handleClipboard() {
+    copyToClipboard();
+    Clipboard.setString(depositAddress);
+  }
+
+  return (
+    <View style={tailwind({ 'mt-4': hasTopMargin })}>
+      <Text style={tailwind('text-black text-base font-medium')}>
+        {translate('LOCK/LockDashboardScreen', '{{token}} deposit address (optional)', { token })}
+      </Text>
+      <TouchableOpacity
+        style={tailwind('flex flex-row items-center bg-lock-600 rounded-md mt-1')}
+        onPress={handleClipboard}
+      >
+        <MaterialIcons style={tailwind('p-2')} name="content-copy" size={15} color={'#21500C'} />
+        <Text style={tailwind('text-lock-100 font-medium text-xs')}>{depositAddress}</Text>
+      </TouchableOpacity>
+      <InfoText
+        text={translate(
+          'LOCK/LockDashboardScreen',
+          'You can also deposit {{token}} directly from another DeFiChain address. Simply send the {{token}} to this {{depositType}} deposit address.',
+          { token, depositType },
+        )}
+        noBorder
+        lock
+      />
+    </View>
+  );
+}

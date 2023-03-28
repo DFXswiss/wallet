@@ -66,7 +66,7 @@ export function Button(props: ButtonProps): JSX.Element {
               `${textStyle} font-bold text-center`,
               { 'text-lock-100': lock && fill === 'fill' && color === 'secondary' },
               {
-                'text-lock-200': fill === 'outline' && color === 'secondary',
+                'text-lock-200 font-medium text-base': fill === 'outline' && color === 'secondary',
               },
               { 'text-lock-200 text-base font-medium': lock && fill === 'flat' && color === 'primary' },
             )}

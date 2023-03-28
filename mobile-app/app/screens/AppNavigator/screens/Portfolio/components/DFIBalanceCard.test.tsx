@@ -1,45 +1,47 @@
-import { render } from '@testing-library/react-native'
-import { DFIBalanceCard } from './DFIBalanceCard'
-import { RootState } from '@store'
-import { setTokenSymbol, wallet } from '@store/wallet'
-import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
-import { block } from '@store/block'
-import { loans } from '@store/loans'
-import { LoanVaultState } from '@defichain/whale-api-client/dist/api/loan'
+import { render } from '@testing-library/react-native';
+import { DFIBalanceCard } from './DFIBalanceCard';
+import { RootState } from '@store';
+import { setTokenSymbol, wallet } from '@store/wallet';
+import { Provider } from 'react-redux';
+import { configureStore } from '@reduxjs/toolkit';
+import { block } from '@store/block';
+import { loans } from '@store/loans';
+import { LoanVaultState } from '@defichain/whale-api-client/dist/api/loan';
 
-jest.mock('@shared-contexts/ThemeProvider')
-jest.mock('@shared-contexts/NetworkContext')
-jest.mock('../../../../../contexts/DisplayBalancesContext')
+jest.mock('@shared-contexts/ThemeProvider');
+jest.mock('@shared-contexts/NetworkContext');
+jest.mock('../../../../../contexts/DisplayBalancesContext');
 jest.mock('@react-navigation/native', () => ({
   useNavigation: jest.fn(),
-  useIsFocused: jest.fn()
-}))
-jest.mock('@shared-contexts/WalletContext')
+  useIsFocused: jest.fn(),
+}));
+jest.mock('@shared-contexts/WalletContext');
 
 describe('DFI Balance Card', () => {
   it('should match snapshot', async () => {
     const initialState: Partial<RootState> = {
       wallet: {
         utxoBalance: '77',
-        tokens: [{
-          id: '0',
-          symbol: 'DFI',
-          symbolKey: 'DFI',
-          displaySymbol: 'DFI',
-          isDAT: true,
-          isLPS: false,
-          isLoanToken: false,
-          amount: '23',
-          name: 'DeFiChain'
-        }].map(setTokenSymbol),
+        tokens: [
+          {
+            id: '0',
+            symbol: 'DFI',
+            symbolKey: 'DFI',
+            displaySymbol: 'DFI',
+            isDAT: true,
+            isLPS: false,
+            isLoanToken: false,
+            amount: '23',
+            name: 'DeFiChain',
+          },
+        ].map(setTokenSymbol),
         allTokens: {},
         poolpairs: [],
         dexPrices: {},
         swappableTokens: {},
         hasFetchedPoolpairData: false,
         hasFetchedToken: true,
-        hasFetchedSwappableTokens: false
+        hasFetchedSwappableTokens: false,
       },
       loans: {
         vaults: [
@@ -48,7 +50,7 @@ describe('DFI Balance Card', () => {
             loanScheme: {
               id: 'MIN150',
               minColRatio: '150',
-              interestRate: '5'
+              interestRate: '5',
             },
             ownerAddress: 'bcrt1qsr645glm3krcskdvak5hzs5eez6u4385k9a3wv',
             state: LoanVaultState.ACTIVE,
@@ -73,31 +75,31 @@ describe('DFI Balance Card', () => {
                     hash: '01ff6c392764d0bba244369e3b6c096eac73bd5a5a1fc6a187ea7358baa56111',
                     height: 4224,
                     medianTime: 1646706425,
-                    time: 1646706431
+                    time: 1646706431,
                   },
                   active: {
                     amount: '100.00000000',
                     weightage: 3,
                     oracles: {
                       active: 3,
-                      total: 3
-                    }
+                      total: 3,
+                    },
                   },
                   next: {
                     amount: '100.00000000',
                     weightage: 3,
                     oracles: {
                       active: 3,
-                      total: 3
-                    }
+                      total: 3,
+                    },
                   },
-                  sort: '00001080'
-                }
-              }
+                  sort: '00001080',
+                },
+              },
             ],
             loanAmounts: [],
-            interestAmounts: []
-          }
+            interestAmounts: [],
+          },
         ],
         collateralTokens: [],
         loanPaymentTokenActivePrices: {},
@@ -105,23 +107,23 @@ describe('DFI Balance Card', () => {
         hasFetchedVaultsData: true,
         hasFetchedLoanSchemes: true,
         loanSchemes: [],
-        loanTokens: []
-      }
-    }
+        loanTokens: [],
+      },
+    };
     const store = configureStore({
       preloadedState: initialState,
       reducer: {
         wallet: wallet.reducer,
         block: block.reducer,
-        loans: loans.reducer
-      }
-    })
+        loans: loans.reducer,
+      },
+    });
     const component = (
       <Provider store={store}>
-        <DFIBalanceCard denominationCurrency='USDT' />
+        <DFIBalanceCard denominationCurrency="USDT" />
       </Provider>
-    )
-    const rendered = render(component)
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
-})
+    );
+    const rendered = render(component);
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
+});

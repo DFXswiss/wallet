@@ -26,12 +26,12 @@ import { TokenBreakdownDetails } from './TokenBreakdownDetails';
 import { NumericFormat as NumberFormat } from 'react-number-format';
 import { BalanceText } from './BalanceText';
 import { translate } from '@translations';
+
 interface DFIBalaceCardProps {
   denominationCurrency: string;
-  staked: number;
 }
 
-export function DFIBalanceCard({ denominationCurrency, staked }: DFIBalaceCardProps): JSX.Element {
+export function DFIBalanceCard({ denominationCurrency }: DFIBalaceCardProps): JSX.Element {
   const navigation = useNavigation<NavigationProp<PortfolioParamList>>();
   const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet));
   const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
@@ -45,8 +45,6 @@ export function DFIBalanceCard({ denominationCurrency, staked }: DFIBalaceCardPr
   };
   const usdAmount = getTokenPrice(DFIUnified.symbol, new BigNumber(DFIUnified.amount), DFIUnified.isLPS);
   const availableValue = getTokenPrice(DFIUnified.symbol, new BigNumber(DFIUnified.amount));
-  const stakedAmount = new BigNumber(staked);
-  const stakedValue = getTokenPrice(DFIUnified.symbol, new BigNumber(staked));
   const DFIIcon = getNativeIcon('_UTXO');
   // const { isLight } = useThemeContext()
   const [isBreakdownExpanded, setIsBreakdownExpanded] = useState(false);
@@ -194,8 +192,6 @@ export function DFIBalanceCard({ denominationCurrency, staked }: DFIBalaceCardPr
             lockedValue={lockedToken.tokenValue}
             availableAmount={new BigNumber(DFIUnified.amount)}
             availableValue={availableValue}
-            stakedAmount={new BigNumber(stakedAmount)}
-            stakedValue={stakedValue}
             testID="dfi"
             dfiUtxo={DFIUtxo}
             dfiToken={DFIToken}

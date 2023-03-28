@@ -1,131 +1,131 @@
-import { EnvironmentNetwork } from '../environment'
+import { EnvironmentNetwork } from '../environment';
 
 export interface AnnouncementText {
-  en: string
-  de: string
-  'zh-Hans': string
-  'zh-Hant': string
-  'fr'?: string
-  es: string
-  it: string
+  en: string;
+  de: string;
+  'zh-Hans': string;
+  'zh-Hant': string;
+  fr?: string;
+  es: string;
+  it: string;
 }
 
 export enum AnnouncementChannel {
   BUY = 'BUY',
   SELL = 'SELL',
-  LOCK = 'LOCK'
+  LOCK = 'LOCK',
 }
 
-export const ANNOUNCEMENTCHANNELDELAY = 2000
+export const ANNOUNCEMENTCHANNELDELAY = 2000;
 
 export interface AnnouncementData {
-  lang: AnnouncementText
+  lang: AnnouncementText;
   /**
    * Versioned matching represented as semver satisfies
    */
-  version: string
+  version: string;
   url?: {
-    ios: string
-    android: string
-    macos: string
-    windows: string
-    web: string
-  }
+    ios: string;
+    android: string;
+    macos: string;
+    windows: string;
+    web: string;
+  };
   /**
    * `id` will be stored in device's persistence storage. Therefore, each announcement's `id` should be unique string to enable close announcement function
    */
-  id?: string
-  type: 'EMERGENCY' | 'OTHER_ANNOUNCEMENT' | 'OUTAGE' | 'SCAN'
-  channel?: AnnouncementChannel
+  id?: string;
+  type: 'EMERGENCY' | 'OTHER_ANNOUNCEMENT' | 'OUTAGE' | 'SCAN';
+  channel?: AnnouncementChannel;
 }
 
 export interface FeatureFlag {
-  id: FEATURE_FLAG_ID
-  name: string
-  version: string
-  stage: FEATURE_FLAG_STAGE
-  description: string
-  networks: EnvironmentNetwork[]
-  platforms: Platform[]
+  id: FEATURE_FLAG_ID;
+  name: string;
+  version: string;
+  stage: FEATURE_FLAG_STAGE;
+  description: string;
+  networks: EnvironmentNetwork[];
+  platforms: Platform[];
 }
 
 export interface AdvertisementData {
-  id: string
-  url: string
-  displayTime: number
+  id: string;
+  url: string;
+  displayTime: number;
 }
 
 export interface DefiChainStatus {
   page?: {
-    id: string
-    name: string
-    url: string
-    updated_at: string
-  }
+    id: string;
+    name: string;
+    url: string;
+    updated_at: string;
+  };
   status: {
-    description: 'operational' | 'outage'
-    indicator: string
-  }
+    description: 'operational' | 'outage';
+    indicator: string;
+  };
   components?: Array<{
-    created_at: string
-    description?: string
-    id: string
-    name: string
-    page_id: string
-    position: number
-    status: string
-    updated_at: string
-  }>
+    created_at: string;
+    description?: string;
+    id: string;
+    name: string;
+    page_id: string;
+    position: number;
+    status: string;
+    updated_at: string;
+  }>;
   incidents?: Array<{
-    created_at: string
-    id: string
-    impact: string
+    created_at: string;
+    id: string;
+    impact: string;
     incident_updates: Array<{
-      body: string
-      created_at: string
-      display_at: string
-      id: string
-      incident_id: string
-      status: string
-      updated_at: string
-    }>
-    monitoring_at?: string
-    name: string
-    page_id?: string
-    resolved_at?: string
-    shortlink: string
-    status: string
-    updated_at: string
-  }>
+      body: string;
+      created_at: string;
+      display_at: string;
+      id: string;
+      incident_id: string;
+      status: string;
+      updated_at: string;
+    }>;
+    monitoring_at?: string;
+    name: string;
+    page_id?: string;
+    resolved_at?: string;
+    shortlink: string;
+    status: string;
+    updated_at: string;
+  }>;
   scheduled_maintenances: Array<{
-    created_at: string
-    id: string
-    impact: string
+    created_at: string;
+    id: string;
+    impact: string;
     incident_updates: Array<{
-      body: string
-      created_at: string
-      display_at: string
-      id: string
-      incident_id: string
-      status: string
-      updated_at: string
-    }>
-    monitoring_at?: string
-    name: string
-    page_id: string
-    resolved_at?: string
-    scheduled_for: string
-    scheduled_until: string
-    shortlink: string
-    status: 'Scheduled' | 'In Progress' | 'Verifying' | 'Completed'
-    updated_at: string
-  }>
+      body: string;
+      created_at: string;
+      display_at: string;
+      id: string;
+      incident_id: string;
+      status: string;
+      updated_at: string;
+    }>;
+    monitoring_at?: string;
+    name: string;
+    page_id: string;
+    resolved_at?: string;
+    scheduled_for: string;
+    scheduled_until: string;
+    shortlink: string;
+    status: 'Scheduled' | 'In Progress' | 'Verifying' | 'Completed';
+    updated_at: string;
+  }>;
 }
 
-export type Platform = 'ios' | 'android' | 'windows' | 'macos' | 'web'
+export type Platform = 'ios' | 'android' | 'windows' | 'macos' | 'web';
 
 export type FEATURE_FLAG_ID =
-  'loan'
+  | 'loan'
   | 'auction'
   | 'dfi_loan_payment'
   | 'local_storage'
@@ -137,6 +137,6 @@ export type FEATURE_FLAG_ID =
   | 'dusd_dex_high_fee'
   | 'dusd_dfi_high_fee'
   | 'setting_v2'
-  | 'lock'
+  | 'lock';
 
-export type FEATURE_FLAG_STAGE = 'alpha' | 'beta' | 'public' | 'expert'
+export type FEATURE_FLAG_STAGE = 'alpha' | 'beta' | 'public' | 'expert';

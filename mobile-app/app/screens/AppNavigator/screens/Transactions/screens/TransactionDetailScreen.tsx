@@ -1,23 +1,20 @@
-import { ThemedIcon, ThemedScrollView, ThemedText, ThemedTouchableOpacity, ThemedView } from '@components/themed'
-import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext'
-import { StackScreenProps } from '@react-navigation/stack'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { useCallback } from 'react'
-import { Linking, View } from 'react-native'
-import { formatBlockTime } from '../TransactionsScreen'
-import { PortfolioParamList } from '@screens/AppNavigator/screens/Portfolio/PortfolioNavigator'
+import { ThemedIcon, ThemedScrollView, ThemedText, ThemedTouchableOpacity, ThemedView } from '@components/themed';
+import { useDeFiScanContext } from '@shared-contexts/DeFiScanContext';
+import { StackScreenProps } from '@react-navigation/stack';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { useCallback } from 'react';
+import { Linking, View } from 'react-native';
+import { formatBlockTime } from '../TransactionsScreen';
+import { PortfolioParamList } from '@screens/AppNavigator/screens/Portfolio/PortfolioNavigator';
 
-type Props = StackScreenProps<PortfolioParamList, 'TransactionDetailScreen'>
+type Props = StackScreenProps<PortfolioParamList, 'TransactionDetailScreen'>;
 
-export function TransactionDetailScreen (props: Props): JSX.Element {
-  const { tx } = props.route.params
-  const { getTransactionUrl } = useDeFiScanContext()
+export function TransactionDetailScreen(props: Props): JSX.Element {
+  const { tx } = props.route.params;
+  const { getTransactionUrl } = useDeFiScanContext();
 
-  function RenderRow ({
-    lhs,
-    rhs
-  }: { lhs: string, rhs: string }): JSX.Element {
+  function RenderRow({ lhs, rhs }: { lhs: string; rhs: string }): JSX.Element {
     return (
       <ThemedScrollView testID={`transaction-detail-${lhs.toLowerCase()}`}>
         <ThemedView
@@ -26,25 +23,21 @@ export function TransactionDetailScreen (props: Props): JSX.Element {
           style={tailwind('p-2 flex-row items-center w-full p-4 mt-4')}
         >
           <View style={tailwind('w-1/2 flex-1')}>
-            <ThemedText style={tailwind('font-medium')}>
-              {lhs}
-            </ThemedText>
+            <ThemedText style={tailwind('font-medium')}>{lhs}</ThemedText>
           </View>
 
           <View style={tailwind('w-1/2 flex-1')}>
-            <ThemedText style={tailwind('font-medium text-right')}>
-              {rhs}
-            </ThemedText>
+            <ThemedText style={tailwind('font-medium text-right')}>{rhs}</ThemedText>
           </View>
         </ThemedView>
       </ThemedScrollView>
-    )
+    );
   }
 
   const onTxidUrlPressed = useCallback(async () => {
-    const url = getTransactionUrl(tx.txid)
-    await Linking.openURL(url)
-  }, [tx?.txid, getTransactionUrl])
+    const url = getTransactionUrl(tx.txid);
+    await Linking.openURL(url);
+  }, [tx?.txid, getTransactionUrl]);
 
   return (
     <ThemedScrollView>
@@ -73,7 +66,7 @@ export function TransactionDetailScreen (props: Props): JSX.Element {
       <ThemedTouchableOpacity
         onPress={onTxidUrlPressed}
         style={tailwind('p-2 flex-row items-center w-full p-4 mt-4')}
-        testID='transaction-detail-explorer-url'
+        testID="transaction-detail-explorer-url"
       >
         <View style={tailwind('flex-1 flex-row flex-initial')}>
           <View style={tailwind('flex-1')}>
@@ -89,14 +82,14 @@ export function TransactionDetailScreen (props: Props): JSX.Element {
           <View style={tailwind('ml-2 flex-grow-0 justify-center')}>
             <ThemedIcon
               dark={tailwind('text-dfxred-500')}
-              iconType='MaterialIcons'
+              iconType="MaterialIcons"
               light={tailwind('text-primary-500')}
-              name='open-in-new'
+              name="open-in-new"
               size={24}
             />
           </View>
         </View>
       </ThemedTouchableOpacity>
     </ThemedScrollView>
-  )
+  );
 }

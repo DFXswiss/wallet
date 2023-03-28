@@ -1,78 +1,75 @@
-import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { StackScreenProps } from '@react-navigation/stack'
-import BigNumber from 'bignumber.js'
-import { Dispatch, useEffect, useState } from 'react'
-import { useSelector } from 'react-redux'
-import { SubmitButtonGroup } from '@components/SubmitButtonGroup'
-import { SummaryTitle } from '@components/SummaryTitle'
-import { RootState } from '@store'
-import { hasTxQueued as hasBroadcastQueued } from '@store/ocean'
-import { hasTxQueued, transactionQueue } from '@store/transaction_queue'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { PortfolioParamList } from '../PortfolioNavigator'
-import { ConversionMode } from './ConvertScreen'
-import { InfoRow, InfoType } from '@components/InfoRow'
-import { TextRow } from '@components/TextRow'
-import { TransactionResultsRow } from '@components/TransactionResultsRow'
-import { NumberRow } from '@components/NumberRow'
-import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { onTransactionBroadcast } from '@api/transaction/transaction_commands'
-import { dfiConversionCrafter } from '@api/transaction/dfi_converter'
-import { WalletAddressRow } from '@components/WalletAddressRow'
-import { useAppDispatch } from '@hooks/useAppDispatch'
+import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
+import BigNumber from 'bignumber.js';
+import { Dispatch, useEffect, useState } from 'react';
+import { useSelector } from 'react-redux';
+import { SubmitButtonGroup } from '@components/SubmitButtonGroup';
+import { SummaryTitle } from '@components/SummaryTitle';
+import { RootState } from '@store';
+import { hasTxQueued as hasBroadcastQueued } from '@store/ocean';
+import { hasTxQueued, transactionQueue } from '@store/transaction_queue';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { PortfolioParamList } from '../PortfolioNavigator';
+import { ConversionMode } from './ConvertScreen';
+import { InfoRow, InfoType } from '@components/InfoRow';
+import { TextRow } from '@components/TextRow';
+import { TransactionResultsRow } from '@components/TransactionResultsRow';
+import { NumberRow } from '@components/NumberRow';
+import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { onTransactionBroadcast } from '@api/transaction/transaction_commands';
+import { dfiConversionCrafter } from '@api/transaction/dfi_converter';
+import { WalletAddressRow } from '@components/WalletAddressRow';
+import { useAppDispatch } from '@hooks/useAppDispatch';
 
-type Props = StackScreenProps<PortfolioParamList, 'ConvertConfirmationScreen'>
+type Props = StackScreenProps<PortfolioParamList, 'ConvertConfirmationScreen'>;
 
-export function ConvertConfirmationScreen ({ route }: Props): JSX.Element {
-  const {
-    sourceUnit,
-    sourceBalance,
-    targetUnit,
-    targetBalance,
-    mode,
-    amount,
-    fee
-  } = route.params
-  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
-  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
-  const dispatch = useAppDispatch()
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const navigation = useNavigation<NavigationProp<PortfolioParamList>>()
-  const [isOnPage, setIsOnPage] = useState<boolean>(true)
-  const logger = useLogger()
+export function ConvertConfirmationScreen({ route }: Props): JSX.Element {
+  const { sourceUnit, sourceBalance, targetUnit, targetBalance, mode, amount, fee } = route.params;
+  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
+  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
+  const dispatch = useAppDispatch();
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigation = useNavigation<NavigationProp<PortfolioParamList>>();
+  const [isOnPage, setIsOnPage] = useState<boolean>(true);
+  const logger = useLogger();
 
   useEffect(() => {
-    setIsOnPage(true)
+    setIsOnPage(true);
     return () => {
-      setIsOnPage(false)
-    }
-  }, [])
+      setIsOnPage(false);
+    };
+  }, []);
 
-  async function onSubmit (): Promise<void> {
+  async function onSubmit(): Promise<void> {
     if (hasPendingJob || hasPendingBroadcastJob) {
-      return
+      return;
     }
-    setIsSubmitting(true)
-    await constructSignedConversionAndSend({
-      mode,
-      amount
-    }, dispatch, () => {
-      onTransactionBroadcast(isOnPage, navigation.dispatch, 2)
-    }, logger)
-    setIsSubmitting(false)
+    setIsSubmitting(true);
+    await constructSignedConversionAndSend(
+      {
+        mode,
+        amount,
+      },
+      dispatch,
+      () => {
+        onTransactionBroadcast(isOnPage, navigation.dispatch, 2);
+      },
+      logger,
+    );
+    setIsSubmitting(false);
   }
 
-  function onCancel (): void {
+  function onCancel(): void {
     if (!isSubmitting) {
       navigation.navigate({
         name: 'Convert',
         params: {
-          mode
+          mode,
         },
-        merge: true
-      })
+        merge: true,
+      });
     }
   }
 
@@ -86,24 +83,24 @@ export function ConvertConfirmationScreen ({ route }: Props): JSX.Element {
         <SummaryTitle
           amount={amount}
           suffix={mode === 'utxosToAccount' ? 'DFI (UTXO)' : 'DFI (Token)'}
-          suffixType='component'
-          testID='text_convert_amount'
+          suffixType="component"
+          testID="text_convert_amount"
           title={translate('screens/ConvertConfirmScreen', 'You are converting')}
         >
           <ThemedText
             light={tailwind('text-dfxgray-500')}
             dark={tailwind('text-dfxgray-400')}
             style={tailwind('text-sm')}
-            testID='convert_amount_source_suffix'
+            testID="convert_amount_source_suffix"
           >
             {sourceUnit}
           </ThemedText>
-          <ThemedIcon iconType='MaterialIcons' name='arrow-right-alt' size={24} style={tailwind('px-1')} />
+          <ThemedIcon iconType="MaterialIcons" name="arrow-right-alt" size={24} style={tailwind('px-1')} />
           <ThemedText
             light={tailwind('text-dfxgray-500')}
             dark={tailwind('text-dfxgray-400')}
             style={tailwind('text-sm')}
-            testID='convert_amount_target_suffix'
+            testID="convert_amount_target_suffix"
           >
             {targetUnit}
           </ThemedText>
@@ -111,7 +108,7 @@ export function ConvertConfirmationScreen ({ route }: Props): JSX.Element {
       </ThemedView>
 
       <ThemedSectionTitle
-        testID='title_conversion_transaction_detail'
+        testID="title_conversion_transaction_detail"
         text={translate('screens/ConvertConfirmScreen', 'TRANSACTION DETAILS')}
       />
 
@@ -119,7 +116,7 @@ export function ConvertConfirmationScreen ({ route }: Props): JSX.Element {
         lhs={translate('screens/ConvertConfirmScreen', 'Transaction type')}
         rhs={{
           value: translate('screens/ConvertConfirmScreen', 'Convert'),
-          testID: 'transaction_type'
+          testID: 'transaction_type',
         }}
         textStyle={tailwind('text-sm font-normal')}
       />
@@ -128,27 +125,22 @@ export function ConvertConfirmationScreen ({ route }: Props): JSX.Element {
         lhs={translate('screens/ConvertConfirmScreen', '{{token}} to receive', { token: targetUnit })}
         rhs={{
           value: amount.toFixed(8),
-          testID: 'token_to_receive_amount'
+          testID: 'token_to_receive_amount',
         }}
       />
 
-      <InfoRow
-        type={InfoType.EstimatedFee}
-        value={fee.toFixed(8)}
-        testID='text_fee'
-        suffix='DFI'
-      />
+      <InfoRow type={InfoType.EstimatedFee} value={fee.toFixed(8)} testID="text_fee" suffix="DFI" />
 
       <TransactionResultsRow
         tokens={[
           {
             symbol: sourceUnit,
-            value: BigNumber.max(sourceBalance.minus(sourceUnit === 'UTXO' ? fee : 0), 0).toFixed(8)
+            value: BigNumber.max(sourceBalance.minus(sourceUnit === 'UTXO' ? fee : 0), 0).toFixed(8),
           },
           {
             symbol: targetUnit,
-            value: BigNumber.max(targetBalance.minus(targetUnit === 'UTXO' ? fee : 0), 0).toFixed(8)
-          }
+            value: BigNumber.max(targetBalance.minus(targetUnit === 'UTXO' ? fee : 0), 0).toFixed(8),
+          },
         ]}
       />
 
@@ -160,19 +152,21 @@ export function ConvertConfirmationScreen ({ route }: Props): JSX.Element {
         onCancel={onCancel}
         onSubmit={onSubmit}
         displayCancelBtn
-        title='convert'
+        title="convert"
       />
     </ThemedScrollView>
-  )
+  );
 }
 
-async function constructSignedConversionAndSend ({
-  mode,
-  amount
-}: { mode: ConversionMode, amount: BigNumber }, dispatch: Dispatch<any>, onBroadcast: () => void, logger: NativeLoggingProps): Promise<void> {
+async function constructSignedConversionAndSend(
+  { mode, amount }: { mode: ConversionMode; amount: BigNumber },
+  dispatch: Dispatch<any>,
+  onBroadcast: () => void,
+  logger: NativeLoggingProps,
+): Promise<void> {
   try {
-    dispatch(transactionQueue.actions.push(dfiConversionCrafter(amount, mode, onBroadcast)))
+    dispatch(transactionQueue.actions.push(dfiConversionCrafter(amount, mode, onBroadcast)));
   } catch (e) {
-    logger.error(e)
+    logger.error(e);
   }
 }

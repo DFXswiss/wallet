@@ -1,95 +1,87 @@
-import { Button } from '@components/Button'
-import { IconButton } from '@components/IconButton'
-import { getNativeIcon } from '@components/icons/assets'
-import { NumberRow } from '@components/NumberRow'
-import { AmountButtonTypes, SetAmountButton } from '@components/SetAmountButton'
-import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed'
-import { useWhaleApiClient } from '@shared-contexts/WhaleContext'
-import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
-import { usePoolPairsAPI } from '@hooks/wallet/PoolPairsAPI'
-import { useTokensAPI } from '@hooks/wallet/TokensAPI'
-import { NavigationProp, useNavigation } from '@react-navigation/native'
-import { StackScreenProps } from '@react-navigation/stack'
-import { RootState } from '@store'
-import { hasTxQueued } from '@store/transaction_queue'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import BigNumber from 'bignumber.js'
-import React, { useEffect, useState } from 'react'
-import { Control, Controller, useForm } from 'react-hook-form'
-import { View } from 'react-native'
-import { useDispatch, useSelector } from 'react-redux'
-import { hasTxQueued as hasBroadcastQueued } from '@store/ocean'
-import { DexParamList } from '../DexNavigator'
-import { SlippageTolerance } from './components/SlippageTolerance'
-import { WalletTextInput } from '@components/WalletTextInput'
-import { InputHelperText } from '@components/InputHelperText'
-import { DFITokenSelector, DFIUtxoSelector, WalletToken } from '@store/wallet'
-import { FeeInfoRow } from '@components/FeeInfoRow'
-import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { ConversionInfoText } from '@components/ConversionInfoText'
-import { ReservedDFIInfoText } from '@components/ReservedDFIInfoText'
-import { queueConvertTransaction, useConversion } from '@hooks/wallet/Conversion'
+import { Button } from '@components/Button';
+import { IconButton } from '@components/IconButton';
+import { getNativeIcon } from '@components/icons/assets';
+import { NumberRow } from '@components/NumberRow';
+import { AmountButtonTypes, SetAmountButton } from '@components/SetAmountButton';
+import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from '@components/themed';
+import { useWhaleApiClient } from '@shared-contexts/WhaleContext';
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs';
+import { usePoolPairsAPI } from '@hooks/wallet/PoolPairsAPI';
+import { useTokensAPI } from '@hooks/wallet/TokensAPI';
+import { NavigationProp, useNavigation } from '@react-navigation/native';
+import { StackScreenProps } from '@react-navigation/stack';
+import { RootState } from '@store';
+import { hasTxQueued } from '@store/transaction_queue';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import BigNumber from 'bignumber.js';
+import React, { useEffect, useState } from 'react';
+import { Control, Controller, useForm } from 'react-hook-form';
+import { View } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { hasTxQueued as hasBroadcastQueued } from '@store/ocean';
+import { DexParamList } from '../DexNavigator';
+import { SlippageTolerance } from './components/SlippageTolerance';
+import { WalletTextInput } from '@components/WalletTextInput';
+import { InputHelperText } from '@components/InputHelperText';
+import { DFITokenSelector, DFIUtxoSelector, WalletToken } from '@store/wallet';
+import { FeeInfoRow } from '@components/FeeInfoRow';
+import { useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { ConversionInfoText } from '@components/ConversionInfoText';
+import { ReservedDFIInfoText } from '@components/ReservedDFIInfoText';
+import { queueConvertTransaction, useConversion } from '@hooks/wallet/Conversion';
 
 export interface DerivedTokenState {
-  id: string
-  amount: string
-  symbol: string
-  displaySymbol: string
+  id: string;
+  amount: string;
+  symbol: string;
+  displaySymbol: string;
 }
 
-type Props = StackScreenProps<DexParamList, 'PoolSwapScreen'>
+type Props = StackScreenProps<DexParamList, 'PoolSwapScreen'>;
 
-export function PoolSwapScreen ({ route }: Props): JSX.Element {
-  const logger = useLogger()
-  const client = useWhaleApiClient()
-  const pairs = usePoolPairsAPI()
-  const [poolpair, setPoolPair] = useState<PoolPairData>()
-  const [fee, setFee] = useState<BigNumber>(new BigNumber(0.0001))
-  const tokens = useTokensAPI()
-  const dispatch = useDispatch()
-  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue))
-  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean))
-  const [tokenAForm, tokenBForm] = ['tokenA', 'tokenB']
-  const navigation = useNavigation<NavigationProp<DexParamList>>()
-  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet))
-  const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet))
-  const reservedDfi = 0.1
+export function PoolSwapScreen({ route }: Props): JSX.Element {
+  const logger = useLogger();
+  const client = useWhaleApiClient();
+  const pairs = usePoolPairsAPI();
+  const [poolpair, setPoolPair] = useState<PoolPairData>();
+  const [fee, setFee] = useState<BigNumber>(new BigNumber(0.0001));
+  const tokens = useTokensAPI();
+  const dispatch = useDispatch();
+  const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
+  const hasPendingBroadcastJob = useSelector((state: RootState) => hasBroadcastQueued(state.ocean));
+  const [tokenAForm, tokenBForm] = ['tokenA', 'tokenB'];
+  const navigation = useNavigation<NavigationProp<DexParamList>>();
+  const DFIToken = useSelector((state: RootState) => DFITokenSelector(state.wallet));
+  const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
+  const reservedDfi = 0.1;
 
   useEffect(() => {
-    client.fee.estimate()
+    client.fee
+      .estimate()
       .then((f) => setFee(new BigNumber(f)))
-      .catch(logger.error)
-  }, [])
+      .catch(logger.error);
+  }, []);
 
   // props derived state
-  const [tokenA, setTokenA] = useState<DerivedTokenState>()
-  const [tokenB, setTokenB] = useState<DerivedTokenState>()
-  const [isComputing, setIsComputing] = useState<boolean>(false)
-  const [slippage, setSlippage] = useState<number>(0.03)
-  const [aToBPrice, setAToBPrice] = useState<BigNumber>()
+  const [tokenA, setTokenA] = useState<DerivedTokenState>();
+  const [tokenB, setTokenB] = useState<DerivedTokenState>();
+  const [isComputing, setIsComputing] = useState<boolean>(false);
+  const [slippage, setSlippage] = useState<number>(0.03);
+  const [aToBPrice, setAToBPrice] = useState<BigNumber>();
 
   // component UI state
-  const {
-    control,
-    setValue,
-    formState,
-    getValues,
-    trigger
-  } = useForm({ mode: 'onChange' })
-  const {
-    isConversionRequired,
-    conversionAmount
-  } = useConversion({
+  const { control, setValue, formState, getValues, trigger } = useForm({ mode: 'onChange' });
+  const { isConversionRequired, conversionAmount } = useConversion({
     inputToken: {
       type: tokenA?.id === '0_unified' ? 'token' : 'others',
-      amount: new BigNumber(getValues(tokenAForm))
+      amount: new BigNumber(getValues(tokenAForm)),
     },
-    deps: [getValues(tokenAForm), JSON.stringify(tokens)]
-  })
-  const ScreenTitle = (props: { tokenA: DerivedTokenState, tokenB: DerivedTokenState }): JSX.Element => {
-    const TokenAIcon = getNativeIcon(props.tokenA.displaySymbol)
-    const TokenBIcon = getNativeIcon(props.tokenB.displaySymbol)
+    deps: [getValues(tokenAForm), JSON.stringify(tokens)],
+  });
+  const ScreenTitle = (props: { tokenA: DerivedTokenState; tokenB: DerivedTokenState }): JSX.Element => {
+    const TokenAIcon = getNativeIcon(props.tokenA.displaySymbol);
+    const TokenBIcon = getNativeIcon(props.tokenB.displaySymbol);
 
     return (
       <ThemedView
@@ -98,72 +90,77 @@ export function PoolSwapScreen ({ route }: Props): JSX.Element {
         style={tailwind('flex-row items-center pb-4')}
       >
         <ThemedSectionTitle
-          testID='text_input_swap'
+          testID="text_input_swap"
           text={translate('screens/PoolSwapScreen', 'Swap')}
           light={tailwind('text-gray-900')}
           dark={tailwind('text-gray-50')}
           style={tailwind('text-xl font-semibold pr-2')}
         />
         <TokenAIcon height={24} width={24} />
-        <ThemedIcon iconType='MaterialIcons' name='arrow-right-alt' size={24} style={tailwind('px-1')} />
+        <ThemedIcon iconType="MaterialIcons" name="arrow-right-alt" size={24} style={tailwind('px-1')} />
         <TokenBIcon height={24} width={24} />
       </ThemedView>
-    )
-  }
+    );
+  };
 
   useEffect(() => {
-    const pair = pairs.find((v) => v.data.id === route.params.pair.id)
+    const pair = pairs.find((v) => v.data.id === route.params.pair.id);
     if (pair !== undefined) {
-      setPoolPair(pair.data)
+      setPoolPair(pair.data);
     }
-  }, [pairs, route.params.pair])
+  }, [pairs, route.params.pair]);
 
-  async function onSubmit (): Promise<void> {
+  async function onSubmit(): Promise<void> {
     if (hasPendingJob || hasPendingBroadcastJob) {
-      return
+      return;
     }
     if (tokenA === undefined || tokenB === undefined || poolpair === undefined) {
-      return
+      return;
     }
 
-    const atA = poolpair.tokenA.id === tokenA?.id ? poolpair.tokenA : poolpair.tokenB
-    const atB = poolpair.tokenA.id === tokenB?.id ? poolpair.tokenA : poolpair.tokenB
-    const priceRateA = getPriceRate(getReserveAmount(tokenA.id, poolpair), getReserveAmount(tokenB.id, poolpair))
-    const priceRateB = getPriceRate(getReserveAmount(tokenB.id, poolpair), getReserveAmount(tokenA.id, poolpair))
+    const atA = poolpair.tokenA.id === tokenA?.id ? poolpair.tokenA : poolpair.tokenB;
+    const atB = poolpair.tokenA.id === tokenB?.id ? poolpair.tokenA : poolpair.tokenB;
+    const priceRateA = getPriceRate(getReserveAmount(tokenA.id, poolpair), getReserveAmount(tokenB.id, poolpair));
+    const priceRateB = getPriceRate(getReserveAmount(tokenB.id, poolpair), getReserveAmount(tokenA.id, poolpair));
 
     if (atA === undefined || atB === undefined || !formState.isValid) {
-      return
+      return;
     }
 
     const swap = {
       fromToken: tokenA,
       toToken: tokenB,
-      fromAmount: new BigNumber((getValues()[tokenAForm])),
-      toAmount: new BigNumber((getValues()[tokenBForm]))
-    }
+      fromAmount: new BigNumber(getValues()[tokenAForm]),
+      toAmount: new BigNumber(getValues()[tokenBForm]),
+    };
 
     if (isConversionRequired) {
-      queueConvertTransaction({
-        mode: 'utxosToAccount',
-        amount: conversionAmount
-      }, dispatch, () => {
-        navigation.navigate('ConfirmPoolSwapScreen', {
-          tokenA,
-          tokenB,
-          swap,
-          fee,
-          pair: poolpair,
-          slippage,
-          priceRateA,
-          priceRateB,
-          conversion: {
-            isConversionRequired,
-            DFIToken,
-            DFIUtxo,
-            conversionAmount
-          }
-        })
-      }, logger)
+      queueConvertTransaction(
+        {
+          mode: 'utxosToAccount',
+          amount: conversionAmount,
+        },
+        dispatch,
+        () => {
+          navigation.navigate('ConfirmPoolSwapScreen', {
+            tokenA,
+            tokenB,
+            swap,
+            fee,
+            pair: poolpair,
+            slippage,
+            priceRateA,
+            priceRateB,
+            conversion: {
+              isConversionRequired,
+              DFIToken,
+              DFIUtxo,
+              conversionAmount,
+            },
+          });
+        },
+        logger,
+      );
     } else {
       navigation.navigate('ConfirmPoolSwapScreen', {
         tokenA,
@@ -173,86 +170,87 @@ export function PoolSwapScreen ({ route }: Props): JSX.Element {
         pair: poolpair,
         slippage,
         priceRateA,
-        priceRateB
-      })
+        priceRateB,
+      });
     }
   }
 
-  function updatePoolPairPrice (tokenAId: string, poolpair: PoolPairData): void {
+  function updatePoolPairPrice(tokenAId: string, poolpair: PoolPairData): void {
     if (tokenAId === '0_unified') {
-      tokenAId = '0'
+      tokenAId = '0';
     }
 
-    const aToBPrice = tokenAId === poolpair.tokenA.id
-      ? new BigNumber(poolpair.tokenB.reserve).div(poolpair.tokenA.reserve)
-      : new BigNumber(poolpair.tokenA.reserve).div(poolpair.tokenB.reserve)
-    setAToBPrice(aToBPrice)
+    const aToBPrice =
+      tokenAId === poolpair.tokenA.id
+        ? new BigNumber(poolpair.tokenB.reserve).div(poolpair.tokenA.reserve)
+        : new BigNumber(poolpair.tokenA.reserve).div(poolpair.tokenB.reserve);
+    setAToBPrice(aToBPrice);
   }
 
   const swapToken = async (): Promise<void> => {
     if (tokenB !== undefined && tokenA !== undefined) {
-      const tokenAId = tokenB.id
-      setTokenA(tokenB)
-      setTokenB(tokenA)
-      setValue(tokenAForm, '')
-      await trigger(tokenAForm)
-      setValue(tokenBForm, '')
-      await trigger(tokenBForm)
+      const tokenAId = tokenB.id;
+      setTokenA(tokenB);
+      setTokenB(tokenA);
+      setValue(tokenAForm, '');
+      await trigger(tokenAForm);
+      setValue(tokenBForm, '');
+      await trigger(tokenBForm);
       if (poolpair !== undefined) {
-        updatePoolPairPrice(tokenAId, poolpair)
+        updatePoolPairPrice(tokenAId, poolpair);
       }
     }
-  }
+  };
 
   const getAddressTokenById = (poolpairTokenId: string): WalletToken | undefined => {
-    return tokens.find(token => {
+    return tokens.find((token) => {
       if (poolpairTokenId === '0' || poolpairTokenId === '0_utxo') {
-        return token.id === '0_unified'
+        return token.id === '0_unified';
       }
-      return token.id === poolpairTokenId
-    })
-  }
+      return token.id === poolpairTokenId;
+    });
+  };
 
   useEffect(() => {
     if (poolpair !== undefined) {
-      let [tokenASymbol, tokenBSymbol] = poolpair.symbol.split('-') as [string, string]
-      let [tokenAId, tokenBId] = [poolpair.tokenA.id, poolpair.tokenB.id]
-      let [tokenADisplaySymbol, tokenBDisplaySymbol] = [poolpair.tokenA.displaySymbol, poolpair.tokenB.displaySymbol]
+      let [tokenASymbol, tokenBSymbol] = poolpair.symbol.split('-') as [string, string];
+      let [tokenAId, tokenBId] = [poolpair.tokenA.id, poolpair.tokenB.id];
+      let [tokenADisplaySymbol, tokenBDisplaySymbol] = [poolpair.tokenA.displaySymbol, poolpair.tokenB.displaySymbol];
       if (tokenA !== undefined) {
-        [tokenASymbol, tokenAId, tokenADisplaySymbol] = [tokenA.symbol, tokenA.id, tokenA.displaySymbol]
+        [tokenASymbol, tokenAId, tokenADisplaySymbol] = [tokenA.symbol, tokenA.id, tokenA.displaySymbol];
       }
       if (tokenB !== undefined) {
-        [tokenBSymbol, tokenBId, tokenBDisplaySymbol] = [tokenB.symbol, tokenB.id, tokenB.displaySymbol]
+        [tokenBSymbol, tokenBId, tokenBDisplaySymbol] = [tokenB.symbol, tokenB.id, tokenB.displaySymbol];
       }
       const a = getAddressTokenById(tokenAId) ?? {
         id: tokenAId,
         amount: '0',
         symbol: tokenASymbol,
-        displaySymbol: tokenADisplaySymbol
-      }
-      setTokenA(a)
+        displaySymbol: tokenADisplaySymbol,
+      };
+      setTokenA(a);
       const b = getAddressTokenById(tokenBId) ?? {
         id: tokenBId,
         amount: '0',
         symbol: tokenBSymbol,
-        displaySymbol: tokenBDisplaySymbol
-      }
-      setTokenB(b)
-      updatePoolPairPrice(tokenAId, poolpair)
+        displaySymbol: tokenBDisplaySymbol,
+      };
+      setTokenB(b);
+      updatePoolPairPrice(tokenAId, poolpair);
     }
-  }, [JSON.stringify(tokens), poolpair])
+  }, [JSON.stringify(tokens), poolpair]);
 
   const getMaxAmount = (token: DerivedTokenState): string => {
     if (token.id !== '0_unified') {
-      return new BigNumber(token.amount).toFixed(8)
+      return new BigNumber(token.amount).toFixed(8);
     }
 
-    const maxAmount = new BigNumber(token.amount).minus(reservedDfi)
-    return maxAmount.isLessThanOrEqualTo(0) ? new BigNumber(0).toFixed(8) : maxAmount.toFixed(8)
-  }
+    const maxAmount = new BigNumber(token.amount).minus(reservedDfi);
+    return maxAmount.isLessThanOrEqualTo(0) ? new BigNumber(0).toFixed(8) : maxAmount.toFixed(8);
+  };
 
   if (tokenA === undefined || tokenB === undefined || poolpair === undefined || aToBPrice === undefined) {
-    return <></>
+    return <></>;
   }
 
   return (
@@ -263,18 +261,20 @@ export function PoolSwapScreen ({ route }: Props): JSX.Element {
           control={control}
           controlName={tokenAForm}
           isDisabled={false}
-          title={translate('screens/PoolSwapScreen', 'How much {{token}} do you want to swap?', { token: tokenA.displaySymbol })}
+          title={translate('screens/PoolSwapScreen', 'How much {{token}} do you want to swap?', {
+            token: tokenA.displaySymbol,
+          })}
           maxAmount={getMaxAmount(tokenA)}
           enableMaxButton
           onChangeFromAmount={async (amount) => {
-            setIsComputing(true)
-            amount = isNaN(+amount) ? '0' : amount
-            setValue(tokenAForm, amount)
-            await trigger(tokenAForm)
-            const reserveA = getReserveAmount(tokenA.id, poolpair)
-            setValue(tokenBForm, calculateEstimatedAmount(amount, reserveA, aToBPrice.toFixed(8)).toFixed(8))
-            await trigger(tokenBForm)
-            setIsComputing(false)
+            setIsComputing(true);
+            amount = isNaN(+amount) ? '0' : amount;
+            setValue(tokenAForm, amount);
+            await trigger(tokenAForm);
+            const reserveA = getReserveAmount(tokenA.id, poolpair);
+            setValue(tokenBForm, calculateEstimatedAmount(amount, reserveA, aToBPrice.toFixed(8)).toFixed(8));
+            await trigger(tokenBForm);
+            setIsComputing(false);
           }}
           token={tokenA}
         />
@@ -293,11 +293,11 @@ export function PoolSwapScreen ({ route }: Props): JSX.Element {
           style={tailwind('border-b w-full relative top-2/4')}
         />
         <IconButton
-          iconName='swap-vert'
+          iconName="swap-vert"
           iconSize={28}
-          iconType='MaterialIcons'
+          iconType="MaterialIcons"
           onPress={swapToken}
-          testID='swap_button'
+          testID="swap_button"
         />
       </View>
 
@@ -318,13 +318,11 @@ export function PoolSwapScreen ({ route }: Props): JSX.Element {
         />
         {isConversionRequired && <ConversionInfoText />}
       </View>
-      <SlippageTolerance
-        setSlippage={(amount) => setSlippage(amount)}
-        slippage={slippage}
-      />
+      <SlippageTolerance setSlippage={(amount) => setSlippage(amount)} slippage={slippage} />
 
-      {
-        !isComputing && (new BigNumber(getValues()[tokenAForm]).isGreaterThan(0) && new BigNumber(getValues()[tokenBForm]).isGreaterThan(0)) &&
+      {!isComputing &&
+        new BigNumber(getValues()[tokenAForm]).isGreaterThan(0) &&
+        new BigNumber(getValues()[tokenBForm]).isGreaterThan(0) && (
           <SwapSummary
             poolpair={poolpair}
             tokenA={tokenA}
@@ -335,10 +333,10 @@ export function PoolSwapScreen ({ route }: Props): JSX.Element {
             isConversionRequired={isConversionRequired}
             conversionAmount={conversionAmount}
           />
-      }
+        )}
 
       <ThemedText
-        testID='transaction_details_hint_text'
+        testID="transaction_details_hint_text"
         light={tailwind('text-gray-600')}
         dark={tailwind('text-dfxgray-300')}
         style={tailwind('pt-2 pb-2 px-4 text-sm')}
@@ -352,71 +350,58 @@ export function PoolSwapScreen ({ route }: Props): JSX.Element {
         disabled={!formState.isValid || hasPendingJob || hasPendingBroadcastJob}
         label={translate('screens/PoolSwapScreen', 'CONTINUE')}
         onPress={onSubmit}
-        testID='button_submit'
-        title='CONTINUE'
+        testID="button_submit"
+        title="CONTINUE"
       />
     </ThemedScrollView>
-  )
+  );
 }
 
 interface TokenForm {
-  control: Control
-  controlName: string
-  token: DerivedTokenState
-  enableMaxButton: boolean
-  maxAmount?: string
-  onChangeFromAmount?: (amount: string) => void
-  title: string
-  isDisabled: boolean
+  control: Control;
+  controlName: string;
+  token: DerivedTokenState;
+  enableMaxButton: boolean;
+  maxAmount?: string;
+  onChangeFromAmount?: (amount: string) => void;
+  title: string;
+  isDisabled: boolean;
 }
 
-function TokenRow (form: TokenForm): JSX.Element {
-  const {
-    token,
-    control,
-    onChangeFromAmount,
-    title,
-    controlName,
-    enableMaxButton,
-    isDisabled,
-    maxAmount
-  } = form
-  const Icon = getNativeIcon(token.displaySymbol)
-  const rules: { required: boolean, pattern: RegExp, validate: any, max?: string } = {
+function TokenRow(form: TokenForm): JSX.Element {
+  const { token, control, onChangeFromAmount, title, controlName, enableMaxButton, isDisabled, maxAmount } = form;
+  const Icon = getNativeIcon(token.displaySymbol);
+  const rules: { required: boolean; pattern: RegExp; validate: any; max?: string } = {
     required: true,
     max: maxAmount,
     pattern: /^\d*\.?\d*$/,
     validate: {
-      greaterThanZero: (value: string) => new BigNumber(value !== undefined && value !== '' ? value : 0).isGreaterThan(0)
-    }
-  }
-  const defaultValue = ''
+      greaterThanZero: (value: string) =>
+        new BigNumber(value !== undefined && value !== '' ? value : 0).isGreaterThan(0),
+    },
+  };
+  const defaultValue = '';
 
   return (
     <Controller
       control={control}
       defaultValue={defaultValue}
       name={controlName}
-      render={({
-        field: {
-          onChange,
-          value
-        }
-      }) => (
+      render={({ field: { onChange, value } }) => (
         <ThemedView
           dark={tailwind('bg-transparent')}
           light={tailwind('bg-transparent')}
           style={tailwind('flex-row w-full')}
         >
           <WalletTextInput
-            autoCapitalize='none'
+            autoCapitalize="none"
             editable={!isDisabled}
             onChange={(e) => {
               if (!isDisabled) {
                 if (onChangeFromAmount !== undefined) {
-                  onChangeFromAmount(e.nativeEvent.text)
+                  onChangeFromAmount(e.nativeEvent.text);
                 } else {
-                  onChange(e)
+                  onChange(e);
                 }
               }
             }}
@@ -424,111 +409,106 @@ function TokenRow (form: TokenForm): JSX.Element {
             style={tailwind('flex-grow w-2/5')}
             testID={`text_input_${controlName}`}
             value={value}
-            displayClearButton={(value !== defaultValue) && !isDisabled}
+            displayClearButton={value !== defaultValue && !isDisabled}
             onClearButtonPress={() => onChangeFromAmount?.(defaultValue)}
             title={title}
-            inputType='numeric'
+            inputType="numeric"
           >
-            {
-              (enableMaxButton && onChangeFromAmount !== undefined) && (
-                <>
-                  <SetAmountButton
-                    amount={new BigNumber(maxAmount ?? '0')}
-                    onPress={onChangeFromAmount}
-                    type={AmountButtonTypes.half}
-                  />
+            {enableMaxButton && onChangeFromAmount !== undefined && (
+              <>
+                <SetAmountButton
+                  amount={new BigNumber(maxAmount ?? '0')}
+                  onPress={onChangeFromAmount}
+                  type={AmountButtonTypes.half}
+                />
 
-                  <SetAmountButton
-                    amount={new BigNumber(maxAmount ?? '0')}
-                    onPress={onChangeFromAmount}
-                    type={AmountButtonTypes.max}
-                  />
-                </>
-              )
-            }
-            {
-              !enableMaxButton && (
-                <>
-                  <Icon height={20} width={20} />
-                  <ThemedText style={tailwind('pl-2')}>
-                    {token.displaySymbol}
-                  </ThemedText>
-                </>
-              )
-            }
+                <SetAmountButton
+                  amount={new BigNumber(maxAmount ?? '0')}
+                  onPress={onChangeFromAmount}
+                  type={AmountButtonTypes.max}
+                />
+              </>
+            )}
+            {!enableMaxButton && (
+              <>
+                <Icon height={20} width={20} />
+                <ThemedText style={tailwind('pl-2')}>{token.displaySymbol}</ThemedText>
+              </>
+            )}
           </WalletTextInput>
         </ThemedView>
       )}
       rules={rules}
     />
-  )
+  );
 }
 
 interface SwapSummaryItems {
-  poolpair: PoolPairData
-  tokenA: DerivedTokenState
-  tokenB: DerivedTokenState
-  tokenAAmount: string
-  tokenBAmount: string
-  fee: string
-  isConversionRequired: boolean
-  conversionAmount: BigNumber
+  poolpair: PoolPairData;
+  tokenA: DerivedTokenState;
+  tokenB: DerivedTokenState;
+  tokenAAmount: string;
+  tokenBAmount: string;
+  fee: string;
+  isConversionRequired: boolean;
+  conversionAmount: BigNumber;
 }
 
-function SwapSummary ({
+function SwapSummary({
   poolpair,
   tokenA,
   tokenB,
   tokenAAmount,
   fee,
   isConversionRequired,
-  conversionAmount
+  conversionAmount,
 }: SwapSummaryItems): JSX.Element {
-  const reserveA = getReserveAmount(tokenA.id, poolpair)
-  const reserveB = getReserveAmount(tokenB.id, poolpair)
-  const priceA = getPriceRate(reserveA, reserveB)
-  const priceB = getPriceRate(reserveB, reserveA)
-  const estimated = calculateEstimatedAmount(tokenAAmount, reserveA, priceB).toFixed(8)
+  const reserveA = getReserveAmount(tokenA.id, poolpair);
+  const reserveB = getReserveAmount(tokenB.id, poolpair);
+  const priceA = getPriceRate(reserveA, reserveB);
+  const priceB = getPriceRate(reserveB, reserveA);
+  const estimated = calculateEstimatedAmount(tokenAAmount, reserveA, priceB).toFixed(8);
 
   return (
     <View style={tailwind('mt-4')}>
       <ThemedSectionTitle
-        testID='title_add_detail'
+        testID="title_add_detail"
         text={translate('screens/PoolSwapScreen', 'TRANSACTION DETAILS')}
         style={tailwind('px-4 pt-6 pb-2 text-xs text-dfxgray-500 font-medium')}
       />
-      {isConversionRequired &&
+      {isConversionRequired && (
         <NumberRow
           lhs={translate('screens/PoolSwapScreen', 'Amount to be converted')}
           rhs={{
-          testID: 'amount_to_convert',
-          value: conversionAmount.toFixed(8),
-          suffixType: 'text',
-          suffix: tokenA.displaySymbol
-        }}
-        />}
+            testID: 'amount_to_convert',
+            value: conversionAmount.toFixed(8),
+            suffixType: 'text',
+            suffix: tokenA.displaySymbol,
+          }}
+        />
+      )}
       <NumberRow
         lhs={translate('screens/PoolSwapScreen', '{{tokenA}} price per {{tokenB}}', {
           tokenA: tokenA.displaySymbol,
-          tokenB: tokenB.displaySymbol
+          tokenB: tokenB.displaySymbol,
         })}
         rhs={{
           testID: 'price_a',
           value: priceA,
           suffixType: 'text',
-          suffix: tokenA.displaySymbol
+          suffix: tokenA.displaySymbol,
         }}
       />
       <NumberRow
         lhs={translate('screens/PoolSwapScreen', '{{tokenA}} price per {{tokenB}}', {
           tokenA: tokenB.displaySymbol,
-          tokenB: tokenA.displaySymbol
+          tokenB: tokenA.displaySymbol,
         })}
         rhs={{
           testID: 'price_b',
           value: priceB,
           suffixType: 'text',
-          suffix: tokenB.displaySymbol
+          suffix: tokenB.displaySymbol,
         }}
       />
       <NumberRow
@@ -537,32 +517,27 @@ function SwapSummary ({
           value: estimated,
           testID: 'estimated',
           suffixType: 'text',
-          suffix: tokenB.displaySymbol
+          suffix: tokenB.displaySymbol,
         }}
       />
-      <FeeInfoRow
-        type='ESTIMATED_FEE'
-        value={fee}
-        testID='estimated_fee'
-        suffix='DFI'
-      />
+      <FeeInfoRow type="ESTIMATED_FEE" value={fee} testID="estimated_fee" suffix="DFI" />
     </View>
-  )
+  );
 }
 
-function calculateEstimatedAmount (tokenAAmount: string, reserveA: string, price: string): BigNumber {
-  tokenAAmount = tokenAAmount !== undefined && tokenAAmount !== '' ? tokenAAmount : '0'
-  const slippage = (new BigNumber(1).minus(new BigNumber(tokenAAmount).div(reserveA)))
-  return new BigNumber(tokenAAmount).times(price).times(slippage)
+function calculateEstimatedAmount(tokenAAmount: string, reserveA: string, price: string): BigNumber {
+  tokenAAmount = tokenAAmount !== undefined && tokenAAmount !== '' ? tokenAAmount : '0';
+  const slippage = new BigNumber(1).minus(new BigNumber(tokenAAmount).div(reserveA));
+  return new BigNumber(tokenAAmount).times(price).times(slippage);
 }
 
-function getReserveAmount (id: string, poolpair: PoolPairData): string {
+function getReserveAmount(id: string, poolpair: PoolPairData): string {
   if (id === '0_unified') {
-    id = '0'
+    id = '0';
   }
-  return id === poolpair.tokenA.id ? poolpair.tokenA.reserve : poolpair.tokenB.reserve
+  return id === poolpair.tokenA.id ? poolpair.tokenA.reserve : poolpair.tokenB.reserve;
 }
 
-function getPriceRate (reserveA: string, reserveB: string): string {
-  return new BigNumber(reserveA).div(reserveB).toFixed(8)
+function getPriceRate(reserveA: string, reserveB: string): string {
+  return new BigNumber(reserveA).div(reserveB).toFixed(8);
 }

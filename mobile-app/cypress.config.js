@@ -1,4 +1,4 @@
-const { defineConfig } = require('cypress')
+const { defineConfig } = require('cypress');
 
 module.exports = defineConfig({
   projectId: 'oqk3fk',
@@ -8,16 +8,16 @@ module.exports = defineConfig({
   orientation: 'portrait',
   retries: {
     runMode: 1,
-    openMode: 0
+    openMode: 0,
   },
   chromeWebSecurity: false,
   e2e: {
     // We've imported your old cypress plugins here.
     // You may want to clean this up later by importing these.
-    setupNodeEvents (on, config) {
-      return require('./cypress/plugins/index.ts')(on, config)
+    setupNodeEvents(on, config) {
+      return require('./cypress/plugins/index.ts')(on, config);
     },
     baseUrl: 'http://localhost:19006',
-    specPattern: 'cypress/e2e/**/*.{js,jsx,ts,tsx}'
-  }
-})
+    specPattern: 'cypress/e2e/**/*.{js,jsx,ts,tsx}',
+  },
+});

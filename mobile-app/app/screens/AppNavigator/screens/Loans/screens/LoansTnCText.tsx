@@ -1,35 +1,34 @@
+import { useLanguageContext } from '@shared-contexts/LanguageProvider';
+import { useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { AnnouncementText } from '@shared-types/website';
 
-import { useLanguageContext } from '@shared-contexts/LanguageProvider'
-import { useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { AnnouncementText } from '@shared-types/website'
+export function useTnC(): string {
+  const { language } = useLanguageContext();
+  const logger = useLogger();
 
-export function useTnC (): string {
-    const { language } = useLanguageContext()
-    const logger = useLogger()
+  const text: AnnouncementText = {
+    en: tncText,
+    de: tncTextDe,
+    'zh-Hans': tncText,
+    'zh-Hant': tncText,
+    fr: tncText,
+    es: tncText,
+    it: tncText,
+  };
 
-    const text: AnnouncementText = {
-        en: tncText,
-        de: tncTextDe,
-        'zh-Hans': tncText,
-        'zh-Hant': tncText,
-        fr: tncText,
-        es: tncText,
-        it: tncText
-    }
+  let tnc = tncText;
+  try {
+    tnc = text[language];
+  } catch (e) {
+    logger.error(e);
+  }
+  if (tnc === undefined) {
+    tnc = tncText;
+  } else if (tnc?.length === 0) {
+    tnc = tncText;
+  }
 
-    let tnc = tncText
-    try {
-        tnc = text[language]
-    } catch (e) {
-        logger.error(e)
-    }
-    if (tnc === undefined) {
-        tnc = tncText
-    } else if (tnc?.length === 0) {
-        tnc = tncText
-    }
-
-    return tnc
+  return tnc;
 }
 
 const tncText = `
@@ -65,7 +64,7 @@ Each user can then bid on the collateral of the liquidated vault. The 1st bid mu
 
 •   Only the collateral originator address can finally repay the loan back to the Vault, which increases its collateral ratio again. Consequently, part of the collateral can be deblocked or the loan can be extended.
 
-•   Loans that are transferred back to the Vault and thus repaid, as well as the interest due, are destroyed by the Vault Smart Contract ("burn mechanism"). Loans as well as the interest can only be repaid with the tokens with which the loan was originally taken out.`
+•   Loans that are transferred back to the Vault and thus repaid, as well as the interest due, are destroyed by the Vault Smart Contract ("burn mechanism"). Loans as well as the interest can only be repaid with the tokens with which the loan was originally taken out.`;
 
 const tncTextDe = `
 1.  Kreditaufnahme auf der DeFiChain
@@ -100,4 +99,4 @@ Jeder Nutzer kann dann auf das Collateral des liquidierten Vaults bieten. Das 1.
 
 •   Nur die Collateral Originator Adresse kann schliesslich den Kredit an den Vault zurücktransferieren, wodurch sich seine Collateral-Ratio wieder erhöht. Folglich kann ein Teil des Collaterals deblockiert oder es kann der Kredit ausgeweitet werden.
 
-•   Kredite, welche an den Vault zurücktransferiert und somit getilgt werden, sowie auch die fälligen Zinsen, werden durch den Vault Smart Contract zerstört (“Burn Mechanismus”). Kredite sowie die Zinsen können nur mit den Token getilgt werden, mit denen der Kredit ursprünglich genommen worden ist.`
+•   Kredite, welche an den Vault zurücktransferiert und somit getilgt werden, sowie auch die fälligen Zinsen, werden durch den Vault Smart Contract zerstört (“Burn Mechanismus”). Kredite sowie die Zinsen können nur mit den Token getilgt werden, mit denen der Kredit ursprünglich genommen worden ist.`;

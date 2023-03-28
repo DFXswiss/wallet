@@ -30,7 +30,7 @@ export function InputHelperText(props: InputHelperTextProps): JSX.Element {
       <ThemedText
         light={tailwind('text-dfxgray-400')}
         dark={tailwind(props.lock === true ? 'text-black' : 'text-dfxgray-500')}
-        style={[tailwind('text-sm'), props.labelStyleProps]}
+        style={[tailwind('text-sm', { 'text-xs': props.lock }), props.labelStyleProps]}
       >
         {`${props.label}`}
       </ThemedText>
@@ -42,7 +42,7 @@ export function InputHelperText(props: InputHelperTextProps): JSX.Element {
           <ThemedText
             light={tailwind('text-gray-700')}
             dark={tailwind(props.lock === true ? 'text-black' : 'text-gray-200')}
-            style={[tailwind('text-sm'), props.styleProps]}
+            style={[tailwind('text-sm', { 'text-xs': props.lock }), props.styleProps]}
             testID={props.testID}
           >
             {value}

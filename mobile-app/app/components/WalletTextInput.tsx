@@ -1,6 +1,6 @@
-import React, { forwardRef, useCallback, useState } from 'react'
-import { Platform, TextInputProps, TouchableOpacity } from 'react-native'
-import { useBottomSheetInternal } from '@gorhom/bottom-sheet'
+import React, { forwardRef, useCallback, useState } from 'react';
+import { Platform, TextInputProps, TouchableOpacity } from 'react-native';
+import { useBottomSheetInternal } from '@gorhom/bottom-sheet';
 import {
   ThemedView,
   ThemedText,
@@ -8,41 +8,44 @@ import {
   ThemedIcon,
   ThemedSectionTitle,
   ThemedTouchableOpacity,
-  ThemedProps
-} from '@components/themed'
-import { tailwind } from '@tailwind'
-import { View } from '@components'
-import { translate } from '@translations'
+  ThemedProps,
+} from '@components/themed';
+import { tailwind } from '@tailwind';
+import { View } from '@components';
+import { translate } from '@translations';
 
-type WalletTextInputProps = React.PropsWithChildren<TextInputProps> & IWalletTextInputProps
-export type InputType = 'default' | 'numeric'
+type WalletTextInputProps = React.PropsWithChildren<TextInputProps> & IWalletTextInputProps;
+export type InputType = 'default' | 'numeric';
 
 interface IWalletTextInputProps {
-  inputType: InputType
-  title?: string
-  titleTestID?: string
-  valid?: boolean
+  inputType: InputType;
+  title?: string;
+  titleTestID?: string;
+  valid?: boolean;
   inlineText?: {
-    type: 'error' | 'helper'
-    text?: string | JSX.Element
-  }
-  displayClearButton?: boolean
-  onClearButtonPress?: () => void
-  displayFocusStyle?: boolean
-  containerStyle?: string
-  onBlur?: () => void
-  hasBottomSheet?: boolean
+    type: 'error' | 'helper';
+    text?: string | JSX.Element;
+  };
+  displayClearButton?: boolean;
+  onClearButtonPress?: () => void;
+  displayFocusStyle?: boolean;
+  containerStyle?: string;
+  onBlur?: () => void;
+  hasBottomSheet?: boolean;
   pasteButton?: {
-    isPasteDisabled: boolean
-    onPasteButtonPress: () => void
-  }
-  inputFooter?: React.ReactElement
-  displayTickIcon?: boolean
-  lock?: boolean
+    isPasteDisabled: boolean;
+    onPasteButtonPress: () => void;
+  };
+  inputFooter?: React.ReactElement;
+  displayTickIcon?: boolean;
+  lock?: boolean;
 }
 
-export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (props: WalletTextInputProps, ref: React.Ref<any>): JSX.Element {
-  const [isFocus, setIsFocus] = useState(false)
+export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (
+  props: WalletTextInputProps,
+  ref: React.Ref<any>,
+): JSX.Element {
+  const [isFocus, setIsFocus] = useState(false);
   const {
     title,
     titleTestID,
@@ -60,17 +63,18 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
     displayTickIcon,
     lock = false,
     ...otherProps
-  } = props
+  } = props;
 
   const textInputComponents = {
     ios: TextInputIOS,
-    default: TextInputDefault
-  }
-  const TextInput = Platform.OS === 'ios' && hasBottomSheet === true ? textInputComponents.ios : textInputComponents.default
+    default: TextInputDefault,
+  };
+  const TextInput =
+    Platform.OS === 'ios' && hasBottomSheet === true ? textInputComponents.ios : textInputComponents.default;
 
   const hasClearButton = (): boolean => {
-    return (displayClearButton) && (onClearButtonPress !== undefined)
-  }
+    return displayClearButton && onClearButtonPress !== undefined;
+  };
 
   return (
     <ThemedView
@@ -78,8 +82,7 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
       dark={tailwind('bg-transparent')}
       style={tailwind(`${containerStyle ?? 'w-full flex-col'}`)}
     >
-      {title !== undefined &&
-      (
+      {title !== undefined && (
         <View style={tailwind('flex flex-row justify-between items-center')}>
           <ThemedSectionTitle
             light={tailwind('text-gray-700')}
@@ -104,11 +107,22 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
             </TouchableOpacity>
           )}
         </View>
-        )}
+      )}
       <ThemedView
-        light={tailwind(`bg-white ${!valid ? 'border-error-500' : (isFocus ? 'border-primary-300' : 'border-dfxgray-300')}`)} // disabled border color is the same regardless of theme
-        dark={tailwind(lock ? 'bg-white' : `bg-dfxblue-800 ${!valid ? 'border-darkerror-500' : (isFocus ? 'border-dfxred-500' : 'border-dfxblue-900')}`)}
-        style={tailwind(lock ? 'rounded-md' : 'border rounded', 'flex-col w-full mt-2', {
+        light={tailwind('bg-white', {
+          'border-error-500': !valid,
+          'border-primary-300': valid && isFocus && !lock,
+          'border-dfxgray-300': valid && !isFocus && !lock,
+          'border-lockGray-100': valid && lock,
+        })} // disabled border color is the same regardless of theme
+        dark={tailwind('bg-white', {
+          'border-darkerror-500': !valid,
+          'bg-dfxblue-800': valid && !lock,
+          'border-dfxred-500': valid && isFocus && !lock,
+          'border-dfxblue-900': valid && !isFocus && !lock,
+          'bg-white border-lockGray-100': valid && lock,
+        })}
+        style={tailwind(lock ? 'border rounded-md' : 'border rounded', 'flex-col w-full mt-2', {
           'mt-0': lock && props.multiline,
         })}
       >
@@ -121,50 +135,37 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
             onFocus={() => setIsFocus(true)}
             onBlur={() => {
               if (onBlur !== undefined) {
-                onBlur()
+                onBlur();
               }
 
-              setIsFocus(false)
+              setIsFocus(false);
             }}
             ref={ref}
             editable={editable}
             {...otherProps}
             lock={props.lock}
           />
-          {displayTickIcon === true &&
+          {displayTickIcon === true && (
             <ThemedIcon
               size={18}
-              name='check'
-              iconType='MaterialIcons'
+              name="check"
+              iconType="MaterialIcons"
               light={tailwind('text-success-600')}
               dark={tailwind('text-darksuccess-600')}
-            />}
-          {
-            hasClearButton() &&
-              <ClearButton
-                onPress={onClearButtonPress}
-                testID={props.testID !== undefined ? `${props.testID}_clear_button` : undefined}
-                lock={lock}
-              />
-          }
+            />
+          )}
+          {hasClearButton() && (
+            <ClearButton
+              onPress={onClearButtonPress}
+              testID={props.testID !== undefined ? `${props.testID}_clear_button` : undefined}
+              lock={lock}
+            />
+          )}
           {children}
         </ThemedView>
-        <View>
-          {inputFooter}
-        </View>
+        <View>{inputFooter}</View>
       </ThemedView>
-      {
-        inlineText?.type === 'error' && !valid &&
-          <ThemedText
-            light={tailwind('text-error-500')}
-            dark={tailwind('text-darkerror-500')}
-            style={tailwind('text-sm my-1')}
-            testID={props.testID !== undefined ? `${props.testID}_error` : undefined}
-          >
-            {inlineText?.text}
-          </ThemedText>
-      }
-      {inlineText?.type === 'helper' && typeof inlineText?.text === 'string' &&
+      {inlineText?.type === 'error' && !valid && (
         <ThemedText
           light={tailwind('text-error-500')}
           dark={tailwind('text-darkerror-500')}
@@ -172,15 +173,30 @@ export const WalletTextInput = forwardRef<any, WalletTextInputProps>(function (p
           testID={props.testID !== undefined ? `${props.testID}_error` : undefined}
         >
           {inlineText?.text}
-        </ThemedText>}
+        </ThemedText>
+      )}
+      {inlineText?.type === 'helper' && typeof inlineText?.text === 'string' && (
+        <ThemedText
+          light={tailwind('text-error-500')}
+          dark={tailwind('text-darkerror-500')}
+          style={tailwind('text-sm my-1')}
+          testID={props.testID !== undefined ? `${props.testID}_error` : undefined}
+        >
+          {inlineText?.text}
+        </ThemedText>
+      )}
 
       {inlineText?.type === 'helper' && typeof inlineText?.text !== 'string' && inlineText?.text}
-
     </ThemedView>
-  )
-})
+  );
+});
 
-export function ClearButton (props: {onPress?: () => void, testID?: string, iconThemedProps?: ThemedProps, lock?: boolean}): JSX.Element {
+export function ClearButton(props: {
+  onPress?: () => void;
+  testID?: string;
+  iconThemedProps?: ThemedProps;
+  lock?: boolean;
+}): JSX.Element {
   return (
     <ThemedTouchableOpacity
       testID={props.testID}
@@ -195,61 +211,42 @@ export function ClearButton (props: {onPress?: () => void, testID?: string, icon
         style={tailwind('top-2 left-3 rounded-full absolute w-9/12 h-4 -z-1', { 'w-5/12': Platform.OS === 'web' })}
       />
       <ThemedIcon
-        iconType='MaterialIcons'
-        name='cancel'
+        iconType="MaterialIcons"
+        name="cancel"
         size={28}
         light={tailwind('text-gray-100', { 'text-lock-200': props.lock })}
         dark={tailwind('text-dfxblue-900', { 'text-lock-200': props.lock })}
         {...props.iconThemedProps}
       />
-
     </ThemedTouchableOpacity>
-  )
+  );
 }
 
 const TextInputDefault = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>) => {
-  const {
-    inputType,
-    ...otherProps
-  } = props
-  return (
-    <ThemedTextInput
-      keyboardType={inputType}
-      ref={ref}
-      {...otherProps}
-      lock={props.lock}
-    />
-  )
-})
+  const { inputType, ...otherProps } = props;
+  return <ThemedTextInput keyboardType={inputType} ref={ref} {...otherProps} lock={props.lock} />;
+});
 
 const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any>) => {
-  const {
-    inputType,
-    onBlur,
-    onFocus,
-    ...otherProps
-  } = props
-  const { shouldHandleKeyboardEvents } = useBottomSheetInternal()
+  const { inputType, onBlur, onFocus, ...otherProps } = props;
+  const { shouldHandleKeyboardEvents } = useBottomSheetInternal();
   const handleOnFocus = useCallback(
     (e) => {
-      shouldHandleKeyboardEvents.value = true
+      shouldHandleKeyboardEvents.value = true;
 
       if (onFocus !== undefined) {
-        onFocus(e)
+        onFocus(e);
       }
     },
-    [shouldHandleKeyboardEvents]
-  )
-  const handleOnBlur = useCallback(
-    () => {
-      shouldHandleKeyboardEvents.value = true
+    [shouldHandleKeyboardEvents],
+  );
+  const handleOnBlur = useCallback(() => {
+    shouldHandleKeyboardEvents.value = true;
 
-      if (onBlur !== undefined) {
-        onBlur()
-      }
-    },
-    [shouldHandleKeyboardEvents]
-  )
+    if (onBlur !== undefined) {
+      onBlur();
+    }
+  }, [shouldHandleKeyboardEvents]);
 
   return (
     <ThemedTextInput
@@ -260,5 +257,5 @@ const TextInputIOS = forwardRef((props: WalletTextInputProps, ref: React.Ref<any
       {...otherProps}
       lock={props.lock}
     />
-  )
-})
+  );
+});

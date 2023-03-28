@@ -1,68 +1,69 @@
-import { createStackNavigator } from '@react-navigation/stack'
-import { HeaderFont } from '@components/Text'
-import { HeaderTitle } from '@components/HeaderTitle'
-import { translate } from '@translations'
-import { AboutScreen } from './screens/AboutScreen'
-import { ChangePinScreen } from './screens/ChangePinScreen'
-import { CommunityScreen } from './screens/CommunityScreen'
-import { ConfirmPinScreen } from './screens/ConfirmPinScreen'
-import { LanguageSelectionScreen } from './screens/LanguageSelectionScreen'
-import { NetworkDetails } from './screens/NetworkDetails'
-import { NetworkSelectionScreen } from './screens/NetworkSelectionScreen'
-import { RecoveryWordsScreen } from './screens/RecoveryWordsScreen'
-import { SettingsScreen } from './SettingsScreen'
-import { PasscodeFaq } from '@screens/WalletNavigator/screens/CreateWallet/PasscodeFaq'
-import { KnowledgeBaseScreen } from './screens/KnowledgeBaseScreen'
-import { RecoveryWordsFaq } from '@screens/WalletNavigator/screens/CreateWallet/RecoveryWordsFaq'
-import { TokensVsUtxoScreen } from '../Portfolio/screens/TokensVsUtxoScreen'
-import { DexFaq } from '@screens/WalletNavigator/screens/CreateWallet/DexFaq'
-import { LiquidityMiningFaq } from '@screens/WalletNavigator/screens/CreateWallet/LiquidityMiningFaq'
-import { FeatureFlagScreen } from './screens/FeatureFlagScreen'
-import { LoansFaq } from '@screens/AppNavigator/screens/Loans/screens/LoansFaq'
-import { AuctionsFaq } from '../Auctions/screens/AuctionsFaq'
-import { ServiceProviderScreen } from './screens/ServiceProviderScreen'
-import { DfxExpertModeScreen } from './screens/DfxExpertModeScreen'
+import { createStackNavigator } from '@react-navigation/stack';
+import { HeaderFont } from '@components/Text';
+import { HeaderTitle } from '@components/HeaderTitle';
+import { translate } from '@translations';
+import { AboutScreen } from './screens/AboutScreen';
+import { ChangePinScreen } from './screens/ChangePinScreen';
+import { CommunityScreen } from './screens/CommunityScreen';
+import { ConfirmPinScreen } from './screens/ConfirmPinScreen';
+import { LanguageSelectionScreen } from './screens/LanguageSelectionScreen';
+import { NetworkDetails } from './screens/NetworkDetails';
+import { NetworkSelectionScreen } from './screens/NetworkSelectionScreen';
+import { RecoveryWordsScreen } from './screens/RecoveryWordsScreen';
+import { SettingsScreen } from './SettingsScreen';
+import { PasscodeFaq } from '@screens/WalletNavigator/screens/CreateWallet/PasscodeFaq';
+import { KnowledgeBaseScreen } from './screens/KnowledgeBaseScreen';
+import { RecoveryWordsFaq } from '@screens/WalletNavigator/screens/CreateWallet/RecoveryWordsFaq';
+import { TokensVsUtxoScreen } from '../Portfolio/screens/TokensVsUtxoScreen';
+import { DexFaq } from '@screens/WalletNavigator/screens/CreateWallet/DexFaq';
+import { LiquidityMiningFaq } from '@screens/WalletNavigator/screens/CreateWallet/LiquidityMiningFaq';
+import { FeatureFlagScreen } from './screens/FeatureFlagScreen';
+import { LoansFaq } from '@screens/AppNavigator/screens/Loans/screens/LoansFaq';
+import { AuctionsFaq } from '../Auctions/screens/AuctionsFaq';
+import { ServiceProviderScreen } from './screens/ServiceProviderScreen';
+import { DfxExpertModeScreen } from './screens/DfxExpertModeScreen';
+import { BackupExplanation } from './screens/BackupExplanation';
 
 export interface SettingsParamList {
-  SettingsScreen: undefined
-  CommunityScreen: undefined
-  RecoveryWordsScreen: { words: string[] }
-  ChangePinScreen: { pinLength: number, words: string[] }
-  ConfirmPinScreen: { pin: string, words: string[] }
-  ServiceProviderScreen: {}
+  SettingsScreen: undefined;
+  CommunityScreen: undefined;
+  RecoveryWordsScreen: { words: string[]; needsToAccept: boolean };
+  ChangePinScreen: { pinLength: number; words: string[] };
+  ConfirmPinScreen: { pin: string; words: string[] };
+  ServiceProviderScreen: {};
 
-  [key: string]: undefined | object
+  [key: string]: undefined | object;
 }
 
-const SettingsStack = createStackNavigator<SettingsParamList>()
+const SettingsStack = createStackNavigator<SettingsParamList>();
 
-export function SettingsNavigator (): JSX.Element {
-  const headerContainerTestId = 'setting_header_container'
+export function SettingsNavigator(): JSX.Element {
+  const headerContainerTestId = 'setting_header_container';
 
   return (
     <SettingsStack.Navigator
       screenOptions={{
         headerTitleStyle: HeaderFont,
         headerBackTitleVisible: false,
-        headerTitleAlign: 'center'
+        headerTitleAlign: 'center',
       }}
     >
       <SettingsStack.Screen
         component={SettingsScreen}
-        name='SettingsScreen'
+        name="SettingsScreen"
         options={{
           headerTitle: () => (
             <HeaderTitle
               text={translate('screens/SettingsNavigator', 'Settings')}
               containerTestID={headerContainerTestId}
             />
-          )
+          ),
         }}
       />
 
       <SettingsStack.Screen
         component={KnowledgeBaseScreen}
-        name='KnowledgeBaseScreen'
+        name="KnowledgeBaseScreen"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -70,13 +71,13 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={CommunityScreen}
-        name='CommunityScreen'
+        name="CommunityScreen"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -84,101 +85,112 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
+        }}
+      />
+
+      <SettingsStack.Screen
+        component={BackupExplanation}
+        name="BackupExplanation"
+        options={{
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('screens/BackupExplanation', 'Backup Phrase')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={RecoveryWordsScreen}
-        name='RecoveryWordsScreen'
+        name="RecoveryWordsScreen"
         options={{
           headerTitle: () => (
             <HeaderTitle
-              text={translate('screens/Settings', 'Recovery Words')}
+              text={translate('screens/RecoveryWordsScreen', 'Backup phrase')}
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={ServiceProviderScreen}
-        name='ServiceProviderScreen'
+        name="ServiceProviderScreen"
         options={{
-            headerTitle: () => (
-              <HeaderTitle
-                text={translate('screens/ServiceProviderScreen', 'Service Provider')}
-                containerTestID={headerContainerTestId}
-              />
-            ),
-            headerBackTitleVisible: false
-          }}
+          headerTitle: () => (
+            <HeaderTitle
+              text={translate('screens/ServiceProviderScreen', 'Service Provider')}
+              containerTestID={headerContainerTestId}
+            />
+          ),
+          headerBackTitleVisible: false,
+        }}
       />
 
       <SettingsStack.Screen
         component={AboutScreen}
-        name='AboutScreen'
+        name="AboutScreen"
         options={{
           headerTitle: () => (
-            <HeaderTitle
-              text={translate('screens/AboutScreen', 'About')}
-              containerTestID={headerContainerTestId}
-            />
+            <HeaderTitle text={translate('screens/AboutScreen', 'About')} containerTestID={headerContainerTestId} />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={ChangePinScreen}
-        name='ChangePinScreen'
+        name="ChangePinScreen"
         options={{
           headerTitle: translate('screens/AboutScreen', 'Create new passcode'),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={ConfirmPinScreen}
-        name='ConfirmPinScreen'
+        name="ConfirmPinScreen"
         options={{
           headerTitle: translate('screens/ConfirmPinScreen', 'Verify passcode'),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={NetworkSelectionScreen}
-        name='NetworkSelectionScreen'
+        name="NetworkSelectionScreen"
         options={{
           headerTitle: translate('screens/NetworkSelectionScreen', 'Select network'),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={LanguageSelectionScreen}
-        name='LanguageSelectionScreen'
+        name="LanguageSelectionScreen"
         options={{
           headerTitle: translate('screens/LanguageSelectionScreen', 'Select language'),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={NetworkDetails}
-        name='NetworkDetails'
+        name="NetworkDetails"
         options={{
           headerTitle: translate('screens/NetworkDetails', 'Wallet Network'),
           headerBackTitleVisible: false,
-          headerBackTestID: 'network_details_header_back'
+          headerBackTestID: 'network_details_header_back',
         }}
       />
 
       <SettingsStack.Screen
         component={PasscodeFaq}
-        name='PasscodeFaq'
+        name="PasscodeFaq"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -186,27 +198,24 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={LoansFaq}
-        name='LoansFaq'
+        name="LoansFaq"
         options={{
           headerTitle: () => (
-            <HeaderTitle
-              text={translate('components/LoansFaq', 'Loans FAQ')}
-              containerTestID={headerContainerTestId}
-            />
+            <HeaderTitle text={translate('components/LoansFaq', 'Loans FAQ')} containerTestID={headerContainerTestId} />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={AuctionsFaq}
-        name='AuctionsFaq'
+        name="AuctionsFaq"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -214,13 +223,13 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={FeatureFlagScreen}
-        name='FeatureFlagScreen'
+        name="FeatureFlagScreen"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -228,13 +237,13 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={DfxExpertModeScreen}
-        name='DfxExpertModeScreen'
+        name="DfxExpertModeScreen"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -242,13 +251,13 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={RecoveryWordsFaq}
-        name='RecoveryWordsFaq'
+        name="RecoveryWordsFaq"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -256,13 +265,13 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={DexFaq}
-        name='DexFaq'
+        name="DexFaq"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -270,13 +279,13 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={LiquidityMiningFaq}
-        name='LiquidityMiningFaq'
+        name="LiquidityMiningFaq"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -284,13 +293,13 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
 
       <SettingsStack.Screen
         component={TokensVsUtxoScreen}
-        name='TokensVsUtxo'
+        name="TokensVsUtxo"
         options={{
           headerTitle: () => (
             <HeaderTitle
@@ -298,10 +307,9 @@ export function SettingsNavigator (): JSX.Element {
               containerTestID={headerContainerTestId}
             />
           ),
-          headerBackTitleVisible: false
+          headerBackTitleVisible: false,
         }}
       />
-
     </SettingsStack.Navigator>
-  )
+  );
 }

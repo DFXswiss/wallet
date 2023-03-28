@@ -245,6 +245,9 @@ export function EditCollateralScreen({ navigation, route }: Props): JSX.Element 
                   headerTitle: '',
                   headerBackTitleVisible: false,
                 },
+                initialParam: {
+                  collateralTokens,
+                },
               },
             ]);
             expandModal();
@@ -271,6 +274,7 @@ export function EditCollateralScreen({ navigation, route }: Props): JSX.Element 
                 current: new BigNumber(collateral.amount),
                 vault: activeVault,
                 collateralItem,
+                collateralTokens,
               },
               option: {
                 header: () => null,

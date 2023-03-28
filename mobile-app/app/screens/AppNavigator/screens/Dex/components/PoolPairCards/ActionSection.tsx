@@ -1,73 +1,51 @@
-import { StyleProp, View, ViewStyle } from 'react-native'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { IconButton } from '@components/IconButton'
-import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs'
-import { IconName } from '@components/themed'
+import { StyleProp, View, ViewStyle } from 'react-native';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { IconButton } from '@components/IconButton';
+import { PoolPairData } from '@defichain/whale-api-client/dist/api/poolpairs';
+import { IconName } from '@components/themed';
 
 interface ActionSectionProps {
-  type: 'your' | 'available'
-  onAdd: () => void
-  onRemove: () => void
-  onSwap: () => void
-  symbol: string
-  pair: PoolPairData
+  type: 'your' | 'available';
+  onAdd: () => void;
+  onRemove: () => void;
+  onSwap: () => void;
+  symbol: string;
+  pair: PoolPairData;
 }
 
 interface AvailablePairActionsProps {
-  onAdd: () => void
-  onSwap: () => void
-  symbol: string
-  isSwapDisabled: boolean
+  onAdd: () => void;
+  onSwap: () => void;
+  symbol: string;
+  isSwapDisabled: boolean;
 }
 
 interface YourPairActionsProps {
-  onAdd: () => void
-  onRemove: () => void
-  symbol: string
+  onAdd: () => void;
+  onRemove: () => void;
+  symbol: string;
 }
 
-export function ActionSection ({
-  onAdd,
-  onRemove,
-  onSwap,
-  symbol,
-  type,
-  pair
-}: ActionSectionProps): JSX.Element {
-  const isSwapDisabled = !pair.tradeEnabled || !pair.status
+export function ActionSection({ onAdd, onRemove, onSwap, symbol, type, pair }: ActionSectionProps): JSX.Element {
+  const isSwapDisabled = !pair.tradeEnabled || !pair.status;
 
   return (
     <View style={tailwind('flex-row flex-wrap -mb-2')}>
-      {type === 'your'
-        ? (
-          <YourPairActions
-            onAdd={onAdd}
-            onRemove={onRemove}
-            symbol={symbol}
-          />
-        )
-        : (
-          <AvailablePairActions
-            onAdd={onAdd}
-            onSwap={onSwap}
-            symbol={symbol}
-            isSwapDisabled={isSwapDisabled}
-          />
-        )}
+      {type === 'your' ? (
+        <YourPairActions onAdd={onAdd} onRemove={onRemove} symbol={symbol} />
+      ) : (
+        <AvailablePairActions onAdd={onAdd} onSwap={onSwap} symbol={symbol} isSwapDisabled={isSwapDisabled} />
+      )}
     </View>
-  )
+  );
 }
 
-export function YourPairActions ({
-  onAdd,
-  onRemove,
-  symbol
-}: YourPairActionsProps): JSX.Element {
+export function YourPairActions({ onAdd, onRemove, symbol }: YourPairActionsProps): JSX.Element {
   return (
     <>
       <ActionButton
-        name='add'
+        name="add"
         onPress={onAdd}
         pair={symbol}
         label={translate('screens/DexScreen', 'ADD')}
@@ -75,7 +53,7 @@ export function YourPairActions ({
         testID={`pool_pair_add_${symbol}`}
       />
       <ActionButton
-        name='remove'
+        name="remove"
         onPress={onRemove}
         pair={symbol}
         label={translate('screens/DexScreen', 'REMOVE')}
@@ -83,19 +61,14 @@ export function YourPairActions ({
         testID={`pool_pair_remove_${symbol}`}
       />
     </>
-  )
+  );
 }
 
-function AvailablePairActions ({
-  onAdd,
-  onSwap,
-  symbol,
-  isSwapDisabled
-}: AvailablePairActionsProps): JSX.Element {
+function AvailablePairActions({ onAdd, onSwap, symbol, isSwapDisabled }: AvailablePairActionsProps): JSX.Element {
   return (
     <>
       <ActionButton
-        name='add'
+        name="add"
         onPress={onAdd}
         pair={symbol}
         label={translate('screens/DexScreen', 'ADD')}
@@ -103,7 +76,7 @@ function AvailablePairActions ({
         testID={`pool_pair_add_${symbol}`}
       />
       <ActionButton
-        name='swap-horiz'
+        name="swap-horiz"
         onPress={onSwap}
         pair={symbol}
         label={translate('screens/DexScreen', 'SWAP')}
@@ -112,26 +85,26 @@ function AvailablePairActions ({
         testID={`pool_pair_swap-horiz_${symbol}`}
       />
     </>
-  )
+  );
 }
 
 interface ActionButtonProps {
-  name: IconName
-  pair: string
-  onPress: () => void
-  label: string
-  style?: StyleProp<ViewStyle>
-  disabled?: boolean
-  standalone?: boolean
-  testID: string
+  name: IconName;
+  pair: string;
+  onPress: () => void;
+  label: string;
+  style?: StyleProp<ViewStyle>;
+  disabled?: boolean;
+  standalone?: boolean;
+  testID: string;
 }
 
-export function ActionButton (props: ActionButtonProps): JSX.Element {
+export function ActionButton(props: ActionButtonProps): JSX.Element {
   return (
     <IconButton
       iconName={props.name}
       iconSize={16}
-      iconType='MaterialIcons'
+      iconType="MaterialIcons"
       onPress={props.onPress}
       style={props.style}
       testID={props.testID}
@@ -139,5 +112,5 @@ export function ActionButton (props: ActionButtonProps): JSX.Element {
       disabled={props.disabled}
       standalone={props.standalone}
     />
-  )
+  );
 }

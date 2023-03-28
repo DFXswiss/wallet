@@ -1,62 +1,60 @@
-import * as Clipboard from 'expo-clipboard'
-import { useCallback, useEffect, useState } from 'react'
-import { Share, TouchableOpacity, View } from 'react-native'
-import QRCode from 'react-qr-code'
-import { ThemedIcon, ThemedScrollView, ThemedText, ThemedView } from '@components/themed'
-import { useToast } from 'react-native-toast-notifications'
-import { useThemeContext } from '@shared-contexts/ThemeProvider'
-import { useWalletContext } from '@shared-contexts/WalletContext'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingProvider'
-import { debounce } from 'lodash'
+import * as Clipboard from 'expo-clipboard';
+import { useCallback, useEffect, useState } from 'react';
+import { Share, TouchableOpacity, View } from 'react-native';
+import QRCode from 'react-qr-code';
+import { ThemedIcon, ThemedScrollView, ThemedText, ThemedView } from '@components/themed';
+import { useToast } from 'react-native-toast-notifications';
+import { useThemeContext } from '@shared-contexts/ThemeProvider';
+import { useWalletContext } from '@shared-contexts/WalletContext';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { NativeLoggingProps, useLogger } from '@shared-contexts/NativeLoggingProvider';
+import { debounce } from 'lodash';
 
-export async function onShare (address: string, logger: NativeLoggingProps): Promise<void> {
+export async function onShare(address: string, logger: NativeLoggingProps): Promise<void> {
   try {
     await Share.share({
-      message: address
-    })
+      message: address,
+    });
   } catch (error) {
-    logger.error(error)
+    logger.error(error);
   }
 }
 
-export function ReceiveScreen (): JSX.Element {
-  const logger = useLogger()
-  const { isLight } = useThemeContext()
-  const { address } = useWalletContext()
-  const [showToast, setShowToast] = useState(false)
-  const toast = useToast()
-  const TOAST_DURATION = 2000
+export function ReceiveScreen(): JSX.Element {
+  const logger = useLogger();
+  const { isLight } = useThemeContext();
+  const { address } = useWalletContext();
+  const [showToast, setShowToast] = useState(false);
+  const toast = useToast();
+  const TOAST_DURATION = 2000;
 
-  const copyToClipboard = useCallback(debounce(() => {
-    if (showToast) {
-      return
-    }
-    setShowToast(true)
-    setTimeout(() => setShowToast(false), TOAST_DURATION)
-  }, 500), [showToast])
+  const copyToClipboard = useCallback(
+    debounce(() => {
+      if (showToast) {
+        return;
+      }
+      setShowToast(true);
+      setTimeout(() => setShowToast(false), TOAST_DURATION);
+    }, 500),
+    [showToast],
+  );
 
   useEffect(() => {
     if (showToast) {
       toast.show(translate('components/toaster', 'Copied'), {
         type: 'wallet_toast',
         placement: 'top',
-        duration: TOAST_DURATION
-      })
+        duration: TOAST_DURATION,
+      });
     } else {
-      toast.hideAll()
+      toast.hideAll();
     }
-  }, [showToast, address])
+  }, [showToast, address]);
 
   return (
-    <ThemedScrollView
-      style={tailwind('px-8 pt-2 flex flex-1 w-full relative')}
-      testID='receive_screen'
-    >
-      <ThemedText
-        style={tailwind('p-4 font-medium text-center')}
-      >
+    <ThemedScrollView style={tailwind('px-8 pt-2 flex flex-1 w-full relative')} testID="receive_screen">
+      <ThemedText style={tailwind('p-4 font-medium text-center')}>
         {translate('screens/ReceiveScreen', 'Use QR or Wallet Address to receive any DST or DFI')}
       </ThemedText>
 
@@ -65,10 +63,7 @@ export function ReceiveScreen (): JSX.Element {
         light={tailwind('bg-white')}
         style={tailwind('flex justify-center items-center p-5 rounded-lg')}
       >
-        <View
-          style={tailwind('mb-4')}
-          testID='qr_code_container'
-        >
+        <View style={tailwind('mb-4')} testID="qr_code_container">
           <QRCode
             backgroundColor={isLight ? 'white' : 'black'}
             color={isLight ? 'black' : 'white'}
@@ -83,7 +78,7 @@ export function ReceiveScreen (): JSX.Element {
           numberOfLines={2}
           selectable
           style={tailwind('font-semibold text-lg text-center')}
-          testID='address_text'
+          testID="address_text"
         >
           {address}
         </ThemedText>
@@ -93,29 +88,26 @@ export function ReceiveScreen (): JSX.Element {
           numberOfLines={2}
           selectable
           style={tailwind('font-medium my-2 text-center text-xs')}
-          testID='wallet_address'
+          testID="wallet_address"
         >
           {translate('screens/ReceiveScreen', 'WALLET ADDRESS')}
         </ThemedText>
       </ThemedView>
 
-      <ThemedView
-        style={tailwind('flex flex-row mt-6 mb-8')}
-      >
-
+      <ThemedView style={tailwind('flex flex-row mt-6 mb-8')}>
         <TouchableOpacity
           onPress={() => {
-            copyToClipboard()
-            Clipboard.setString(address)
+            copyToClipboard();
+            Clipboard.setString(address);
           }}
           style={tailwind('flex flex-1 flex-row justify-center text-center items-center')}
-          testID='copy_button'
+          testID="copy_button"
         >
           <ThemedIcon
             dark={tailwind('text-dfxred-500')}
-            iconType='MaterialIcons'
+            iconType="MaterialIcons"
             light={tailwind('text-primary-500')}
-            name='content-copy'
+            name="content-copy"
             size={18}
             style={tailwind('self-center')}
           />
@@ -131,16 +123,16 @@ export function ReceiveScreen (): JSX.Element {
 
         <TouchableOpacity
           onPress={async () => {
-            await onShare(address, logger)
+            await onShare(address, logger);
           }}
           style={tailwind('flex flex-1 flex-row justify-center text-center items-center')}
-          testID='share_button'
+          testID="share_button"
         >
           <ThemedIcon
             dark={tailwind('text-dfxred-500')}
-            iconType='MaterialIcons'
+            iconType="MaterialIcons"
             light={tailwind('text-primary-500')}
-            name='share'
+            name="share"
             size={18}
             style={tailwind('self-center')}
           />
@@ -155,5 +147,5 @@ export function ReceiveScreen (): JSX.Element {
         </TouchableOpacity>
       </ThemedView>
     </ThemedScrollView>
-  )
+  );
 }

@@ -1,9 +1,9 @@
-import { render } from '@testing-library/react-native'
-import { FeatureFlagScreen, FeatureFlagItem, BetaFeaturesI } from './FeatureFlagScreen'
-import { EnvironmentNetwork } from '@environment'
+import { render } from '@testing-library/react-native';
+import { FeatureFlagScreen, FeatureFlagItem, BetaFeaturesI } from './FeatureFlagScreen';
+import { EnvironmentNetwork } from '@environment';
 
-jest.mock('@shared-contexts/ThemeProvider')
-jest.mock('@contexts/FeatureFlagContext')
+jest.mock('@shared-contexts/ThemeProvider');
+jest.mock('@contexts/FeatureFlagContext');
 
 describe('feature flag screen', () => {
   it('should render FeatureFlagItem', async () => {
@@ -15,14 +15,14 @@ describe('feature flag screen', () => {
       description: 'Browse loan tokens provided by DeFiChain',
       networks: [EnvironmentNetwork.LocalPlayground, EnvironmentNetwork.RemotePlayground],
       platforms: ['ios', 'android', 'web'],
-      value: true
-    }
-    const rendered = render(<FeatureFlagItem item={feature} onChange={() => {}} />)
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
+      value: true,
+    };
+    const rendered = render(<FeatureFlagItem item={feature} onChange={() => {}} />);
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
 
   it('should render FeatureFlagScreen', async () => {
-    const rendered = render(<FeatureFlagScreen />)
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
-})
+    const rendered = render(<FeatureFlagScreen />);
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
+});

@@ -573,8 +573,8 @@
     "Keep the passcode for your wallet confidential.": "Keep the passcode for your wallet confidential."
   },
   "screens/PinCreation": {
-    "Well done! Your wallet is created. Keep your wallet private and secure by creating a passcode for it.": "恭喜您创建新钱包！接着请创建密码以维持安全保护.",
-    "Well done! Your wallet is restored. Keep your wallet private and secure by creating a passcode for it.": "恭喜您恢复钱包！接着请创建密码以维持安全保护.",
+    "Well done! Your wallet is created.": "恭喜您创建新钱包！",
+    "Well done! Your wallet is restored.": "恭喜您恢复钱包！",
     "Keep your passcode private": "请把密码保管好",
     "CREATE PASSCODE": "创建密码",
     "CHANGE PASSCODE": "更换密码",
@@ -1654,7 +1654,7 @@
     "Bitcoin Deposit": "比特币存款",
     "Please note the MINIMUM deposit amount is {{MinimumBtcAmount}}!": "请注意最低存款金额为 {{MinimumBtcAmount}}!",
     "Ref bonus": "参考奖金",
-    "Please click here to finish the KYC process to receive your bitcoin address": "请点击这里完成KYC程序，以获得你的比特币地址。"
+    "Please click here to complete the KYC process and make a deposit or withdrawal to get your bitcoin address.": "请点击这里完成KYC程序，并进行存款或提款，以获得你的比特币地址。"
   },
   "screens/DfxButtons": {
     "Buy & Staking": "买入和押注",

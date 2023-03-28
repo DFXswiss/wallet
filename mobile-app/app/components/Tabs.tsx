@@ -1,20 +1,20 @@
-import { View } from '@components'
-import { tailwind } from '@tailwind'
-import { translate } from '@translations'
-import { memo } from 'react'
-import { ThemedScrollView, ThemedText, ThemedTouchableOpacity, ThemedView } from './themed'
+import { View } from '@components';
+import { tailwind } from '@tailwind';
+import { translate } from '@translations';
+import { memo } from 'react';
+import { ThemedScrollView, ThemedText, ThemedTouchableOpacity, ThemedView } from './themed';
 
 interface TabsProps {
-  activeTabKey: TabOption['id']
-  tabSections: TabOption[]
-  testID: string
+  activeTabKey: TabOption['id'];
+  tabSections: TabOption[];
+  testID: string;
 }
 
 interface TabOption {
-  id: string
-  label: string
-  disabled: boolean
-  handleOnPress: (id: string) => void
+  id: string;
+  label: string;
+  disabled: boolean;
+  handleOnPress: (id: string) => void;
 }
 
 const Tabs = memo((props: TabsProps): JSX.Element => {
@@ -27,12 +27,9 @@ const Tabs = memo((props: TabsProps): JSX.Element => {
         testID={props.testID}
       >
         {props.tabSections.map((tab) => {
-          const isActive = tab.id === props.activeTabKey
+          const isActive = tab.id === props.activeTabKey;
           return (
-            <View
-              key={tab.id}
-              style={tailwind('w-2/4 flex items-center')}
-            >
+            <View key={tab.id} style={tailwind('w-2/4 flex items-center')}>
               <ThemedTouchableOpacity
                 light={tailwind('border-b-2', { 'border-primary-500': isActive })}
                 dark={tailwind('border-b-2', { 'border-dfxred-500': isActive })}
@@ -41,19 +38,16 @@ const Tabs = memo((props: TabsProps): JSX.Element => {
                 disabled={tab.disabled}
                 testID={`${props.testID}_${tab.id}`}
               >
-                <ThemedView
-                  light={tailwind('bg-white')}
-                  dark={tailwind('bg-dfxblue-800')}
-                >
+                <ThemedView light={tailwind('bg-white')} dark={tailwind('bg-dfxblue-800')}>
                   <TabLabel tab={tab} isActive={isActive} />
                 </ThemedView>
               </ThemedTouchableOpacity>
             </View>
-)
+          );
         })}
       </ThemedView>
-    )
-  }
+    );
+  };
 
   const ScrollableTabs = (): JSX.Element => {
     return (
@@ -67,7 +61,7 @@ const Tabs = memo((props: TabsProps): JSX.Element => {
           showsHorizontalScrollIndicator={false}
         >
           {props.tabSections.map((tab, index) => {
-            const isActive = tab.id === props.activeTabKey
+            const isActive = tab.id === props.activeTabKey;
             return (
               <ThemedTouchableOpacity
                 key={index}
@@ -80,35 +74,43 @@ const Tabs = memo((props: TabsProps): JSX.Element => {
               >
                 <TabLabel tab={tab} isActive={isActive} />
               </ThemedTouchableOpacity>
-          )
+            );
           })}
         </ThemedScrollView>
       </View>
-    )
-  }
+    );
+  };
 
   if (props.tabSections.length === 2) {
-    return (<FixedTab />)
+    return <FixedTab />;
   }
 
-  return (<ScrollableTabs />)
-}, comparisonFn)
+  return <ScrollableTabs />;
+}, comparisonFn);
 
-function comparisonFn (prevProps: TabsProps, nextProps: TabsProps): boolean {
+function comparisonFn(prevProps: TabsProps, nextProps: TabsProps): boolean {
   // compare objects by stringify which won't compare functions
-  return JSON.stringify(prevProps) === JSON.stringify(nextProps)
+  return JSON.stringify(prevProps) === JSON.stringify(nextProps);
 }
 
-function TabLabel (props: {tab: TabOption, isActive: boolean}): JSX.Element {
+function TabLabel(props: { tab: TabOption; isActive: boolean }): JSX.Element {
   return (
     <ThemedText
-      light={tailwind({ 'text-gray-200': props.tab.disabled, 'text-dfxgray-500': !props.isActive && !props.tab.disabled, 'text-black': props.isActive })}
-      dark={tailwind({ 'text-dfxgray-500': props.tab.disabled, 'text-dfxgray-300': !props.isActive && !props.tab.disabled, 'text-white': props.isActive })}
+      light={tailwind({
+        'text-gray-200': props.tab.disabled,
+        'text-dfxgray-500': !props.isActive && !props.tab.disabled,
+        'text-black': props.isActive,
+      })}
+      dark={tailwind({
+        'text-dfxgray-500': props.tab.disabled,
+        'text-dfxgray-300': !props.isActive && !props.tab.disabled,
+        'text-white': props.isActive,
+      })}
       style={tailwind('text-base pb-3 text-center', { 'font-semibold': props.isActive })}
     >
       {translate('components/tabs', props.tab.label)}
     </ThemedText>
-  )
+  );
 }
 
-export { Tabs }
+export { Tabs };

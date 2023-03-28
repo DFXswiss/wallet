@@ -1,37 +1,35 @@
-import { FC, useState } from 'react'
-import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from './themed'
-import Accordion from 'react-native-collapsible/Accordion'
-import { tailwind } from '@tailwind'
-import { View } from 'react-native'
-import { useThemeContext } from '@shared-contexts/ThemeProvider'
+import { FC, useState } from 'react';
+import { ThemedIcon, ThemedScrollView, ThemedSectionTitle, ThemedText, ThemedView } from './themed';
+import Accordion from 'react-native-collapsible/Accordion';
+import { tailwind } from '@tailwind';
+import { View } from 'react-native';
+import { useThemeContext } from '@shared-contexts/ThemeProvider';
 
 interface AccordionProps {
-  testID?: string
-  title: string
-  content: AccordionContent[]
-  activeSections?: number[] | string[]
+  testID?: string;
+  title: string;
+  content: AccordionContent[];
+  activeSections?: number[] | string[];
 }
 
 export interface AccordionContent {
-  title?: string
+  title?: string;
   content?: Array<{
-    text: string
-    type: 'bullet' | 'paragraph'
-  }>
-  childComponent?: FC
+    text: string;
+    type: 'bullet' | 'paragraph';
+  }>;
+  childComponent?: FC;
 }
 
-export function WalletAccordion (props: AccordionProps): JSX.Element {
-  const { isLight } = useThemeContext()
-  const [activeSections, setActiveSections] = useState<number[] | string[]>(props.activeSections ?? [])
+export function WalletAccordion(props: AccordionProps): JSX.Element {
+  const { isLight } = useThemeContext();
+  const [activeSections, setActiveSections] = useState<number[] | string[]>(props.activeSections ?? []);
   const isLastContent = (index: number): boolean => {
-    return index === props.content.length - 1
-  }
+    return index === props.content.length - 1;
+  };
 
   return (
-    <ThemedScrollView
-      testID={props.testID}
-    >
+    <ThemedScrollView testID={props.testID}>
       <ThemedSectionTitle
         style={tailwind('mt-8 text-xs font-medium')}
         light={tailwind('text-dfxgray-400')}
@@ -40,36 +38,39 @@ export function WalletAccordion (props: AccordionProps): JSX.Element {
       />
 
       <Accordion
-        containerStyle={[tailwind('border rounded-lg mt-2 overflow-hidden'), isLight ? tailwind('bg-white border-gray-200') : tailwind('bg-dfxblue-800 border-dfxblue-900')]}
-        underlayColor='transparent'
+        containerStyle={[
+          tailwind('border rounded-lg mt-2 overflow-hidden'),
+          isLight ? tailwind('bg-white border-gray-200') : tailwind('bg-dfxblue-800 border-dfxblue-900'),
+        ]}
+        underlayColor="transparent"
         sections={props.content}
         renderHeader={(prop, index, isActive) => {
           return (
             <ThemedView
               light={tailwind('border-gray-200')}
               dark={tailwind('border-dfxblue-900')}
-              style={[tailwind('p-4 flex-row items-center justify-between'), !isActive && !isLastContent(index) && tailwind('border-b'), isActive && tailwind('pb-1')]}
+              style={[
+                tailwind('p-4 flex-row items-center justify-between'),
+                !isActive && !isLastContent(index) && tailwind('border-b'),
+                isActive && tailwind('pb-1'),
+              ]}
             >
               <ThemedText
-                style={[
-                  tailwind('text-sm flex-1'),
-                  isActive && tailwind('font-semibold')
-                ]}
+                style={[tailwind('text-sm flex-1'), isActive && tailwind('font-semibold')]}
                 light={isActive ? tailwind('text-gray-900') : tailwind('text-dfxgray-500')}
                 dark={isActive ? tailwind('text-gray-50') : tailwind('text-dfxgray-400')}
               >
                 {prop.title}
               </ThemedText>
               <ThemedIcon
-                iconType='MaterialIcons'
+                iconType="MaterialIcons"
                 name={isActive ? 'arrow-drop-up' : 'arrow-drop-down'}
                 size={24}
                 light={isActive ? tailwind('text-gray-600') : tailwind('text-dfxgray-400')}
                 dark={isActive ? tailwind('text-dfxgray-300') : tailwind('text-dfxgray-500')}
               />
             </ThemedView>
-
-          )
+          );
         }}
         renderContent={(prop, index, isActive) => {
           return (
@@ -93,17 +94,15 @@ export function WalletAccordion (props: AccordionProps): JSX.Element {
                   </ThemedText>
                 </View>
               ))}
-              {(prop.childComponent != null) && (prop.content == null) && (
-                <prop.childComponent />
-              )}
+              {prop.childComponent != null && prop.content == null && <prop.childComponent />}
             </ThemedView>
-          )
+          );
         }}
         onChange={(activeSections) => {
-          setActiveSections(activeSections)
+          setActiveSections(activeSections);
         }}
         activeSections={activeSections}
       />
     </ThemedScrollView>
-  )
+  );
 }

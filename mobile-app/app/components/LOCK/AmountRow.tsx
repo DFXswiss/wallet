@@ -24,6 +24,7 @@ interface AmountForm {
   staking: StakingOutputDto;
   balance?: StakingBalance;
   showMinDeposit?: boolean;
+  smallTopMargin?: boolean;
 }
 
 export function AmountRow({
@@ -35,6 +36,7 @@ export function AmountRow({
   staking,
   balance,
   showMinDeposit,
+  smallTopMargin,
 }: AmountForm): JSX.Element {
   const reservedDFI = 0.1;
   const DFIUtxo = useSelector((state: RootState) => DFIUtxoSelector(state.wallet));
@@ -70,7 +72,9 @@ export function AmountRow({
           <ThemedView
             dark={tailwind('bg-transparent')}
             light={tailwind('bg-transparent')}
-            style={tailwind('flex-row w-full mt-8')}
+            style={tailwind('flex-row w-full mt-8', {
+              'mt-2': smallTopMargin,
+            })}
           >
             <WalletTextInput
               autoCapitalize="none"
@@ -129,6 +133,7 @@ export function AmountRow({
           content={'' + minDeposit}
           suffix={` ${token?.displaySymbol}`}
           withoutTopMargins
+          withoutBottomMargins
           lock
         />
       )}

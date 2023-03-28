@@ -50,6 +50,8 @@ export interface DFXAPIContextI {
   isNotAllowedInCountry: boolean;
   LOCKisNotAllowedInCountry: boolean;
   getUnavailableServices: () => string;
+  hasVerifiedBackup?: boolean;
+  verifiedBackup: () => void;
 }
 
 const DFXAPIContext = createContext<DFXAPIContextI>(undefined as any);
@@ -72,6 +74,8 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   const [isNotAllowedInCountry, setIsNotAllowedInCountry] = useState(false);
   const [LOCKisNotAllowedInCountry, LOCKsetIsNotAllowedInCountry] = useState(false);
+
+  const [hasVerifiedBackup, setHasVerifiedBackup] = useState(true);
 
   const openKycLink = async (): Promise<void> => {
     const user = await getUser();
@@ -129,12 +133,12 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   // returns webtoken string of current active Wallet address
   const getActiveWebToken = async (): Promise<string> => {
-    let webToken = await DFXPersistence.getToken(address).catch(() => {});
-    Logging.info(`${address} has token? ${webToken === undefined || webToken.length === 0 ? 'no' : 'yes'}`);
+    let webToken = await DFXPersistence.getToken(debouncedAddress).catch(() => {});
+    const isExpired = await isSessionExpired();
 
-    if (webToken === undefined || webToken.length === 0) {
-      await createWebToken(address);
-      webToken = await DFXPersistence.getToken(address);
+    if (webToken === undefined || webToken.length === 0 || isExpired) {
+      await createWebToken(debouncedAddress);
+      webToken = await DFXPersistence.getToken(debouncedAddress);
     }
 
     if (webToken !== undefined) {
@@ -145,7 +149,7 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   // check if Web session is expired
   const isSessionExpired = async (): Promise<boolean> => {
-    const session = await AuthService.Session();
+    const session = await AuthService.getSession();
     Logging.info(`isSessionExpired ${session.isExpired}`);
     return session.isExpired;
   };
@@ -239,7 +243,7 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
 
   // start sign in/up process and set web token to pair
   const createWebToken = async (address: string): Promise<void> => {
-    if (isNotAllowedInCountry) return;
+    if (isNotAllowedInCountry || address?.length === 0) return;
 
     const pair = await DFXPersistence.getPair(address).catch(() => {
       return { addr: address, signature: undefined };
@@ -283,6 +287,11 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
               await DFXPersistence.setToken(pair.addr, respWithToken);
             })
             .catch(async (resp) => {
+              if (resp.statusCode === 403) {
+                setIsNotAllowedInCountry(true);
+                return '';
+              }
+
               if (resp.message !== undefined) {
                 throw new Error(resp.message);
               }
@@ -339,6 +348,11 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
               return accessToken;
             })
             .catch(async (resp) => {
+              if (resp.statusCode === 403) {
+                LOCKsetIsNotAllowedInCountry(true);
+                return '';
+              }
+
               if (resp.message !== undefined) {
                 throw new Error(resp.message);
               }
@@ -389,6 +403,11 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
     LOCKisNotAllowedInCountry,
     getUnavailableServices: () =>
       isNotAllowedInCountry && LOCKisNotAllowedInCountry ? 'DFX & LOCK' : LOCKisNotAllowedInCountry ? 'LOCK' : 'DFX',
+    hasVerifiedBackup,
+    verifiedBackup: () => {
+      setHasVerifiedBackup(true);
+      DFXPersistence.verifiedBackup();
+    },
   };
 
   // observe address state change
@@ -425,6 +444,10 @@ export function DFXAPIContextProvider(props: PropsWithChildren): JSX.Element | n
     }
     getActiveWebToken().catch(() => {});
   }, [debouncedNetworkName]);
+
+  useEffect(() => {
+    DFXPersistence.hasVerifiedBackup().then(setHasVerifiedBackup);
+  }, []);
 
   AuthService.setHookAccessor(context);
 

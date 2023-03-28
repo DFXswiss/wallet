@@ -1,8 +1,8 @@
-import { render } from '@testing-library/react-native'
+import { render } from '@testing-library/react-native';
 
-import { WalletAccordionV2 } from './WalletAccordionV2'
+import { WalletAccordionV2 } from './WalletAccordionV2';
 
-jest.mock('@shared-contexts/ThemeProvider')
+jest.mock('@shared-contexts/ThemeProvider');
 
 describe('wallet accordion', () => {
   it('should render', async () => {
@@ -11,18 +11,21 @@ describe('wallet accordion', () => {
         content={[
           {
             title: 'foo',
-            content: [{
-              text: 'foo',
-              type: 'paragraph'
-            }, {
-              text: 'bar',
-              type: 'bullet'
-            }]
-          }
+            content: [
+              {
+                text: 'foo',
+                type: 'paragraph',
+              },
+              {
+                text: 'bar',
+                type: 'bullet',
+              },
+            ],
+          },
         ]}
-        title='foo'
-      />
-    )
-    expect(rendered.toJSON()).toMatchSnapshot()
-  })
-})
+        title="foo"
+      />,
+    );
+    expect(rendered.toJSON()).toMatchSnapshot();
+  });
+});
