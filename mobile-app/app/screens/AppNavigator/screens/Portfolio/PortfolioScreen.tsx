@@ -497,7 +497,7 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
     fetchBalances();
     setLockRefetchTrigger((value) => !value);
     setRefreshing(false);
-  }, [address, client, dispatch]);
+  }, [address, client, dispatch, fetchBalances]);
 
   return (
     <View ref={containerRef} style={tailwind('flex-1')}>

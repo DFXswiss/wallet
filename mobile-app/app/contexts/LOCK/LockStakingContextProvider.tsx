@@ -20,6 +20,7 @@ import {
   LOCKgetBalance,
 } from '@shared-api/dfx/ApiService';
 import { Asset } from '@shared-api/dfx/models/Asset';
+import { useDFXAPIContext } from '@shared-contexts/DFXAPIContextProvider';
 import { useWalletContext } from '@shared-contexts/WalletContext';
 import { RootState } from '@store';
 import { firstTransactionSelector } from '@store/ocean';
@@ -72,6 +73,7 @@ export function useLockStakingContext(): LockStakingInterface {
 export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.Element {
   const [isLoading, setIsLoading] = useState(true);
   const { address } = useWalletContext();
+  const { debouncedAddress } = useDFXAPIContext();
 
   const [balances, setBalances] = useState<StakingBalanceOutput[]>();
   const { denominationCurrency } = useDenominationCurrency();
@@ -159,11 +161,11 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
 
   useEffect(() => {
     fetchBalances();
-  }, [address]);
+  }, [debouncedAddress]);
 
   async function fetchBalances(): Promise<void> {
-    address &&
-      LOCKgetBalance(address)
+    debouncedAddress &&
+      LOCKgetBalance(debouncedAddress)
         .then(setBalances)
         .catch((e) => {
           setBalances([]);
