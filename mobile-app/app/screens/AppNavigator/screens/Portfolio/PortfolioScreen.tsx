@@ -60,7 +60,7 @@ export interface PortfolioRowToken extends WalletToken {
 export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const { isNotAllowedInCountry, LOCKisNotAllowedInCountry, getUnavailableServices, hasVerifiedBackup } =
     useDFXAPIContext();
-  const { totalBalance, fetchBalances } = useLockStakingContext();
+  const { balances, fetchBalances } = useLockStakingContext();
   const { isLight } = useThemeContext();
   const isFocused = useIsFocused();
   const height = useBottomTabBarHeight();
@@ -86,8 +86,15 @@ export function PortfolioScreen({ navigation }: Props): JSX.Element {
   const ref = useRef(null);
   useScrollToTop(ref);
 
-  const staked = useMemo(() => totalBalance?.toNumber() ?? 0, [totalBalance]);
-  const hasFetchedStakingBalance = useMemo(() => Boolean(totalBalance), [totalBalance]);
+  const staked = useMemo(
+    () =>
+      balances
+        ?.map((balance) => getTokenPrice(balance.asset, new BigNumber(balance.balance), false))
+        .reduce((prev, curr) => prev.plus(curr), new BigNumber(0))
+        .toNumber() ?? 0,
+    [balances, denominationCurrency, getTokenPrice],
+  );
+  const hasFetchedStakingBalance = useMemo(() => Boolean(balances), [balances]);
 
   useEffect(() => {
     if (isNotAllowedInCountry || LOCKisNotAllowedInCountry) {
