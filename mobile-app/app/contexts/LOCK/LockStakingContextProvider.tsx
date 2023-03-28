@@ -156,7 +156,7 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
       balances
         ?.map((balance) => denominatedTokenPrice.getTokenPrice(balance.asset, new BigNumber(balance.balance), false))
         .reduce((prev, curr) => prev.plus(curr), new BigNumber(0)),
-    [balances, denominationCurrency],
+    [balances, denominationCurrency, denominatedTokenPrice],
   );
 
   useEffect(() => {
