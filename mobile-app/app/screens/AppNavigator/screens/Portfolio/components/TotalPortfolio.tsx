@@ -48,17 +48,12 @@ export function TotalPortfolio(props: TotalPortfolioProps): JSX.Element {
   const [isExpanded, setIsExpanded] = useState<boolean>(false);
   const denominationCurrency = props.portfolioButtonGroupOptions?.activePortfolioButtonGroup; // for 'BTC' or 'DFI' denomination
 
-  // staking amount
-  const { getTokenPrice } = useTokenPrice(denominationCurrency);
-  const DFIUnified = useSelector((state: RootState) => unifiedDFISelector(state.wallet));
-  const stakedValueForSelectedCurrency = getTokenPrice(DFIUnified.symbol, new BigNumber(props.staked));
-
   const totalPortfolioValue = BigNumber.max(
     0,
     new BigNumber(props.totalAvailableValue)
       .plus(props.totalLockedValue)
       .minus(props.totalLoansValue)
-      .plus(stakedValueForSelectedCurrency),
+      .plus(props.staked),
   );
 
   return (
@@ -177,7 +172,7 @@ export function TotalPortfolio(props: TotalPortfolioProps): JSX.Element {
               testId="total_staked_usd_amount"
               isLoading={!props.hasFetchedStakingBalance}
               label={translate('screens/PortfolioScreen', 'deposited @ LOCK')}
-              value={stakedValueForSelectedCurrency}
+              value={new BigNumber(props.staked)}
               isAddition
               denominationCurrency={denominationCurrency}
             />
