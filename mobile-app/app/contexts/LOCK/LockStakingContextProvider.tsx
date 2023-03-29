@@ -33,8 +33,8 @@ interface LockStakingInterface {
   isLoading: boolean;
   fetch: () => Promise<void>;
 
+  balances?: StakingBalanceOutput[];
   fetchBalances: () => Promise<void>;
-  totalBalance?: BigNumber;
 
   activeTab: LockStakingTab;
   setActiveTab: (tab: LockStakingTab) => void;
@@ -151,14 +151,6 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     await LOCKgetAssets().then(setAssets).catch(WalletAlertErrorApi);
   }
 
-  const totalBalance = useMemo(
-    () =>
-      balances
-        ?.map((balance) => denominatedTokenPrice.getTokenPrice(balance.asset, new BigNumber(balance.balance), false))
-        .reduce((prev, curr) => prev.plus(curr), new BigNumber(0)),
-    [balances, denominationCurrency, denominatedTokenPrice],
-  );
-
   useEffect(() => {
     fetchBalances();
   }, [debouncedAddress]);
@@ -167,9 +159,8 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     debouncedAddress &&
       LOCKgetBalance(debouncedAddress)
         .then(setBalances)
-        .catch((e) => {
+        .catch(() => {
           setBalances([]);
-          WalletAlertErrorApi(e);
         });
   }
 
@@ -281,8 +272,8 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
   const context: LockStakingInterface = {
     isLoading,
     fetch,
+    balances,
     fetchBalances,
-    totalBalance,
     activeTab,
     setActiveTab,
     info,
