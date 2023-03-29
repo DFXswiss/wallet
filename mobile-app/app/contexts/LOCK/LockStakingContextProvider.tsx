@@ -159,9 +159,8 @@ export function LockStakingContextProvider(props: PropsWithChildren<any>): JSX.E
     debouncedAddress &&
       LOCKgetBalance(debouncedAddress)
         .then(setBalances)
-        .catch((e) => {
+        .catch(() => {
           setBalances([]);
-          WalletAlertErrorApi(e);
         });
   }
 
