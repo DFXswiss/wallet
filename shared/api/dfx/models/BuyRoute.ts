@@ -45,12 +45,8 @@ export interface BuyPaymentInfoDto {
   refBonus: number;
   remittanceInfo: string;
   sepaInstant: boolean;
-  minDeposits: [
-    {
-      amount: number;
-      asset: string;
-    },
-  ];
+  minFee: number;
+  minVolume: number;
 }
 
 export const fromBuyRouteDto = (route: BuyRouteDto): BuyRoute => ({
