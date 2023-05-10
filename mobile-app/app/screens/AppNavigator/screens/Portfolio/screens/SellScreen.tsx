@@ -77,7 +77,8 @@ export function SellScreen({ route, navigation }: Props): JSX.Element {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [matchedAddress, setMatchedAddress] = useState<LocalAddress>();
   const dispatch = useAppDispatch();
-  const [fee, setFee] = useState<number>(2.9);
+  const [fee, setFee] = useState<number>();
+  const [minFee, setMinFee] = useState<number>();
   const [depositAddress, setDepositAddress] = useState<string>();
   const [dexFee, setDexFee] = useState<string>('0');
   const hasPendingJob = useSelector((state: RootState) => hasTxQueued(state.transactionQueue));
@@ -245,6 +246,7 @@ export function SellScreen({ route, navigation }: Props): JSX.Element {
     sellWithPaymentInfos(paymentInfos)
       .then((sellPaymentInfo) => {
         setFee(sellPaymentInfo.fee);
+        setMinFee(sellPaymentInfo.minFee);
         setDepositAddress(sellPaymentInfo.depositAddress);
       })
       .catch(WalletAlertErrorApi)
@@ -505,9 +507,15 @@ export function SellScreen({ route, navigation }: Props): JSX.Element {
                             <>
                               <InfoRow
                                 type={InfoType.DfxFee}
-                                value={fee.toString()} // TODO: (thabrad) check if still valid after merge !!
+                                value={fee ?? '-'}
                                 testID="fiat_fee"
-                                suffix="%"
+                                suffix={
+                                  fee != null
+                                    ? minFee && minFee > 0
+                                      ? `%  (min. ${minFee} ${selectedToken?.displaySymbol})`
+                                      : '%'
+                                    : undefined
+                                }
                                 containerStyle={{
                                   style: tailwind('py-2 flex-row items-start w-full'),
                                   dark: tailwind(''),
