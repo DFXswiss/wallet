@@ -178,7 +178,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
 
   return (
     <ThemedScrollView style={tailwind('px-8 pt-2 flex flex-1 w-full relative')} testID="receive_screen">
-      {
+      {/* {
         // crypto tab switch
         route.params?.crypto === undefined ? (
           <View style={tailwind('pt-2 self-center')}>
@@ -201,7 +201,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
           <BtcTodBtc style={tailwind('self-center')} />
         )
         // if route.params?.crypto === undefined, then show bitcoin svg
-      }
+      } */}
       <ThemedText style={tailwind('p-4 font-medium text-base text-center')}>
         {activeButton === CryptoButtonGroupTabKey.DFI
           ? translate('screens/ReceiveScreen', 'Use QR or Wallet Address to receive any DST or DFI')
