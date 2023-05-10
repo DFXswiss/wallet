@@ -40,12 +40,8 @@ export interface GetSellPaymentInfoDto {
 export interface SellPaymentInfoDto {
   fee: number;
   depositAddress: string;
-  minDeposits: [
-    {
-      amount: number;
-      asset: string;
-    },
-  ];
+  minFee: number;
+  minVolume: number;
 }
 
 export const fromSellRouteDto = (route: SellRouteDto): SellRoute => ({

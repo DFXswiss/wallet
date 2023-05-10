@@ -65,8 +65,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
   const [bitcoinAddress, setBitcoinAddress] = useState('');
   const activeAddress = activeButton === CryptoButtonGroupTabKey.DFI ? address : bitcoinAddress;
   const [isLoading, setIsLoading] = useState(false);
-  const defaultFee = 1.2;
-  const [fee, setFee] = useState(defaultFee);
+  const [fee, setFee] = useState<number>();
   const [minFee, setMinFee] = useState<{ amount: number; asset: string }>();
   const { openKycLink } = useDFXAPIContext();
   const [showToast, setShowToast] = useState(false);
@@ -137,7 +136,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
       if (route != null) {
         // if route exists, get bitcoin address and set state
         setBitcoinAddress(route?.deposit?.address ?? '');
-        setFee(route?.fee ?? defaultFee);
+        setFee(route.fee);
         setMinFee(route?.minFee);
         setIsLoading(false);
       } else {
@@ -151,7 +150,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
           postCryptoRoute(cryptoRoute)
             .then((route) => {
               setBitcoinAddress(route?.deposit?.address ?? '');
-              setFee(route?.fee ?? defaultFee);
+              setFee(route.fee);
               setMinFee(route?.minFee);
             })
             .catch((error) => {
@@ -349,9 +348,15 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
               />
               <InfoRow
                 type={InfoType.BtcFee}
-                value={fee}
+                value={fee ?? '-'}
                 testID="fiat_fee"
-                suffix={minFee && minFee.amount > 0 ? `%  (min. ${minFee.amount} ${minFee.asset})` : '%'}
+                suffix={
+                  fee != null
+                    ? minFee && minFee.amount > 0
+                      ? `%  (min. ${minFee.amount} ${minFee.asset})`
+                      : '%'
+                    : undefined
+                }
               />
               <View style={tailwind('mb-6')} />
             </>
