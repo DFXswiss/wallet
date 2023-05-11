@@ -123,19 +123,18 @@ export function DfxButtons(): JSX.Element {
         if (isAllowed()) checkUserProfile('Sell');
       },
     },
-    {
-      Svg: BtcIcon,
-      label: 'Deposit Bitcoin',
-      onPress: () => {
-        // TODO: (thabrad) maybe will need to do kycCheck here in future
-        if (isAllowed())
-          navigation.navigate({
-            name: 'ReceiveDTokenScreen',
-            params: { crypto: CryptoButtonGroupTabKey.BTC },
-            merge: true,
-          });
-      },
-    },
+    // {
+    //   Svg: BtcIcon,
+    //   label: 'Deposit Bitcoin',
+    //   onPress: () => {
+    //     if (isAllowed())
+    //       navigation.navigate({
+    //         name: 'ReceiveDTokenScreen',
+    //         params: { crypto: CryptoButtonGroupTabKey.BTC },
+    //         merge: true,
+    //       });
+    //   },
+    // },
     {
       Svg: DfxIcon,
       label: 'My DFX',

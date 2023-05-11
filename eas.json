@@ -13,7 +13,7 @@
     "production": {
       "releaseChannel": "production",
       "ios": {
-        "resourceClass": "m1-medium"
+        "resourceClass": "m-medium"
       }
     }
   },

@@ -10,6 +10,8 @@ export interface CryptoRoute {
   id: string;
   active: boolean;
   fee: number;
+  minFee: { amount: number; asset: string };
+  minDeposits: { amount: number; asset: string }[];
   blockchain: Blockchain;
   deposit?: Deposit;
   asset?: Asset;
