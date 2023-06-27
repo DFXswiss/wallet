@@ -287,7 +287,11 @@ export function BuyScreen({ route, navigation }: Props): JSX.Element {
 
       buyWithPaymentInfos(paymentInfos)
         .then((buyPaymentInfo) => {
-          const transactionDetails = { token: token.displaySymbol, iban: paymentInfos.iban };
+          const transactionDetails = {
+            token: token.displaySymbol,
+            iban: paymentInfos.iban,
+            currency: selectedFiat.name,
+          };
           navigation.navigate('BuyConfirmationScreen', { buyPaymentInfo, transactionDetails });
         })
         .catch(WalletAlertErrorApi)
@@ -479,7 +483,7 @@ function AmountRow({ control, onAmountChange, onClearButtonPress }: AmountForm):
     // decimal places > 2 => rounding
     // minValue 1
     return onAmountChange(
-      roundedAmount.toString() === 'NaN' ? '' : amountBN.decimalPlaces() > 2 ? roundedAmount : amount,
+      roundedAmount.toString() === 'NaN' ? '' : (amountBN?.decimalPlaces() ?? 0) > 2 ? roundedAmount : amount,
     );
   };
 

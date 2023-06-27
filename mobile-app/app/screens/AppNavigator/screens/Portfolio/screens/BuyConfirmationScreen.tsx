@@ -46,7 +46,13 @@ export function BuyConfirmationScreen({ route, navigation }: Props): JSX.Element
   const transactionDetailList: ListItemProps[] = [
     { title: 'You are buying', detail: route.params.transactionDetails.token },
     { title: 'Your IBAN', detail: route.params.transactionDetails.iban },
-    { title: 'Transaction Fee', detail: `${buyPaymentInfo.fee}%` },
+    {
+      title: 'Transaction Fee',
+      detail:
+        buyPaymentInfo.minFee > 0
+          ? `${buyPaymentInfo.fee}% (min. ${buyPaymentInfo.minFee} ${route.params.transactionDetails.currency})`
+          : `${buyPaymentInfo.fee}%`,
+    },
   ];
 
   return (

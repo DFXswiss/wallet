@@ -67,7 +67,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
   const [isLoading, setIsLoading] = useState(false);
   const defaultFee = 1.2;
   const [fee, setFee] = useState(defaultFee);
-  const [refBonus, setRefBonus] = useState(0);
+  const [minFee, setMinFee] = useState<{ amount: number; asset: string }>();
   const { openKycLink } = useDFXAPIContext();
   const [showToast, setShowToast] = useState(false);
   const toast = useToast();
@@ -103,6 +103,8 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
     blockchain: Blockchain.BITCOIN,
     id: '',
     fee: 0,
+    minFee: { amount: 0, asset: '' },
+    minDeposits: [],
     volume: 0,
     annualVolume: 0,
     refBonus: 0,
@@ -136,7 +138,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
         // if route exists, get bitcoin address and set state
         setBitcoinAddress(route?.deposit?.address ?? '');
         setFee(route?.fee ?? defaultFee);
-        setRefBonus(route?.refBonus ?? 0);
+        setMinFee(route?.minFee);
         setIsLoading(false);
       } else {
         // if route doesn't exist, automatically create a bitcoin route
@@ -150,7 +152,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
             .then((route) => {
               setBitcoinAddress(route?.deposit?.address ?? '');
               setFee(route?.fee ?? defaultFee);
-              setRefBonus(route?.refBonus ?? 0);
+              setMinFee(route?.minFee);
             })
             .catch((error) => {
               logger.error(error);
@@ -349,9 +351,7 @@ export function ReceiveDTokenScreen({ route, navigation }: Props): JSX.Element {
                 type={InfoType.BtcFee}
                 value={fee}
                 testID="fiat_fee"
-                suffix={
-                  refBonus !== 0 ? `%  (${refBonus.toString()}% ${translate('ReceiveDTokenScreen', 'Ref bonus')})` : '%'
-                }
+                suffix={minFee && minFee.amount > 0 ? `%  (min. ${minFee.amount} ${minFee.asset})` : '%'}
               />
               <View style={tailwind('mb-6')} />
             </>
